@@ -11,14 +11,18 @@
   var emptyState = document.getElementById('emptyState');
   var categoryFilters = document.getElementById('categoryFilters');
 
-  // 2. Ensure rules.js loaded
-  if (typeof RULES_DATA === 'undefined') {
-    console.error('rules.js not loaded — ensure <script src="rules.js"> comes before app.js');
+  if (!rulesGrid || !searchInput || !resultCount || !emptyState || !categoryFilters) {
+    console.error('Required DOM elements missing — check index.html IDs');
     return;
   }
 
+  // 2. Read rules data from rules.js
+  var allRules = Array.isArray(window.RULES_DATA) ? window.RULES_DATA : [];
+  if (allRules.length === 0) {
+    console.warn('No rules loaded — ensure rules.js defines window.RULES_DATA before app.js');
+  }
+
   // 3. Filter state
-  var allRules = RULES_DATA;
   var activeFilter = 'All';
   var searchQuery = '';
 
@@ -52,19 +56,23 @@
   }
 
   // Match rule against category, framework, or tags (case-insensitive)
+  function safeStr(value) {
+    return value == null ? '' : String(value);
+  }
+
   function fieldMatches(rule, term) {
     var q = term.toLowerCase();
 
-    if (rule.category && rule.category.toLowerCase().indexOf(q) !== -1) {
+    if (safeStr(rule.category).toLowerCase().indexOf(q) !== -1) {
       return true;
     }
 
-    if (rule.framework && rule.framework.toLowerCase().indexOf(q) !== -1) {
+    if (safeStr(rule.framework).toLowerCase().indexOf(q) !== -1) {
       return true;
     }
 
     return (rule.tags || []).some(function (tag) {
-      return tag.toLowerCase().indexOf(q) !== -1;
+      return safeStr(tag).toLowerCase().indexOf(q) !== -1;
     });
   }
 
@@ -103,7 +111,7 @@
         rule.description,
         (rule.tags || []).join(' '),
         rule.content
-      ].join(' ').toLowerCase();
+      ].map(safeStr).join(' ').toLowerCase();
 
       var matchSearch = searchText.indexOf(q) !== -1;
       return matchFilter && matchSearch;
@@ -136,20 +144,20 @@
 
   // Build HTML for a single rule card
   function createRuleCard(rule) {
-    var tagsHtml = rule.tags.map(function (tag) {
+    var tagsHtml = (rule.tags || []).map(function (tag) {
       return '<span class="text-xs px-2 py-0.5 rounded bg-gray-800/80 text-gray-500 border border-gray-700/50">' +
         escapeHtml(tag) + '</span>';
     }).join('');
 
     return (
-      '<article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full" data-id="' + escapeHtml(rule.id) + '">' +
-        '<h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">' + escapeHtml(rule.title) + '</h2>' +
+      '<article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full" data-id="' + escapeHtml(safeStr(rule.id)) + '">' +
+        '<h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">' + escapeHtml(safeStr(rule.title)) + '</h2>' +
         '<ul class="text-sm text-gray-400 space-y-1 mb-3">' +
-          '<li><span class="text-gray-500">Tool:</span> ' + escapeHtml(rule.tool) + '</li>' +
-          '<li><span class="text-gray-500">Category:</span> ' + escapeHtml(rule.category) + '</li>' +
-          '<li><span class="text-gray-500">Framework:</span> ' + escapeHtml(rule.framework) + '</li>' +
+          '<li><span class="text-gray-500">Tool:</span> ' + escapeHtml(safeStr(rule.tool)) + '</li>' +
+          '<li><span class="text-gray-500">Category:</span> ' + escapeHtml(safeStr(rule.category)) + '</li>' +
+          '<li><span class="text-gray-500">Framework:</span> ' + escapeHtml(safeStr(rule.framework)) + '</li>' +
         '</ul>' +
-        '<p class="text-gray-400 text-sm leading-relaxed flex-1 mb-4">' + escapeHtml(rule.description) + '</p>' +
+        '<p class="text-gray-400 text-sm leading-relaxed flex-1 mb-4">' + escapeHtml(safeStr(rule.description)) + '</p>' +
         '<div class="flex flex-wrap gap-1.5 mb-5">' + tagsHtml + '</div>' +
         '<button type="button" class="btn-copy w-full py-3 px-4 min-h-[44px] rounded-lg text-white font-semibold text-sm mt-auto" data-copy-id="' + escapeHtml(rule.id) + '">' +
           'Copy Rule' +
@@ -169,10 +177,12 @@
     if (filtered.length === 0) {
       rulesGrid.innerHTML = '';
       emptyState.classList.remove('hidden');
+      emptyState.setAttribute('aria-hidden', 'false');
       return;
     }
 
     emptyState.classList.add('hidden');
+    emptyState.setAttribute('aria-hidden', 'true');
 
     var cardsHtml = '';
     filtered.forEach(function (rule) {
@@ -209,12 +219,17 @@
     }
 
     // Prefer modern Clipboard API
+    var textToCopy = safeStr(rule.content);
+    if (!textToCopy) {
+      return;
+    }
+
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(rule.content).then(onSuccess).catch(function () {
-        fallbackCopy(rule.content, btn, onSuccess);
+      navigator.clipboard.writeText(textToCopy).then(onSuccess).catch(function () {
+        fallbackCopy(textToCopy, btn, onSuccess);
       });
     } else {
-      fallbackCopy(rule.content, btn, onSuccess);
+      fallbackCopy(textToCopy, btn, onSuccess);
     }
   }
 

@@ -1,0 +1,72 @@
+# AI Agent Dock
+
+**AI Agent Dock** is a static, SEO-friendly directory of ready-to-use AI coding rules for [Cursor](https://cursor.com), [Windsurf](https://codeium.com/windsurf), and other AI-powered editors. Browse, search, filter, and copy rules for popular stacks like Next.js, Python, Supabase, Tailwind, FastAPI, Docker, and more.
+
+Live site: [https://ai-agentdock.com/](https://ai-agentdock.com/)
+
+## Project structure
+
+| File | Purpose |
+|------|---------|
+| `index.html` | Homepage — search, filters, rule grid, SEO content |
+| `rules.js` | Rule data (`window.RULES_DATA` array) |
+| `app.js` | Renders rules, handles search/filter/copy |
+| `styles.css` | Custom styles (dark theme) |
+| `about.html` | About page |
+| `privacy.html` | Privacy policy |
+| `submit.html` | Rule submission info |
+| `sitemap.xml` | Sitemap for search engines |
+| `robots.txt` | Crawler directives |
+| `favicon.svg` | Site favicon |
+
+## How to add a new rule
+
+1. Open `rules.js`.
+2. Add a new object to the `window.RULES_DATA` array with these fields:
+
+```javascript
+{
+  id: 'unique-slug',
+  title: 'Rule Title',
+  tool: 'Cursor',           // or 'Windsurf'
+  category: 'Frontend',     // e.g. Backend, Fullstack, Mobile
+  framework: 'Next.js',
+  description: 'One-line summary.',
+  tags: ['Next.js', 'React'],
+  content: `# Rule Title\n\nMarkdown rule content here...`
+}
+```
+
+3. Add a matching entry to the static "Available Rules Directory" section in `index.html` for crawler-friendly SEO.
+4. Test locally (see below) — the new rule should appear in the grid immediately.
+
+## Local development
+
+Serve the project root with any static file server:
+
+```bash
+npx serve .
+# or
+python -m http.server 8080
+```
+
+Open `http://localhost:8080` and verify rule cards render, search/filter work, and the copy button succeeds.
+
+## Deploy to Cloudflare Pages
+
+1. Push this repository to GitHub (or GitLab / Bitbucket).
+2. In the [Cloudflare dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
+3. Select the repository and configure:
+   - **Build command:** *(leave empty — static site)*
+   - **Build output directory:** `/` (project root)
+4. Deploy. Cloudflare serves `index.html`, `rules.js`, `app.js`, and other files directly from the root.
+5. Add your custom domain (`ai-agentdock.com`) under **Custom domains** in the Pages project settings.
+
+No build step is required. Changes to `rules.js` or `index.html` go live on the next deploy (automatic on push if connected to Git).
+
+## SEO checklist
+
+- Canonical URLs and Open Graph tags point to `https://ai-agentdock.com/`
+- `sitemap.xml` lists all public pages
+- `robots.txt` allows crawling and references the sitemap
+- Static HTML rule directory in `index.html` provides crawler-friendly content without JavaScript

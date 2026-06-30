@@ -11,7 +11,7 @@
  *   tags        搜索标签
  *   content     规则正文（Markdown）
  */
-const RULES_DATA = [
+window.RULES_DATA = [
   {
     id: 'nextjs-fullstack',
     title: 'Next.js Full-Stack Development Rules',
