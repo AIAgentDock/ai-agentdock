@@ -1,52 +1,79 @@
 /**
- * On page load, read RULES_DATA from rules.js and render into #rulesGrid
+ * Render RULES_DATA into #rulesGrid with Tool → Category → Framework filters.
  */
 (function () {
   'use strict';
 
-  // 1. DOM elements
+  var TAXONOMY = window.FILTER_TAXONOMY || {};
+  var TOOL_KEYS = ['cursor', 'windsurf', 'universal'];
+
   var rulesGrid = document.getElementById('rulesGrid');
   var searchInput = document.getElementById('searchInput');
   var resultCount = document.getElementById('resultCount');
   var emptyState = document.getElementById('emptyState');
-  var categoryFilters = document.getElementById('categoryFilters');
+  var toolFilter = document.getElementById('toolFilter');
+  var categoryFilter = document.getElementById('categoryFilter');
+  var frameworkFilter = document.getElementById('frameworkFilter');
+  var resetFiltersBtn = document.getElementById('resetFilters');
 
-  if (!rulesGrid || !searchInput || !resultCount || !emptyState || !categoryFilters) {
+  if (!rulesGrid || !searchInput || !resultCount || !emptyState ||
+      !toolFilter || !categoryFilter || !frameworkFilter || !resetFiltersBtn) {
     console.error('Required DOM elements missing — check index.html IDs');
     return;
   }
 
-  // 2. Read rules data from rules.js
   var allRules = Array.isArray(window.RULES_DATA) ? window.RULES_DATA : [];
   if (allRules.length === 0) {
     console.warn('No rules loaded — ensure rules.js defines window.RULES_DATA before app.js');
   }
 
-  // 3. Filter state
-  var activeFilter = 'All';
-  var searchQuery = '';
-
-  var FILTER_OPTIONS = [
-    'All',
-    'Cursor',
-    'Windsurf',
-    'Frontend',
-    'Backend',
-    'Fullstack',
-    'SaaS',
-    'Python',
-    'Next.js',
-    'React',
-    'Supabase'
-  ];
-
-  var FILTER_CATEGORY_MAP = {
-    Frontend: 'Frontend',
-    Backend: 'Backend',
-    Fullstack: 'Fullstack'
+  var filterState = {
+    tool: 'all',
+    category: 'all',
+    framework: 'all',
+    search: ''
   };
 
-  // Escape special characters for safe HTML output (XSS prevention)
+  var RULE_CATEGORY_OVERRIDES = {
+    'python-scraper': 'backend',
+    'supabase-db': 'database',
+    'react-native': 'frontend',
+    'rust-systems': 'backend',
+    'ai-ml-python': 'ai',
+    'typescript-general': 'quality'
+  };
+
+  var FRAMEWORK_ALIASES = {
+    Tailwind: 'Tailwind CSS',
+    'AI/ML': 'OpenAI API',
+    Python: 'Python'
+  };
+
+  var CATEGORY_LABEL_TO_KEY = {
+    fullstack: 'fullstack',
+    frontend: 'frontend',
+    'frontend / ui': 'frontend',
+    backend: 'backend',
+    'backend / api': 'backend',
+    database: 'database',
+    'database / orm': 'database',
+    data: 'backend',
+    mobile: 'frontend',
+    systems: 'backend',
+    ai: 'ai',
+    'ai agent / rag': 'ai',
+    testing: 'testing',
+    'testing / qa': 'testing',
+    devops: 'devops',
+    'devops / deployment': 'devops',
+    quality: 'quality',
+    'code quality / security': 'quality',
+    docs: 'docs',
+    'documentation / productivity': 'docs',
+    general: 'general',
+    'general coding': 'general'
+  };
+
   function escapeHtml(text) {
     return String(text)
       .replace(/&/g, '&amp;')
@@ -55,108 +82,304 @@
       .replace(/"/g, '&quot;');
   }
 
-  // Match rule against category, framework, or tags (case-insensitive)
   function safeStr(value) {
     return value == null ? '' : String(value);
   }
 
-  function fieldMatches(rule, term) {
-    var q = term.toLowerCase();
+  function normalizeToolKey(rule) {
+    if (rule.toolKey) {
+      return rule.toolKey.toLowerCase();
+    }
+    var tool = safeStr(rule.tool).toLowerCase();
+    if (tool === 'cursor' || tool === 'windsurf' || tool === 'universal') {
+      return tool;
+    }
+    return 'cursor';
+  }
 
-    if (safeStr(rule.category).toLowerCase().indexOf(q) !== -1) {
+  function getToolLabel(toolKey) {
+    if (toolKey === 'all') {
+      return 'All Tools';
+    }
+    return (TAXONOMY[toolKey] && TAXONOMY[toolKey].label) || toolKey;
+  }
+
+  function normalizeCategoryKey(rule) {
+    if (rule.categoryKey) {
+      return rule.categoryKey.toLowerCase();
+    }
+    if (RULE_CATEGORY_OVERRIDES[rule.id]) {
+      return RULE_CATEGORY_OVERRIDES[rule.id];
+    }
+    var raw = safeStr(rule.category).trim().toLowerCase();
+    if (CATEGORY_LABEL_TO_KEY[raw]) {
+      return CATEGORY_LABEL_TO_KEY[raw];
+    }
+    return raw.replace(/\s+/g, '-');
+  }
+
+  function getCategoryLabel(toolKey, categoryKey) {
+    var tool = TAXONOMY[toolKey];
+    if (tool && tool.categories && tool.categories[categoryKey]) {
+      return tool.categories[categoryKey].label;
+    }
+
+    var keys = filterState.tool === 'all' ? TOOL_KEYS : [toolKey];
+    var i;
+    for (i = 0; i < keys.length; i++) {
+      var entry = TAXONOMY[keys[i]];
+      if (entry && entry.categories && entry.categories[categoryKey]) {
+        return entry.categories[categoryKey].label;
+      }
+    }
+
+    return safeStr(ruleFallbackCategoryLabel(categoryKey));
+  }
+
+  function ruleFallbackCategoryLabel(categoryKey) {
+    return categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1);
+  }
+
+  function normalizeFrameworkName(name) {
+    var value = safeStr(name).trim();
+    if (!value) {
+      return '';
+    }
+    if (FRAMEWORK_ALIASES[value]) {
+      return FRAMEWORK_ALIASES[value];
+    }
+    return value;
+  }
+
+  function getRuleFrameworks(rule) {
+    var raw = rule.frameworks || [rule.framework];
+    var seen = {};
+    var result = [];
+
+    raw.forEach(function (item) {
+      var normalized = normalizeFrameworkName(item);
+      if (normalized && !seen[normalized.toLowerCase()]) {
+        seen[normalized.toLowerCase()] = true;
+        result.push(normalized);
+      }
+    });
+
+    return result;
+  }
+
+  function getAvailableCategories(toolKey) {
+    if (toolKey === 'all') {
+      var merged = {};
+      TOOL_KEYS.forEach(function (key) {
+        var tool = TAXONOMY[key];
+        if (!tool || !tool.categories) {
+          return;
+        }
+        Object.keys(tool.categories).forEach(function (catKey) {
+          merged[catKey] = tool.categories[catKey].label;
+        });
+      });
+      return merged;
+    }
+
+    var selected = TAXONOMY[toolKey];
+    if (!selected || !selected.categories) {
+      return {};
+    }
+
+    var categories = {};
+    Object.keys(selected.categories).forEach(function (catKey) {
+      categories[catKey] = selected.categories[catKey].label;
+    });
+    return categories;
+  }
+
+  function getAvailableFrameworks(toolKey, categoryKey) {
+    var frameworks = [];
+    var seen = {};
+
+    function addFramework(name) {
+      if (name && !seen[name.toLowerCase()]) {
+        seen[name.toLowerCase()] = true;
+        frameworks.push(name);
+      }
+    }
+
+    function collectFromToolCategory(key, catKey) {
+      var tool = TAXONOMY[key];
+      if (!tool || !tool.categories || !tool.categories[catKey]) {
+        return;
+      }
+      tool.categories[catKey].frameworks.forEach(addFramework);
+    }
+
+    if (toolKey === 'all' && categoryKey === 'all') {
+      TOOL_KEYS.forEach(function (key) {
+        var tool = TAXONOMY[key];
+        if (!tool || !tool.categories) {
+          return;
+        }
+        Object.keys(tool.categories).forEach(function (catKey) {
+          collectFromToolCategory(key, catKey);
+        });
+      });
+      return frameworks.sort();
+    }
+
+    if (toolKey === 'all') {
+      TOOL_KEYS.forEach(function (key) {
+        collectFromToolCategory(key, categoryKey);
+      });
+      return frameworks.sort();
+    }
+
+    if (categoryKey === 'all') {
+      var selectedTool = TAXONOMY[toolKey];
+      if (!selectedTool || !selectedTool.categories) {
+        return frameworks;
+      }
+      Object.keys(selectedTool.categories).forEach(function (catKey) {
+        collectFromToolCategory(toolKey, catKey);
+      });
+      return frameworks.sort();
+    }
+
+    collectFromToolCategory(toolKey, categoryKey);
+    return frameworks;
+  }
+
+  function populateSelect(selectEl, options, allLabel) {
+    var html = '<option value="all">' + escapeHtml(allLabel) + '</option>';
+    Object.keys(options).sort(function (a, b) {
+      return options[a].localeCompare(options[b]);
+    }).forEach(function (key) {
+      html += '<option value="' + escapeHtml(key) + '">' + escapeHtml(options[key]) + '</option>';
+    });
+    selectEl.innerHTML = html;
+  }
+
+  function populateFrameworkSelect(frameworks) {
+    var html = '<option value="all">All Frameworks</option>';
+    frameworks.forEach(function (name) {
+      html += '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
+    });
+    frameworkFilter.innerHTML = html;
+  }
+
+  function syncFilterOptions() {
+    var categories = getAvailableCategories(filterState.tool);
+    populateSelect(categoryFilter, categories, 'All Categories');
+
+    if (filterState.category !== 'all' && !categories[filterState.category]) {
+      filterState.category = 'all';
+    }
+    categoryFilter.value = filterState.category;
+
+    var frameworks = getAvailableFrameworks(filterState.tool, filterState.category);
+    populateFrameworkSelect(frameworks);
+
+    if (filterState.framework !== 'all') {
+      var frameworkExists = frameworks.some(function (name) {
+        return name.toLowerCase() === filterState.framework.toLowerCase();
+      });
+      if (!frameworkExists) {
+        filterState.framework = 'all';
+      }
+    }
+    frameworkFilter.value = filterState.framework;
+  }
+
+  function frameworkMatches(rule, selectedFramework) {
+    if (selectedFramework === 'all') {
       return true;
     }
 
-    if (safeStr(rule.framework).toLowerCase().indexOf(q) !== -1) {
-      return true;
+    var target = selectedFramework.toLowerCase();
+    var frameworks = getRuleFrameworks(rule);
+    var i;
+
+    for (i = 0; i < frameworks.length; i++) {
+      if (frameworks[i].toLowerCase() === target) {
+        return true;
+      }
+      if (frameworks[i].toLowerCase().indexOf(target) !== -1 ||
+          target.indexOf(frameworks[i].toLowerCase()) !== -1) {
+        return true;
+      }
     }
 
     return (rule.tags || []).some(function (tag) {
-      return safeStr(tag).toLowerCase().indexOf(q) !== -1;
+      return safeStr(tag).toLowerCase() === target ||
+        safeStr(tag).toLowerCase().indexOf(target) !== -1;
     });
   }
 
-  // Match rule against active filter button
-  function ruleMatchesFilter(rule, filter) {
-    if (filter === 'All') {
+  function ruleMatchesFilters(rule) {
+    var toolKey = normalizeToolKey(rule);
+    var categoryKey = normalizeCategoryKey(rule);
+
+    if (filterState.tool !== 'all' && toolKey !== filterState.tool) {
+      return false;
+    }
+
+    if (filterState.category !== 'all' && categoryKey !== filterState.category) {
+      return false;
+    }
+
+    if (!frameworkMatches(rule, filterState.framework)) {
+      return false;
+    }
+
+    if (!filterState.search) {
       return true;
     }
 
-    if (filter === 'Cursor' || filter === 'Windsurf') {
-      return rule.tool === filter;
-    }
+    var q = filterState.search.toLowerCase();
+    var frameworks = getRuleFrameworks(rule);
+    var searchText = [
+      rule.title,
+      getToolLabel(toolKey),
+      getCategoryLabel(toolKey, categoryKey),
+      frameworks.join(' '),
+      rule.description,
+      (rule.tags || []).join(' '),
+      rule.content
+    ].map(safeStr).join(' ').toLowerCase();
 
-    if (FILTER_CATEGORY_MAP[filter] && rule.category === FILTER_CATEGORY_MAP[filter]) {
-      return true;
-    }
-
-    return fieldMatches(rule, filter);
+    return searchText.indexOf(q) !== -1;
   }
 
-  // Filter rules by search query and active filter
   function getFilteredRules() {
-    return allRules.filter(function (rule) {
-      var matchFilter = ruleMatchesFilter(rule, activeFilter);
-
-      if (!searchQuery) {
-        return matchFilter;
-      }
-
-      var q = searchQuery.toLowerCase();
-      var searchText = [
-        rule.title,
-        rule.tool,
-        rule.category,
-        rule.framework,
-        rule.description,
-        (rule.tags || []).join(' '),
-        rule.content
-      ].map(safeStr).join(' ').toLowerCase();
-
-      var matchSearch = searchText.indexOf(q) !== -1;
-      return matchFilter && matchSearch;
-    });
+    return allRules.filter(ruleMatchesFilters);
   }
 
-  // Render filter buttons
-  function renderFilterButtons() {
-    var html = '';
-
-    FILTER_OPTIONS.forEach(function (filter) {
-      var isActive = filter === activeFilter;
-      html += '<button type="button" class="filter-btn shrink-0 px-4 py-2 min-h-[44px] rounded-lg text-sm font-medium transition-colors';
-      if (isActive) {
-        html += ' active';
-      }
-      html += '" data-filter="' + escapeHtml(filter) + '">' + escapeHtml(filter) + '</button>';
-    });
-
-    categoryFilters.innerHTML = html;
-
-    categoryFilters.querySelectorAll('.filter-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        activeFilter = btn.getAttribute('data-filter');
-        renderFilterButtons();
-        renderRules();
-      });
-    });
+  function renderBadge(text, type) {
+    return '<span class="rule-badge rule-badge--' + type + '">' + escapeHtml(text) + '</span>';
   }
 
-  // Build HTML for a single rule card
   function createRuleCard(rule) {
-    var tagsHtml = (rule.tags || []).map(function (tag) {
+    var toolKey = normalizeToolKey(rule);
+    var categoryKey = normalizeCategoryKey(rule);
+    var frameworks = getRuleFrameworks(rule);
+    var displayFrameworks = frameworks.length ? frameworks : [normalizeFrameworkName(rule.framework)].filter(Boolean);
+
+    var frameworkBadges = displayFrameworks.map(function (fw) {
+      return renderBadge(fw, 'framework');
+    }).join('');
+
+    var tagsHtml = (rule.tags || []).slice(0, 4).map(function (tag) {
       return '<span class="text-xs px-2 py-0.5 rounded bg-gray-800/80 text-gray-500 border border-gray-700/50">' +
         escapeHtml(tag) + '</span>';
     }).join('');
 
     return (
       '<article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full" data-id="' + escapeHtml(safeStr(rule.id)) + '">' +
+        '<div class="flex flex-wrap gap-1.5 mb-3">' +
+          renderBadge(getToolLabel(toolKey), 'tool') +
+          renderBadge(getCategoryLabel(toolKey, categoryKey), 'category') +
+          frameworkBadges +
+        '</div>' +
         '<h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">' + escapeHtml(safeStr(rule.title)) + '</h2>' +
-        '<ul class="text-sm text-gray-400 space-y-1 mb-3">' +
-          '<li><span class="text-gray-500">Tool:</span> ' + escapeHtml(safeStr(rule.tool)) + '</li>' +
-          '<li><span class="text-gray-500">Category:</span> ' + escapeHtml(safeStr(rule.category)) + '</li>' +
-          '<li><span class="text-gray-500">Framework:</span> ' + escapeHtml(safeStr(rule.framework)) + '</li>' +
-        '</ul>' +
         '<p class="text-gray-400 text-sm leading-relaxed flex-1 mb-4">' + escapeHtml(safeStr(rule.description)) + '</p>' +
         '<div class="flex flex-wrap gap-1.5 mb-5">' + tagsHtml + '</div>' +
         '<button type="button" class="btn-copy w-full py-3 px-4 min-h-[44px] rounded-lg text-white font-semibold text-sm mt-auto" data-copy-id="' + escapeHtml(rule.id) + '">' +
@@ -166,13 +389,18 @@
     );
   }
 
-  // Render all rule cards
   function renderRules() {
     var filtered = getFilteredRules();
+    var hasActiveFilters = filterState.tool !== 'all' ||
+      filterState.category !== 'all' ||
+      filterState.framework !== 'all' ||
+      filterState.search;
 
-    resultCount.textContent = filtered.length === allRules.length
-      ? allRules.length + ' rules'
-      : 'Showing ' + filtered.length + ' of ' + allRules.length + ' rules';
+    if (hasActiveFilters) {
+      resultCount.textContent = 'Showing ' + filtered.length + ' rule' + (filtered.length === 1 ? '' : 's');
+    } else {
+      resultCount.textContent = 'Showing ' + allRules.length + ' rules';
+    }
 
     if (filtered.length === 0) {
       rulesGrid.innerHTML = '';
@@ -190,7 +418,6 @@
     });
     rulesGrid.innerHTML = cardsHtml;
 
-    // Bind click handlers to Copy Rule buttons
     rulesGrid.querySelectorAll('[data-copy-id]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         copyRule(btn);
@@ -198,7 +425,6 @@
     });
   }
 
-  // Copy Rule click: copy the content field
   function copyRule(btn) {
     var ruleId = btn.getAttribute('data-copy-id');
     var rule = allRules.find(function (r) {
@@ -218,7 +444,6 @@
       }, 2000);
     }
 
-    // Prefer modern Clipboard API
     var textToCopy = safeStr(rule.content);
     if (!textToCopy) {
       return;
@@ -233,7 +458,6 @@
     }
   }
 
-  // Fallback copy for older browsers
   function fallbackCopy(text, btn, onSuccess) {
     var textarea = document.createElement('textarea');
     textarea.value = text;
@@ -255,13 +479,44 @@
     document.body.removeChild(textarea);
   }
 
-  // Re-render on search input
-  searchInput.addEventListener('input', function (e) {
-    searchQuery = e.target.value.trim();
+  function resetFilters() {
+    filterState.tool = 'all';
+    filterState.category = 'all';
+    filterState.framework = 'all';
+    filterState.search = '';
+    searchInput.value = '';
+    toolFilter.value = 'all';
+    syncFilterOptions();
+    renderRules();
+  }
+
+  toolFilter.addEventListener('change', function () {
+    filterState.tool = toolFilter.value;
+    filterState.category = 'all';
+    filterState.framework = 'all';
+    syncFilterOptions();
     renderRules();
   });
 
-  // Ctrl/Cmd + K focuses the search input
+  categoryFilter.addEventListener('change', function () {
+    filterState.category = categoryFilter.value;
+    filterState.framework = 'all';
+    syncFilterOptions();
+    renderRules();
+  });
+
+  frameworkFilter.addEventListener('change', function () {
+    filterState.framework = frameworkFilter.value;
+    renderRules();
+  });
+
+  searchInput.addEventListener('input', function (e) {
+    filterState.search = e.target.value.trim();
+    renderRules();
+  });
+
+  resetFiltersBtn.addEventListener('click', resetFilters);
+
   document.addEventListener('keydown', function (e) {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
@@ -269,7 +524,6 @@
     }
   });
 
-  // Initial render on page load
-  renderFilterButtons();
+  syncFilterOptions();
   renderRules();
 })();
