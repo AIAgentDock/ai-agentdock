@@ -15,6 +15,36 @@ const SITEMAP = path.join(ROOT, 'sitemap.xml');
 const SITE_URL = 'https://ai-agentdock.com';
 const GITHUB_URL = 'https://github.com/AIAgentDock/ai-agentdock';
 
+function loadSiteConfig() {
+  const content = fs.readFileSync(path.join(ROOT, 'site-config.js'), 'utf8');
+  const sandbox = { window: {} };
+  require('vm').runInNewContext(content, sandbox);
+  return sandbox.window.SITE_CONFIG || {};
+}
+
+function rulePageUrl(ruleId) {
+  return SITE_URL + '/rules/' + ruleId;
+}
+
+function rulePagePath(ruleId) {
+  return 'rules/' + ruleId + '.html';
+}
+
+function verificationMetaHtml(config) {
+  if (!config.googleSiteVerification) {
+    return '';
+  }
+  return '  <meta name="google-site-verification" content="' + escapeHtml(config.googleSiteVerification) + '" />\n';
+}
+
+function analyticsScriptsHtml(depth) {
+  var prefix = depth === 0 ? '' : '../';
+  return (
+    '  <script src="' + prefix + 'site-config.js"></script>\n' +
+    '  <script src="' + prefix + 'analytics.js"></script>\n'
+  );
+}
+
 function loadRules() {
   const content = fs.readFileSync(RULES_JS, 'utf8');
   const sandbox = { window: {} };
@@ -101,7 +131,7 @@ function toolHint(tool) {
   return 'Paste into .cursor/rules/ (or .mdc files) in your project root.';
 }
 
-function generateRulePage(rule) {
+function generateRulePage(rule, config) {
   const tool = escapeHtml(rule.tool || 'Cursor');
   const category = escapeHtml(rule.category || '');
   const framework = escapeHtml(rule.framework || '');
@@ -109,7 +139,7 @@ function generateRulePage(rule) {
   const description = escapeHtml(rule.description || '');
   const content = escapeHtml(rule.content || '');
   const hint = escapeHtml(toolHint(rule.tool));
-  const canonical = SITE_URL + '/rules/' + rule.id + '.html';
+  const canonical = rulePageUrl(rule.id);
   const tags = (rule.tags || []).map(function (t) {
     return '<span class="tag-chip tag-chip--static">' + escapeHtml(t) + '</span>';
   }).join('\n          ');
@@ -124,7 +154,7 @@ function generateRulePage(rule) {
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="${canonical}" />
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
-  <meta property="og:type" content="article" />
+${verificationMetaHtml(config)}${analyticsScriptsHtml(1)}  <meta property="og:type" content="article" />
   <meta property="og:title" content="${title}" />
   <meta property="og:description" content="${description}" />
   <meta property="og:url" content="${canonical}" />
@@ -136,6 +166,7 @@ ${tailwindHead()}
     "headline": ${JSON.stringify(rule.title)},
     "description": ${JSON.stringify(rule.description || '')},
     "url": ${JSON.stringify(canonical)},
+    "mainEntityOfPage": ${JSON.stringify(canonical)},
     "author": { "@type": "Organization", "name": "AI Agent Dock" }
   }
   </script>
@@ -206,7 +237,7 @@ function generateSeoDirectory(rules) {
   const items = rules.map(function (rule) {
     return (
       '        <li>\n' +
-      '          <h3 class="font-semibold text-gray-200"><a href="rules/' + escapeHtml(rule.id) + '.html" class="hover:text-indigo-300 transition-colors">' + escapeHtml(rule.title) + '</a></h3>\n' +
+      '          <h3 class="font-semibold text-gray-200"><a href="' + rulePagePath(rule.id) + '" class="hover:text-indigo-300 transition-colors">' + escapeHtml(rule.title) + '</a></h3>\n' +
       '          <p class="text-gray-500 mt-1">' + escapeHtml(rule.description || '') + '</p>\n' +
       '        </li>'
     );
@@ -241,6 +272,60 @@ function updateIndexSeoDirectory(rules) {
   fs.writeFileSync(INDEX_HTML, html, 'utf8');
 }
 
+function updateItemListSchema(rules) {
+  let html = fs.readFileSync(INDEX_HTML, 'utf8');
+  const startMarker = '<!-- ITEMLIST-SCHEMA:START -->';
+  const endMarker = '<!-- ITEMLIST-SCHEMA:END -->';
+
+  const items = rules.map(function (rule, index) {
+    return (
+      '      {\n' +
+      '        "@type": "ListItem",\n' +
+      '        "position": ' + (index + 1) + ',\n' +
+      '        "name": ' + JSON.stringify(rule.title) + ',\n' +
+      '        "url": ' + JSON.stringify(rulePageUrl(rule.id)) + '\n' +
+      '      }'
+    );
+  }).join(',\n');
+
+  const schema =
+    '  <script type="application/ld+json">\n' +
+    '  {\n' +
+    '    "@context": "https://schema.org",\n' +
+    '    "@type": "ItemList",\n' +
+    '    "name": "AI Agent Dock Rules",\n' +
+    '    "numberOfItems": ' + rules.length + ',\n' +
+    '    "itemListElement": [\n' +
+    items + '\n' +
+    '    ]\n' +
+    '  }\n' +
+    '  </script>';
+
+  const replacement = startMarker + '\n' + schema + '\n  ' + endMarker;
+  html = html.replace(new RegExp(startMarker + '[\\s\\S]*?' + endMarker), replacement);
+  fs.writeFileSync(INDEX_HTML, html, 'utf8');
+}
+
+function injectVerificationMeta(config) {
+  if (!config.googleSiteVerification) {
+    return;
+  }
+
+  const meta = '  <meta name="google-site-verification" content="' + escapeHtml(config.googleSiteVerification) + '" />';
+  const pages = ['index.html', 'about.html', 'submit.html', 'privacy.html'];
+
+  pages.forEach(function (file) {
+    const filePath = path.join(ROOT, file);
+    let html = fs.readFileSync(filePath, 'utf8');
+    if (html.includes('name="google-site-verification"')) {
+      html = html.replace(/<meta name="google-site-verification" content="[^"]*" \/>/g, meta);
+    } else if (html.includes('<script src="site-config.js"></script>')) {
+      html = html.replace('<script src="site-config.js"></script>', meta + '\n  <script src="site-config.js"></script>');
+    }
+    fs.writeFileSync(filePath, html, 'utf8');
+  });
+}
+
 function generateSitemap(rules) {
   const today = new Date().toISOString().slice(0, 10);
   const staticPages = [
@@ -264,7 +349,7 @@ function generateSitemap(rules) {
   rules.forEach(function (rule) {
     urls.push(
       '  <url>\n' +
-      '    <loc>' + SITE_URL + '/rules/' + rule.id + '.html</loc>\n' +
+      '    <loc>' + rulePageUrl(rule.id) + '</loc>\n' +
       '    <lastmod>' + today + '</lastmod>\n' +
       '    <changefreq>monthly</changefreq>\n' +
       '    <priority>0.8</priority>\n' +
@@ -284,6 +369,7 @@ function generateSitemap(rules) {
 
 function main() {
   const rules = loadRules();
+  const config = loadSiteConfig();
 
   if (!fs.existsSync(RULES_DIR)) {
     fs.mkdirSync(RULES_DIR, { recursive: true });
@@ -300,12 +386,17 @@ function main() {
 
   rules.forEach(function (rule) {
     const outPath = path.join(RULES_DIR, rule.id + '.html');
-    fs.writeFileSync(outPath, generateRulePage(rule), 'utf8');
+    fs.writeFileSync(outPath, generateRulePage(rule, config), 'utf8');
     console.log('  wrote rules/' + rule.id + '.html');
   });
 
   updateIndexSeoDirectory(rules);
   console.log('  updated index.html SEO directory');
+
+  updateItemListSchema(rules);
+  console.log('  updated ItemList schema');
+
+  injectVerificationMeta(config);
 
   generateSitemap(rules);
   console.log('  updated sitemap.xml');

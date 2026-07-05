@@ -25,193 +25,193 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/nextjs-fullstack.html</loc>
+    <loc>https://ai-agentdock.com/rules/nextjs-fullstack</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/python-scraper.html</loc>
+    <loc>https://ai-agentdock.com/rules/python-scraper</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/supabase-db.html</loc>
+    <loc>https://ai-agentdock.com/rules/supabase-db</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/tailwind-ui.html</loc>
+    <loc>https://ai-agentdock.com/rules/tailwind-ui</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/react-native.html</loc>
+    <loc>https://ai-agentdock.com/rules/react-native</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/go-api.html</loc>
+    <loc>https://ai-agentdock.com/rules/go-api</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/rust-systems.html</loc>
+    <loc>https://ai-agentdock.com/rules/rust-systems</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/ai-ml-python.html</loc>
+    <loc>https://ai-agentdock.com/rules/ai-ml-python</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/fastapi-backend.html</loc>
+    <loc>https://ai-agentdock.com/rules/fastapi-backend</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/vue-nuxt-frontend.html</loc>
+    <loc>https://ai-agentdock.com/rules/vue-nuxt-frontend</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/docker-devops.html</loc>
+    <loc>https://ai-agentdock.com/rules/docker-devops</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/typescript-general.html</loc>
+    <loc>https://ai-agentdock.com/rules/typescript-general</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/mcp-server.html</loc>
+    <loc>https://ai-agentdock.com/rules/mcp-server</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/cursor-agent-skills.html</loc>
+    <loc>https://ai-agentdock.com/rules/cursor-agent-skills</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/langchain-rag.html</loc>
+    <loc>https://ai-agentdock.com/rules/langchain-rag</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/vercel-ai-sdk.html</loc>
+    <loc>https://ai-agentdock.com/rules/vercel-ai-sdk</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/playwright-e2e.html</loc>
+    <loc>https://ai-agentdock.com/rules/playwright-e2e</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/vitest-unit.html</loc>
+    <loc>https://ai-agentdock.com/rules/vitest-unit</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/react-frontend.html</loc>
+    <loc>https://ai-agentdock.com/rules/react-frontend</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/prisma-orm.html</loc>
+    <loc>https://ai-agentdock.com/rules/prisma-orm</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/nodejs-express.html</loc>
+    <loc>https://ai-agentdock.com/rules/nodejs-express</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/django-web.html</loc>
+    <loc>https://ai-agentdock.com/rules/django-web</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/github-actions-ci.html</loc>
+    <loc>https://ai-agentdock.com/rules/github-actions-ci</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/authjs-nextauth.html</loc>
+    <loc>https://ai-agentdock.com/rules/authjs-nextauth</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/zod-validation.html</loc>
+    <loc>https://ai-agentdock.com/rules/zod-validation</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/sveltekit-frontend.html</loc>
+    <loc>https://ai-agentdock.com/rules/sveltekit-frontend</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/postgresql-db.html</loc>
+    <loc>https://ai-agentdock.com/rules/postgresql-db</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/kubernetes-devops.html</loc>
+    <loc>https://ai-agentdock.com/rules/kubernetes-devops</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/eslint-prettier.html</loc>
+    <loc>https://ai-agentdock.com/rules/eslint-prettier</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/turborepo-monorepo.html</loc>
+    <loc>https://ai-agentdock.com/rules/turborepo-monorepo</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/shadcn-ui.html</loc>
+    <loc>https://ai-agentdock.com/rules/shadcn-ui</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ai-agentdock.com/rules/prompt-engineering.html</loc>
+    <loc>https://ai-agentdock.com/rules/prompt-engineering</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
