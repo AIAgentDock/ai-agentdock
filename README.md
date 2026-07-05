@@ -19,7 +19,6 @@ Live site: [https://ai-agentdock.com/](https://ai-agentdock.com/)
 | `robots.txt` | Crawler directives |
 | `site-config.js` | Site URL and GitHub link |
 | `package.json` | `npm run build` → `node scripts/build.js` |
-| `wrangler.toml` | Cloudflare Pages build command and output dir |
 | `rules/` | Generated static rule detail pages (run build script) |
 
 ## How to add a new rule
@@ -72,28 +71,16 @@ Open `http://localhost:8080` and verify rule cards render, search/filter work, a
 
 ## Deploy to Cloudflare Pages
 
-1. Push this repository to GitHub (or GitLab / Bitbucket).
+1. Push this repository to GitHub.
 2. In the [Cloudflare dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-3. Select the repository and configure in the Cloudflare dashboard:
-   - **Build command:** `npm run build` *(equivalent: `node scripts/build.js`)*
+3. Select the repository and configure:
+   - **Build command:** `npm run build`
    - **Build output directory:** `/` (project root)
-   - **Deploy command:** leave **empty** — Cloudflare Pages uploads the output automatically after the build
-4. Deploy. Each push runs the build script, regenerating `rules/*.html`, the SEO directory, and `sitemap.xml`.
-5. Add your custom domain (`ai-agentdock.com`) under **Custom domains** in the Pages project settings.
+   - **Deploy command:** leave **empty**
+4. Each push to `main` runs the build and Cloudflare Pages publishes the site automatically.
+5. Add your custom domain (`ai-agentdock.com`) under **Custom domains**.
 
-`package.json` defines the build via `npm run build`. `wrangler.toml` sets `pages_build_output_dir = "."` for Pages.
-
-### Troubleshooting deploy failures
-
-If the build log shows `Executing user deploy command: npx wrangler deploy` followed by
-`Missing entry-point to Worker script or to assets directory`:
-
-1. **Recommended (Pages Git):** clear the **Deploy command** field; set **Build command** to `npm run build` and **Build output directory** to `/`.
-2. **If deploy command must stay:** the repo now includes `[assets]` in `wrangler.toml` and runs `postinstall` build so `npx wrangler deploy` can succeed after `bun install`.
-
-Alternative deploy commands:
-- `npm run deploy` — build + `wrangler deploy` (Workers static assets)
-- `npm run deploy:pages` — build + `wrangler pages deploy` (Pages CLI)
+No Wrangler config or deploy scripts are required — GitHub → Pages handles build and publish.
 
 ## SEO checklist
 

@@ -3,12 +3,6 @@
   "private": true,
   "description": "Curated Cursor and Windsurf AI coding rules directory",
   "scripts": {
-    "build": "node scripts/build.js",
-    "postinstall": "node scripts/build.js",
-    "deploy": "node scripts/build.js && wrangler deploy",
-    "deploy:pages": "node scripts/build.js && wrangler pages deploy . --project-name=ai-agentdock"
-  },
-  "devDependencies": {
-    "wrangler": "^4.107.0"
+    "build": "node scripts/build.js"
   }
 }
