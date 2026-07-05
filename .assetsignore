@@ -1,0 +1,12 @@
+# Exclude dev/build tooling from Workers static assets upload
+node_modules/
+.git/
+.wrangler/
+scripts/
+package.json
+package-lock.json
+bun.lockb
+wrangler.jsonc
+.gitignore
+README.md
+.dev.vars

@@ -69,7 +69,9 @@ python -m http.server 8080
 
 Open `http://localhost:8080` and verify rule cards render, search/filter work, and the copy button succeeds.
 
-## Deploy to Cloudflare Pages
+## Deploy to Cloudflare
+
+### Option A — Cloudflare Pages (recommended)
 
 1. Push this repository to GitHub.
 2. In the [Cloudflare dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
@@ -80,7 +82,21 @@ Open `http://localhost:8080` and verify rule cards render, search/filter work, a
 4. Each push to `main` runs the build and Cloudflare Pages publishes the site automatically.
 5. Add your custom domain (`ai-agentdock.com`) under **Custom domains**.
 
-No Wrangler config or deploy scripts are required — GitHub → Pages handles build and publish.
+### Option B — Workers Builds (`npx wrangler deploy`)
+
+If the dashboard uses **Deploy command:** `npx wrangler deploy`, this repo includes:
+
+| File | Purpose |
+|------|---------|
+| `wrangler.jsonc` | Worker name + static assets config |
+| `.assetsignore` | Excludes `node_modules/` and build tooling from upload |
+
+Recommended dashboard settings:
+
+- **Build command:** leave empty (or `npm run build`)
+- **Deploy command:** `npx wrangler deploy`
+
+`postinstall` runs the build after `bun install` / `npm install`, so rule pages stay fresh before deploy.
 
 ## SEO checklist
 
