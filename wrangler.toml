@@ -9,6 +9,6 @@
 # Do NOT use `wrangler deploy` — that is for Workers, not Pages.
 #
 # https://developers.cloudflare.com/pages/configuration/build-configuration/
-name = "ai-agent-dock"
+name = "ai-agentdock"
 compatibility_date = "2026-01-01"
 pages_build_output_dir = "."
