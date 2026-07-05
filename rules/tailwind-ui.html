@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tailwind UI Design Rules — AI Agent Dock</title>
+  <meta name="description" content="Modern UI design systems, motion, and accessibility guidelines." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://ai-agentdock.com/rules/tailwind-ui.html" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Tailwind UI Design Rules" />
+  <meta property="og:description" content="Modern UI design systems, motion, and accessibility guidelines." />
+  <meta property="og:url" content="https://ai-agentdock.com/rules/tailwind-ui.html" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            surface: { DEFAULT: '#0a0a0f', card: '#12121a', hover: '#1a1a26' },
+            accent: { DEFAULT: '#6366f1', glow: '#818cf8', cyan: '#22d3ee' },
+          },
+        },
+      },
+    };
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Tailwind UI Design Rules",
+    "description": "Modern UI design systems, motion, and accessibility guidelines.",
+    "url": "https://ai-agentdock.com/rules/tailwind-ui.html",
+    "author": { "@type": "Organization", "name": "AI Agent Dock" }
+  }
+  </script>
+</head>
+<body class="text-gray-300 antialiased overflow-x-hidden">
+
+  <div class="fixed inset-0 bg-grid pointer-events-none" aria-hidden="true"></div>
+  <div class="fixed inset-0 hero-glow pointer-events-none" aria-hidden="true"></div>
+
+  <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+
+<nav class="site-nav flex flex-wrap items-center justify-between gap-4 mb-8 sm:mb-12" aria-label="Main navigation">
+      <a href="../index.html" class="text-lg font-bold text-white tracking-tight">AI Agent Dock</a>
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+        <a href="../index.html" class="site-nav__link">Directory</a>
+        <a href="../about.html" class="site-nav__link">About</a>
+        <a href="../submit.html" class="site-nav__link">Submit</a>
+        <a href="https://github.com/AIAgentDock/ai-agentdock" class="site-nav__link" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </nav>
+
+    <header class="mb-6 sm:mb-8">
+      <div class="flex flex-wrap gap-1.5 mb-3">
+        <span class="rule-badge rule-badge--tool">CURSOR</span>
+        <span class="rule-badge rule-badge--category">FRONTEND / UI</span>
+        <span class="rule-badge rule-badge--framework">Tailwind CSS</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-3">Tailwind UI Design Rules</h1>
+      <p class="text-gray-400 text-base leading-relaxed">Modern UI design systems, motion, and accessibility guidelines.</p>
+      <div class="flex flex-wrap gap-1.5 mt-4"><span class="tag-chip tag-chip--static">Tailwind CSS</span>
+          <span class="tag-chip tag-chip--static">UI/UX</span>
+          <span class="tag-chip tag-chip--static">A11y</span></div>
+    </header>
+
+    <main class="rule-detail">
+      <pre class="rule-detail__content" id="ruleContent"># Tailwind CSS UI Design Rules
+
+You are an expert frontend developer focused on beautiful, accessible UIs.
+
+## Design System
+- Define a consistent color palette using Tailwind config extend
+- Use semantic spacing scale (4, 8, 12, 16, 24, 32, 48, 64)
+- Limit to 2-3 font sizes per component hierarchy
+- Prefer rounded-lg / rounded-xl for modern feel
+
+## Layout
+- Mobile-first: start with base styles, add sm/md/lg breakpoints
+- Use CSS Grid for complex layouts, Flexbox for component internals
+- Maintain consistent max-width containers (max-w-7xl mx-auto)
+
+## Components
+- Build reusable components with `@apply` sparingly; prefer utility classes
+- Use `group` and `peer` for interactive hover/focus states
+- Implement dark mode with `dark:` variant consistently
+
+## Accessibility
+- All interactive elements must be keyboard navigable
+- Use semantic HTML: `&lt;button&gt;`, `&lt;nav&gt;`, `&lt;main&gt;`, `&lt;article&gt;`
+- Include `aria-label` on icon-only buttons
+- Maintain WCAG AA contrast ratios (4.5:1 for text)
+
+## Animation
+- Use `transition-all duration-200` for micro-interactions
+- Prefer `transform` and `opacity` for GPU-accelerated animations
+- Respect `prefers-reduced-motion` media query</pre>
+      <p class="rule-detail__hint text-sm text-gray-500 mt-4">Paste into .cursor/rules/ (or .mdc files) in your project root.</p>
+      <div class="flex flex-col sm:flex-row gap-3 mt-6">
+        <button type="button" id="copyRuleBtn" class="btn-copy py-3 px-6 min-h-[44px] rounded-lg text-white font-semibold text-sm">Copy Rule</button>
+        <a href="../index.html" class="inline-flex items-center justify-center py-3 px-6 min-h-[44px] rounded-lg border border-gray-700 text-gray-300 hover:border-indigo-500/40 hover:text-indigo-300 text-sm font-medium transition-colors">← Back to directory</a>
+      </div>
+    </main>
+
+    <footer class="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-gray-800/60 text-center text-gray-600 text-xs sm:text-sm">
+      <p>AI Agent Dock · Open-source rule directory</p>
+      <nav class="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1" aria-label="Footer navigation">
+        <a href="../about.html" class="hover:text-indigo-300 transition-colors">About</a>
+        <a href="../privacy.html" class="hover:text-indigo-300 transition-colors">Privacy</a>
+        <a href="../submit.html" class="hover:text-indigo-300 transition-colors">Submit a Rule</a>
+      </nav>
+      <p class="mt-2 text-gray-700">&copy; 2026 AI Agent Dock</p>
+    </footer>
+  </div>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      var content = document.getElementById('ruleContent').textContent;
+      var btn = document.getElementById('copyRuleBtn');
+      var hint = "Paste into .cursor/rules/ (or .mdc files) in your project root.";
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(content).then(function () {
+          btn.classList.add('copied');
+          btn.textContent = 'Copied!';
+          var toast = document.createElement('div');
+          toast.className = 'toast toast--visible';
+          toast.setAttribute('role', 'status');
+          toast.textContent = 'Rule copied! ' + hint;
+          document.getElementById('toastContainer').appendChild(toast);
+          setTimeout(function () {
+            btn.classList.remove('copied');
+            btn.textContent = 'Copy Rule';
+            toast.remove();
+          }, 3000);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

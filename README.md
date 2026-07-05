@@ -17,7 +17,10 @@ Live site: [https://ai-agentdock.com/](https://ai-agentdock.com/)
 | `submit.html` | Rule submission info |
 | `sitemap.xml` | Sitemap for search engines |
 | `robots.txt` | Crawler directives |
-| `favicon.svg` | Site favicon |
+| `site-config.js` | Site URL and GitHub link |
+| `package.json` | `npm run build` → `node scripts/build.js` |
+| `wrangler.toml` | Cloudflare Pages build command and output dir |
+| `rules/` | Generated static rule detail pages (run build script) |
 
 ## How to add a new rule
 
@@ -37,8 +40,23 @@ Live site: [https://ai-agentdock.com/](https://ai-agentdock.com/)
 }
 ```
 
-3. Add a matching entry to the static "Available Rules Directory" section in `index.html` for crawler-friendly SEO.
+3. Run `node scripts/build.js` to regenerate detail pages, SEO directory, and sitemap.
 4. Test locally (see below) — the new rule should appear in the grid immediately.
+
+## Build script
+
+After editing `rules.js`:
+
+```bash
+node scripts/build.js
+```
+
+This creates/updates:
+- `rules/{id}.html` — one static detail page per rule
+- SEO directory in `index.html` (between `SEO-DIRECTORY` markers)
+- `sitemap.xml` with all rule URLs
+
+Run before deploy when rules change.
 
 ## Local development
 
@@ -56,13 +74,13 @@ Open `http://localhost:8080` and verify rule cards render, search/filter work, a
 
 1. Push this repository to GitHub (or GitLab / Bitbucket).
 2. In the [Cloudflare dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-3. Select the repository and configure:
-   - **Build command:** *(leave empty — static site)*
+3. Select the repository and configure in the Cloudflare dashboard:
+   - **Build command:** `node scripts/build.js` *(equivalent: `npm run build`)*
    - **Build output directory:** `/` (project root)
-4. Deploy. Cloudflare serves `index.html`, `rules.js`, `app.js`, and other files directly from the root.
+4. Deploy. Each push runs the build script, regenerating `rules/*.html`, the SEO directory, and `sitemap.xml`.
 5. Add your custom domain (`ai-agentdock.com`) under **Custom domains** in the Pages project settings.
 
-No build step is required. Changes to `rules.js` or `index.html` go live on the next deploy (automatic on push if connected to Git).
+`package.json` defines the same build via `npm run build`. `wrangler.toml` sets `pages_build_output_dir` for Wrangler-based deploys.
 
 ## SEO checklist
 

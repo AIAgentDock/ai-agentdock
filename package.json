@@ -1,0 +1,8 @@
+{
+  "name": "ai-agent-dock",
+  "private": true,
+  "description": "Curated Cursor and Windsurf AI coding rules directory",
+  "scripts": {
+    "build": "node scripts/build.js"
+  }
+}

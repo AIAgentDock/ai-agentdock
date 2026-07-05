@@ -5,7 +5,8 @@
   'use strict';
 
   var TAXONOMY = window.FILTER_TAXONOMY || {};
-  var TOOL_KEYS = ['cursor', 'windsurf', 'universal'];
+  var TOOL_KEYS = ['cursor', 'windsurf'];
+  var SEARCH_DEBOUNCE_MS = 200;
 
   var rulesGrid = document.getElementById('rulesGrid');
   var searchInput = document.getElementById('searchInput');
@@ -13,11 +14,14 @@
   var emptyState = document.getElementById('emptyState');
   var toolFilter = document.getElementById('toolFilter');
   var categoryFilter = document.getElementById('categoryFilter');
-  var frameworkFilter = document.getElementById('frameworkFilter');
+  var frameworkChips = document.getElementById('frameworkChips');
   var resetFiltersBtn = document.getElementById('resetFilters');
+  var searchKbd = document.getElementById('searchKbd');
+  var ruleModal = document.getElementById('ruleModal');
+  var toastContainer = document.getElementById('toastContainer');
 
   if (!rulesGrid || !searchInput || !resultCount || !emptyState ||
-      !toolFilter || !categoryFilter || !frameworkFilter || !resetFiltersBtn) {
+      !toolFilter || !categoryFilter || !frameworkChips || !resetFiltersBtn) {
     console.error('Required DOM elements missing — check index.html IDs');
     return;
   }
@@ -34,19 +38,29 @@
     search: ''
   };
 
+  var searchDebounceTimer = null;
+  var urlSyncEnabled = false;
+
   var RULE_CATEGORY_OVERRIDES = {
     'python-scraper': 'backend',
     'supabase-db': 'database',
     'react-native': 'frontend',
     'rust-systems': 'backend',
     'ai-ml-python': 'ai',
-    'typescript-general': 'quality'
+    'typescript-general': 'quality',
+    'cursor-agent-skills': 'docs',
+    'prompt-engineering': 'ai',
+    'turborepo-monorepo': 'docs',
+    'kubernetes-devops': 'devops'
   };
 
   var FRAMEWORK_ALIASES = {
     Tailwind: 'Tailwind CSS',
     'AI/ML': 'OpenAI API',
-    Python: 'Python'
+    Python: 'Python',
+    Agent: 'General',
+    Skills: 'General',
+    'Prompt Engineering': 'General'
   };
 
   var CATEGORY_LABEL_TO_KEY = {
@@ -72,6 +86,12 @@
     'documentation / productivity': 'docs',
     general: 'general',
     'general coding': 'general'
+  };
+
+  var TOOL_USAGE_HINTS = {
+    cursor: 'Paste into .cursor/rules/ (or .mdc files) in your project root.',
+    windsurf: 'Import via Windsurf → Rules panel in your editor.',
+    universal: 'Paste into your editor\'s rules or instructions file.'
   };
 
   function escapeHtml(text) {
@@ -104,6 +124,10 @@
     return (TAXONOMY[toolKey] && TAXONOMY[toolKey].label) || toolKey;
   }
 
+  function getToolUsageHint(toolKey) {
+    return TOOL_USAGE_HINTS[toolKey] || TOOL_USAGE_HINTS.cursor;
+  }
+
   function normalizeCategoryKey(rule) {
     if (rule.categoryKey) {
       return rule.categoryKey.toLowerCase();
@@ -133,7 +157,7 @@
       }
     }
 
-    return safeStr(ruleFallbackCategoryLabel(categoryKey));
+    return ruleFallbackCategoryLabel(categoryKey);
   }
 
   function ruleFallbackCategoryLabel(categoryKey) {
@@ -167,85 +191,58 @@
     return result;
   }
 
-  function getAvailableCategories(toolKey) {
-    if (toolKey === 'all') {
-      var merged = {};
-      TOOL_KEYS.forEach(function (key) {
-        var tool = TAXONOMY[key];
-        if (!tool || !tool.categories) {
-          return;
-        }
-        Object.keys(tool.categories).forEach(function (catKey) {
-          merged[catKey] = tool.categories[catKey].label;
-        });
-      });
-      return merged;
-    }
+  function ruleMatchesToolCategory(rule) {
+    var toolKey = normalizeToolKey(rule);
+    var categoryKey = normalizeCategoryKey(rule);
 
-    var selected = TAXONOMY[toolKey];
-    if (!selected || !selected.categories) {
-      return {};
+    if (filterState.tool !== 'all' && toolKey !== filterState.tool) {
+      return false;
     }
-
-    var categories = {};
-    Object.keys(selected.categories).forEach(function (catKey) {
-      categories[catKey] = selected.categories[catKey].label;
-    });
-    return categories;
+    if (filterState.category !== 'all' && categoryKey !== filterState.category) {
+      return false;
+    }
+    return true;
   }
 
-  function getAvailableFrameworks(toolKey, categoryKey) {
-    var frameworks = [];
+  function getFrameworksWithRules() {
     var seen = {};
+    var frameworks = [];
 
-    function addFramework(name) {
-      if (name && !seen[name.toLowerCase()]) {
-        seen[name.toLowerCase()] = true;
-        frameworks.push(name);
-      }
-    }
-
-    function collectFromToolCategory(key, catKey) {
-      var tool = TAXONOMY[key];
-      if (!tool || !tool.categories || !tool.categories[catKey]) {
+    allRules.forEach(function (rule) {
+      if (!ruleMatchesToolCategory(rule)) {
         return;
       }
-      tool.categories[catKey].frameworks.forEach(addFramework);
-    }
-
-    if (toolKey === 'all' && categoryKey === 'all') {
-      TOOL_KEYS.forEach(function (key) {
-        var tool = TAXONOMY[key];
-        if (!tool || !tool.categories) {
-          return;
+      getRuleFrameworks(rule).forEach(function (name) {
+        var key = name.toLowerCase();
+        if (!seen[key]) {
+          seen[key] = name;
+          frameworks.push(name);
         }
-        Object.keys(tool.categories).forEach(function (catKey) {
-          collectFromToolCategory(key, catKey);
-        });
       });
-      return frameworks.sort();
-    }
+    });
 
-    if (toolKey === 'all') {
-      TOOL_KEYS.forEach(function (key) {
-        collectFromToolCategory(key, categoryKey);
-      });
-      return frameworks.sort();
-    }
+    return frameworks.sort(function (a, b) {
+      return a.localeCompare(b);
+    });
+  }
 
-    if (categoryKey === 'all') {
-      var selectedTool = TAXONOMY[toolKey];
-      if (!selectedTool || !selectedTool.categories) {
-        return frameworks;
+  function getAvailableCategories(toolKey) {
+    var merged = {};
+
+    allRules.forEach(function (rule) {
+      var ruleTool = normalizeToolKey(rule);
+      var catKey = normalizeCategoryKey(rule);
+
+      if (toolKey !== 'all' && ruleTool !== toolKey) {
+        return;
       }
-      Object.keys(selectedTool.categories).forEach(function (catKey) {
-        collectFromToolCategory(toolKey, catKey);
-      });
-      return frameworks.sort();
-    }
 
-    collectFromToolCategory(toolKey, categoryKey);
-    return frameworks;
+      if (!merged[catKey]) {
+        merged[catKey] = getCategoryLabel(ruleTool, catKey);
+      }
+    });
+
+    return merged;
   }
 
   function populateSelect(selectEl, options, allLabel) {
@@ -258,12 +255,31 @@
     selectEl.innerHTML = html;
   }
 
-  function populateFrameworkSelect(frameworks) {
-    var html = '<option value="all">All Frameworks</option>';
+  function renderFrameworkChips() {
+    var frameworks = getFrameworksWithRules();
+    var html = '<button type="button" class="framework-chip' +
+      (filterState.framework === 'all' ? ' framework-chip--active' : '') +
+      '" data-framework="all">All</button>';
+
     frameworks.forEach(function (name) {
-      html += '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
+      var isActive = filterState.framework !== 'all' &&
+        filterState.framework.toLowerCase() === name.toLowerCase();
+      html += '<button type="button" class="framework-chip' +
+        (isActive ? ' framework-chip--active' : '') +
+        '" data-framework="' + escapeHtml(name) + '">' +
+        escapeHtml(name) + '</button>';
     });
-    frameworkFilter.innerHTML = html;
+
+    frameworkChips.innerHTML = html;
+
+    if (filterState.framework !== 'all') {
+      var exists = frameworks.some(function (name) {
+        return name.toLowerCase() === filterState.framework.toLowerCase();
+      });
+      if (!exists) {
+        filterState.framework = 'all';
+      }
+    }
   }
 
   function syncFilterOptions() {
@@ -275,18 +291,7 @@
     }
     categoryFilter.value = filterState.category;
 
-    var frameworks = getAvailableFrameworks(filterState.tool, filterState.category);
-    populateFrameworkSelect(frameworks);
-
-    if (filterState.framework !== 'all') {
-      var frameworkExists = frameworks.some(function (name) {
-        return name.toLowerCase() === filterState.framework.toLowerCase();
-      });
-      if (!frameworkExists) {
-        filterState.framework = 'all';
-      }
-    }
-    frameworkFilter.value = filterState.framework;
+    renderFrameworkChips();
   }
 
   function frameworkMatches(rule, selectedFramework) {
@@ -315,14 +320,7 @@
   }
 
   function ruleMatchesFilters(rule) {
-    var toolKey = normalizeToolKey(rule);
-    var categoryKey = normalizeCategoryKey(rule);
-
-    if (filterState.tool !== 'all' && toolKey !== filterState.tool) {
-      return false;
-    }
-
-    if (filterState.category !== 'all' && categoryKey !== filterState.category) {
+    if (!ruleMatchesToolCategory(rule)) {
       return false;
     }
 
@@ -335,6 +333,8 @@
     }
 
     var q = filterState.search.toLowerCase();
+    var toolKey = normalizeToolKey(rule);
+    var categoryKey = normalizeCategoryKey(rule);
     var frameworks = getRuleFrameworks(rule);
     var searchText = [
       rule.title,
@@ -357,19 +357,82 @@
     return '<span class="rule-badge rule-badge--' + type + '">' + escapeHtml(text) + '</span>';
   }
 
+  var LICENSE_URLS = {
+    'MIT': 'https://opensource.org/licenses/MIT',
+    'Apache-2.0': 'https://opensource.org/licenses/Apache-2.0',
+    'CC0-1.0': 'https://creativecommons.org/publicdomain/zero/1.0/',
+    'CC BY 4.0': 'https://creativecommons.org/licenses/by/4.0/'
+  };
+
+  function getRuleSource(rule) {
+    var source = rule.source;
+    if (!source) {
+      return { label: '', url: '' };
+    }
+    if (typeof source === 'string') {
+      return { label: source, url: safeStr(rule.sourceUrl) };
+    }
+    return {
+      label: safeStr(source.label),
+      url: safeStr(source.url)
+    };
+  }
+
+  function renderMetaLink(label, url) {
+    if (!label) {
+      return '';
+    }
+    if (url) {
+      return '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer" class="rule-meta__link">' +
+        escapeHtml(label) + '</a>';
+    }
+    return '<span class="rule-meta__value">' + escapeHtml(label) + '</span>';
+  }
+
+  function renderRuleMeta(rule) {
+    var source = getRuleSource(rule);
+    var license = safeStr(rule.license).trim();
+    var licenseUrl = safeStr(rule.licenseUrl) || LICENSE_URLS[license] || '';
+    var items = [];
+
+    if (source.label) {
+      items.push(
+        '<span class="rule-meta__item">' +
+          '<span class="rule-meta__label">Source</span> ' +
+          renderMetaLink(source.label, source.url) +
+        '</span>'
+      );
+    }
+
+    if (license) {
+      items.push(
+        '<span class="rule-meta__item">' +
+          '<span class="rule-meta__label">License</span> ' +
+          renderMetaLink(license, licenseUrl) +
+        '</span>'
+      );
+    }
+
+    if (!items.length) {
+      return '';
+    }
+
+    return '<div class="rule-meta">' + items.join('') + '</div>';
+  }
+
   function createRuleCard(rule) {
     var toolKey = normalizeToolKey(rule);
     var categoryKey = normalizeCategoryKey(rule);
     var frameworks = getRuleFrameworks(rule);
     var displayFrameworks = frameworks.length ? frameworks : [normalizeFrameworkName(rule.framework)].filter(Boolean);
 
-    var frameworkBadges = displayFrameworks.map(function (fw) {
+    var frameworkBadges = displayFrameworks.slice(0, 3).map(function (fw) {
       return renderBadge(fw, 'framework');
     }).join('');
 
-    var tagsHtml = (rule.tags || []).slice(0, 4).map(function (tag) {
-      return '<span class="text-xs px-2 py-0.5 rounded bg-gray-800/80 text-gray-500 border border-gray-700/50">' +
-        escapeHtml(tag) + '</span>';
+    var tagsHtml = (rule.tags || []).slice(0, 5).map(function (tag) {
+      return '<button type="button" class="tag-chip" data-tag="' + escapeHtml(tag) + '">' +
+        escapeHtml(tag) + '</button>';
     }).join('');
 
     return (
@@ -379,12 +442,20 @@
           renderBadge(getCategoryLabel(toolKey, categoryKey), 'category') +
           frameworkBadges +
         '</div>' +
-        '<h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">' + escapeHtml(safeStr(rule.title)) + '</h2>' +
+        '<h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">' +
+          '<a href="rules/' + escapeHtml(rule.id) + '.html" class="rule-card__title">' + escapeHtml(safeStr(rule.title)) + '</a>' +
+        '</h2>' +
         '<p class="text-gray-400 text-sm leading-relaxed flex-1 mb-4">' + escapeHtml(safeStr(rule.description)) + '</p>' +
-        '<div class="flex flex-wrap gap-1.5 mb-5">' + tagsHtml + '</div>' +
-        '<button type="button" class="btn-copy w-full py-3 px-4 min-h-[44px] rounded-lg text-white font-semibold text-sm mt-auto" data-copy-id="' + escapeHtml(rule.id) + '">' +
-          'Copy Rule' +
-        '</button>' +
+        '<div class="flex flex-wrap gap-1.5 mb-4">' + tagsHtml + '</div>' +
+        renderRuleMeta(rule) +
+        '<div class="flex flex-col sm:flex-row gap-2 mt-auto">' +
+          '<button type="button" class="btn-preview flex-1 py-3 px-4 min-h-[44px] rounded-lg text-sm font-semibold" data-preview-id="' + escapeHtml(rule.id) + '">' +
+            'View Rule' +
+          '</button>' +
+          '<button type="button" class="btn-copy flex-1 py-3 px-4 min-h-[44px] rounded-lg text-white font-semibold text-sm" data-copy-id="' + escapeHtml(rule.id) + '">' +
+            'Copy Rule' +
+          '</button>' +
+        '</div>' +
       '</article>'
     );
   }
@@ -406,6 +477,7 @@
       rulesGrid.innerHTML = '';
       emptyState.classList.remove('hidden');
       emptyState.setAttribute('aria-hidden', 'false');
+      syncUrlFromState();
       return;
     }
 
@@ -420,45 +492,66 @@
 
     rulesGrid.querySelectorAll('[data-copy-id]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        copyRule(btn);
+        copyRule(btn.getAttribute('data-copy-id'), btn);
       });
     });
-  }
 
-  function copyRule(btn) {
-    var ruleId = btn.getAttribute('data-copy-id');
-    var rule = allRules.find(function (r) {
-      return r.id === ruleId;
+    rulesGrid.querySelectorAll('[data-preview-id]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        openRuleModal(btn.getAttribute('data-preview-id'));
+      });
     });
 
-    if (!rule) {
-      return;
-    }
+    rulesGrid.querySelectorAll('.tag-chip').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        applyTagFilter(chip.getAttribute('data-tag'));
+      });
+    });
 
+    syncUrlFromState();
+  }
+
+  function copyText(text, ruleId, triggerEl) {
     function onSuccess() {
-      btn.classList.add('copied');
-      btn.textContent = 'Copied!';
-      setTimeout(function () {
-        btn.classList.remove('copied');
-        btn.textContent = 'Copy Rule';
-      }, 2000);
+      var rule = allRules.find(function (r) { return r.id === ruleId; });
+      var toolKey = rule ? normalizeToolKey(rule) : 'cursor';
+
+      if (triggerEl) {
+        triggerEl.classList.add('copied');
+        var originalText = triggerEl.getAttribute('data-original-label') || triggerEl.textContent;
+        triggerEl.setAttribute('data-original-label', originalText);
+        triggerEl.textContent = 'Copied!';
+        setTimeout(function () {
+          triggerEl.classList.remove('copied');
+          triggerEl.textContent = originalText;
+        }, 2000);
+      }
+
+      showToast('Rule copied! ' + getToolUsageHint(toolKey));
     }
 
-    var textToCopy = safeStr(rule.content);
-    if (!textToCopy) {
+    if (!text) {
       return;
     }
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(textToCopy).then(onSuccess).catch(function () {
-        fallbackCopy(textToCopy, btn, onSuccess);
+      navigator.clipboard.writeText(text).then(onSuccess).catch(function () {
+        fallbackCopy(text, ruleId, triggerEl, onSuccess);
       });
     } else {
-      fallbackCopy(textToCopy, btn, onSuccess);
+      fallbackCopy(text, ruleId, triggerEl, onSuccess);
     }
   }
 
-  function fallbackCopy(text, btn, onSuccess) {
+  function copyRule(ruleId, btn) {
+    var rule = allRules.find(function (r) { return r.id === ruleId; });
+    if (!rule) {
+      return;
+    }
+    copyText(safeStr(rule.content), ruleId, btn);
+  }
+
+  function fallbackCopy(text, ruleId, btn, onSuccess) {
     var textarea = document.createElement('textarea');
     textarea.value = text;
     textarea.style.position = 'fixed';
@@ -470,13 +563,111 @@
       document.execCommand('copy');
       onSuccess();
     } catch (err) {
-      btn.textContent = 'Copy failed';
-      setTimeout(function () {
-        btn.textContent = 'Copy Rule';
-      }, 2000);
+      if (btn) {
+        btn.textContent = 'Copy failed';
+        setTimeout(function () {
+          btn.textContent = 'Copy Rule';
+        }, 2000);
+      }
     }
 
     document.body.removeChild(textarea);
+  }
+
+  function showToast(message) {
+    if (!toastContainer) {
+      return;
+    }
+
+    var toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.setAttribute('role', 'status');
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+
+    requestAnimationFrame(function () {
+      toast.classList.add('toast--visible');
+    });
+
+    setTimeout(function () {
+      toast.classList.remove('toast--visible');
+      setTimeout(function () {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }, 4500);
+  }
+
+  function openRuleModal(ruleId) {
+    if (!ruleModal) {
+      return;
+    }
+
+    var rule = allRules.find(function (r) { return r.id === ruleId; });
+    if (!rule) {
+      return;
+    }
+
+    var toolKey = normalizeToolKey(rule);
+    var titleEl = ruleModal.querySelector('#ruleModalTitle');
+    var bodyEl = ruleModal.querySelector('#ruleModalBody');
+    var copyBtn = ruleModal.querySelector('#ruleModalCopy');
+
+    if (titleEl) {
+      titleEl.textContent = rule.title;
+    }
+    if (bodyEl) {
+      bodyEl.textContent = safeStr(rule.content);
+    }
+    if (copyBtn) {
+      copyBtn.setAttribute('data-copy-id', rule.id);
+    }
+
+    ruleModal.querySelector('#ruleModalHint').textContent = getToolUsageHint(toolKey);
+    ruleModal.classList.remove('hidden');
+    ruleModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+
+    if (copyBtn) {
+      copyBtn.focus();
+    }
+  }
+
+  function closeRuleModal() {
+    if (!ruleModal) {
+      return;
+    }
+    ruleModal.classList.add('hidden');
+    ruleModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+  }
+
+  function applyTagFilter(tag) {
+    if (!tag) {
+      return;
+    }
+
+    var frameworks = getFrameworksWithRules();
+    var tagLower = tag.toLowerCase();
+    var matchedFramework = frameworks.find(function (fw) {
+      return fw.toLowerCase() === tagLower ||
+        fw.toLowerCase().indexOf(tagLower) !== -1 ||
+        tagLower.indexOf(fw.toLowerCase()) !== -1;
+    });
+
+    if (matchedFramework) {
+      filterState.framework = matchedFramework;
+      filterState.search = '';
+      searchInput.value = '';
+    } else {
+      filterState.search = tag;
+      searchInput.value = tag;
+      filterState.framework = 'all';
+    }
+
+    syncFilterOptions();
+    renderRules();
   }
 
   function resetFilters() {
@@ -488,6 +679,91 @@
     toolFilter.value = 'all';
     syncFilterOptions();
     renderRules();
+  }
+
+  function readStateFromUrl() {
+    var params = new URLSearchParams(window.location.search);
+
+    filterState.tool = params.get('tool') || 'all';
+    filterState.category = params.get('category') || 'all';
+    filterState.framework = params.get('framework') || 'all';
+    filterState.search = params.get('q') || '';
+
+    if (TOOL_KEYS.indexOf(filterState.tool) === -1 && filterState.tool !== 'all') {
+      filterState.tool = 'all';
+    }
+
+    searchInput.value = filterState.search;
+    toolFilter.value = filterState.tool;
+  }
+
+  function syncUrlFromState() {
+    if (!urlSyncEnabled) {
+      return;
+    }
+
+    var params = new URLSearchParams();
+
+    if (filterState.search) {
+      params.set('q', filterState.search);
+    }
+    if (filterState.tool !== 'all') {
+      params.set('tool', filterState.tool);
+    }
+    if (filterState.category !== 'all') {
+      params.set('category', filterState.category);
+    }
+    if (filterState.framework !== 'all') {
+      params.set('framework', filterState.framework);
+    }
+
+    var query = params.toString();
+    var newUrl = query ? window.location.pathname + '?' + query : window.location.pathname;
+    window.history.replaceState(null, '', newUrl);
+  }
+
+  function setupSearchKbdHint() {
+    if (!searchKbd) {
+      return;
+    }
+
+    var isMobile = window.matchMedia('(max-width: 639px)').matches;
+    var isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
+
+    if (isMobile) {
+      searchKbd.classList.add('hidden');
+      return;
+    }
+
+    searchKbd.classList.remove('hidden');
+    searchKbd.textContent = isMac ? '⌘K' : 'Ctrl+K';
+  }
+
+  function setupModal() {
+    if (!ruleModal) {
+      return;
+    }
+
+    ruleModal.querySelectorAll('[data-modal-close]').forEach(function (el) {
+      el.addEventListener('click', closeRuleModal);
+    });
+
+    var copyBtn = ruleModal.querySelector('#ruleModalCopy');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function () {
+        var ruleId = copyBtn.getAttribute('data-copy-id');
+        var rule = allRules.find(function (r) { return r.id === ruleId; });
+        if (rule) {
+          copyText(safeStr(rule.content), ruleId, copyBtn);
+        }
+      });
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !ruleModal.classList.contains('hidden')) {
+        closeRuleModal();
+      }
+    });
   }
 
   toolFilter.addEventListener('change', function () {
@@ -505,14 +781,23 @@
     renderRules();
   });
 
-  frameworkFilter.addEventListener('change', function () {
-    filterState.framework = frameworkFilter.value;
+  frameworkChips.addEventListener('click', function (e) {
+    var chip = e.target.closest('[data-framework]');
+    if (!chip) {
+      return;
+    }
+    filterState.framework = chip.getAttribute('data-framework');
+    renderFrameworkChips();
     renderRules();
   });
 
   searchInput.addEventListener('input', function (e) {
-    filterState.search = e.target.value.trim();
-    renderRules();
+    clearTimeout(searchDebounceTimer);
+    var value = e.target.value.trim();
+    searchDebounceTimer = setTimeout(function () {
+      filterState.search = value;
+      renderRules();
+    }, SEARCH_DEBOUNCE_MS);
   });
 
   resetFiltersBtn.addEventListener('click', resetFilters);
@@ -524,6 +809,16 @@
     }
   });
 
+  readStateFromUrl();
   syncFilterOptions();
+  categoryFilter.value = filterState.category;
+  urlSyncEnabled = true;
+  setupSearchKbdHint();
+  setupModal();
   renderRules();
+
+  var previewParam = new URLSearchParams(window.location.search).get('preview');
+  if (previewParam) {
+    openRuleModal(previewParam);
+  }
 })();
