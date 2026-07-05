@@ -8,8 +8,26 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
+const DIST = path.join(ROOT, 'dist');
 const RULES_JS = path.join(ROOT, 'rules.js');
 const RULES_DIR = path.join(ROOT, 'rules');
+const DIST_STATIC_FILES = [
+  'index.html',
+  'about.html',
+  'submit.html',
+  'privacy.html',
+  'app.js',
+  'rules.js',
+  'styles.css',
+  'site-config.js',
+  'site-init.js',
+  'analytics.js',
+  'filter-taxonomy.js',
+  'sitemap.xml',
+  'robots.txt',
+  'favicon.svg',
+  '_redirects'
+];
 const INDEX_HTML = path.join(ROOT, 'index.html');
 const SITEMAP = path.join(ROOT, 'sitemap.xml');
 const SITE_URL = 'https://ai-agentdock.com';
@@ -371,6 +389,36 @@ function generateSitemap(rules) {
   fs.writeFileSync(SITEMAP, xml, 'utf8');
 }
 
+function copyDir(srcDir, destDir) {
+  fs.mkdirSync(destDir, { recursive: true });
+  fs.readdirSync(srcDir).forEach(function (name) {
+    const srcPath = path.join(srcDir, name);
+    const destPath = path.join(destDir, name);
+    if (fs.statSync(srcPath).isDirectory()) {
+      copyDir(srcPath, destPath);
+      return;
+    }
+    fs.copyFileSync(srcPath, destPath);
+  });
+}
+
+function copySiteToDist() {
+  if (fs.existsSync(DIST)) {
+    fs.rmSync(DIST, { recursive: true, force: true });
+  }
+  fs.mkdirSync(DIST, { recursive: true });
+
+  DIST_STATIC_FILES.forEach(function (file) {
+    const srcPath = path.join(ROOT, file);
+    if (fs.existsSync(srcPath)) {
+      fs.copyFileSync(srcPath, path.join(DIST, file));
+    }
+  });
+
+  copyDir(RULES_DIR, path.join(DIST, 'rules'));
+  console.log('  copied site to dist/');
+}
+
 function main() {
   const rules = loadRules();
   const config = loadSiteConfig();
@@ -404,6 +452,8 @@ function main() {
 
   generateSitemap(rules);
   console.log('  updated sitemap.xml');
+
+  copySiteToDist();
 
   console.log('Built ' + rules.length + ' rule pages.');
 }

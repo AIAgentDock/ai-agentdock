@@ -88,15 +88,15 @@ If the dashboard uses **Deploy command:** `npx wrangler deploy`, this repo inclu
 
 | File | Purpose |
 |------|---------|
-| `wrangler.jsonc` | Worker name + static assets config |
-| `.assetsignore` | Excludes `node_modules/` and build tooling from upload |
+| `wrangler.jsonc` | Worker name; assets served from `dist/` only |
+| `scripts/build.js` | Generates rule pages and copies the site into `dist/` |
 
 Recommended dashboard settings:
 
-- **Build command:** leave empty (or `npm run build`)
-- **Deploy command:** `npx wrangler deploy`
+- **Build command:** leave empty
+- **Deploy command:** `npx wrangler deploy` (or `npm run deploy`)
 
-`postinstall` runs the build after `bun install` / `npm install`, so rule pages stay fresh before deploy.
+`wrangler` is a production `dependency` (not devDependency) so Cloudflare's `bun install` always installs it. `postinstall` builds `dist/` before deploy, keeping assets separate from `node_modules/`.
 
 ## SEO checklist
 
