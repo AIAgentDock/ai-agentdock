@@ -1,5 +1,13 @@
-# Cloudflare Pages — build command is set in the dashboard or via package.json:
-#   node scripts/build.js   (or: npm run build)
+# Cloudflare Pages — static site (no Worker entry point).
+# Dashboard build settings:
+#   Build command:        npm run build   (or: node scripts/build.js)
+#   Build output directory: /
+#   Deploy command:       leave EMPTY (Pages auto-deploys after build)
+#
+# If your project requires a deploy command, use:
+#   npm run deploy
+# Do NOT use `wrangler deploy` — that is for Workers, not Pages.
+#
 # https://developers.cloudflare.com/pages/configuration/build-configuration/
 name = "ai-agent-dock"
 compatibility_date = "2026-01-01"

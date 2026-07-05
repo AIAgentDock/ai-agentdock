@@ -75,12 +75,23 @@ Open `http://localhost:8080` and verify rule cards render, search/filter work, a
 1. Push this repository to GitHub (or GitLab / Bitbucket).
 2. In the [Cloudflare dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
 3. Select the repository and configure in the Cloudflare dashboard:
-   - **Build command:** `node scripts/build.js` *(equivalent: `npm run build`)*
+   - **Build command:** `npm run build` *(equivalent: `node scripts/build.js`)*
    - **Build output directory:** `/` (project root)
+   - **Deploy command:** leave **empty** — Cloudflare Pages uploads the output automatically after the build
 4. Deploy. Each push runs the build script, regenerating `rules/*.html`, the SEO directory, and `sitemap.xml`.
 5. Add your custom domain (`ai-agentdock.com`) under **Custom domains** in the Pages project settings.
 
-`package.json` defines the same build via `npm run build`. `wrangler.toml` sets `pages_build_output_dir` for Wrangler-based deploys.
+`package.json` defines the build via `npm run build`. `wrangler.toml` sets `pages_build_output_dir = "."` for Pages.
+
+### Troubleshooting deploy failures
+
+If the build log shows `Executing user deploy command: npx wrangler deploy` followed by
+`Missing entry-point to Worker script or to assets directory`, the dashboard deploy command is wrong.
+
+- **Recommended:** clear the **Deploy command** field in Cloudflare Pages settings (this is a static Pages site, not a Worker).
+- **Alternative:** set deploy command to `npm run deploy` (uses `wrangler pages deploy`, not `wrangler deploy`).
+
+Do **not** use `npx wrangler deploy` — that targets Cloudflare Workers and will fail on this project.
 
 ## SEO checklist
 
