@@ -86,12 +86,14 @@ Open `http://localhost:8080` and verify rule cards render, search/filter work, a
 ### Troubleshooting deploy failures
 
 If the build log shows `Executing user deploy command: npx wrangler deploy` followed by
-`Missing entry-point to Worker script or to assets directory`, the dashboard deploy command is wrong.
+`Missing entry-point to Worker script or to assets directory`:
 
-- **Recommended:** clear the **Deploy command** field in Cloudflare Pages settings (this is a static Pages site, not a Worker).
-- **Alternative:** set deploy command to `npm run deploy` (uses `wrangler pages deploy`, not `wrangler deploy`).
+1. **Recommended (Pages Git):** clear the **Deploy command** field; set **Build command** to `npm run build` and **Build output directory** to `/`.
+2. **If deploy command must stay:** the repo now includes `[assets]` in `wrangler.toml` and runs `postinstall` build so `npx wrangler deploy` can succeed after `bun install`.
 
-Do **not** use `npx wrangler deploy` — that targets Cloudflare Workers and will fail on this project.
+Alternative deploy commands:
+- `npm run deploy` — build + `wrangler deploy` (Workers static assets)
+- `npm run deploy:pages` — build + `wrangler pages deploy` (Pages CLI)
 
 ## SEO checklist
 
