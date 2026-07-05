@@ -9,6 +9,7 @@
   <link rel="canonical" href="https://ai-agentdock.com/about.html" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <script src="site-config.js"></script>
+  <script src="site-init.js"></script>
   <script src="analytics.js"></script>
 
   <link rel="stylesheet" href="styles.css" />
@@ -41,7 +42,7 @@
         <a href="index.html" class="site-nav__link">Directory</a>
         <a href="about.html" class="site-nav__link site-nav__link--active">About</a>
         <a href="submit.html" class="site-nav__link">Submit</a>
-        <a href="https://github.com/AIAgentDock/ai-agentdock" id="githubNavLink" class="site-nav__link" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://github.com/AIAgentDock/ai-agentdock" id="githubNavLink" class="site-nav__link site-github-link" target="_blank" rel="noopener noreferrer">GitHub</a>
       </div>
     </nav>
 
@@ -119,7 +120,7 @@
     (function () {
       var cfg = window.SITE_CONFIG || {};
       var link = document.getElementById('githubNavLink');
-      if (link && cfg.githubUrl) link.href = cfg.githubUrl;
+      if (link && cfg.showGithub && cfg.githubUrl) link.href = cfg.githubUrl;
     })();
   </script>
 </body>

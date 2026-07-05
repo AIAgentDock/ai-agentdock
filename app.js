@@ -390,6 +390,11 @@
   }
 
   function renderRuleMeta(rule) {
+    var cfg = window.SITE_CONFIG || {};
+    if (!cfg.showRuleMeta) {
+      return '';
+    }
+
     var source = getRuleSource(rule);
     var license = safeStr(rule.license).trim();
     var licenseUrl = safeStr(rule.licenseUrl) || LICENSE_URLS[license] || '';
@@ -449,7 +454,6 @@
         '<div class="flex flex-wrap gap-1.5 mb-4">' + tagsHtml + '</div>' +
         renderRuleMeta(rule) +
         '<div class="flex flex-col sm:flex-row gap-2 mt-auto">' +
-          '<a href="rules/' + escapeHtml(rule.id) + '.html" class="btn-preview flex-1 py-3 px-4 min-h-[44px] rounded-lg text-sm font-semibold text-center inline-flex items-center justify-center">Open Page</a>' +
           '<button type="button" class="btn-preview flex-1 py-3 px-4 min-h-[44px] rounded-lg text-sm font-semibold" data-preview-id="' + escapeHtml(rule.id) + '">' +
             'Preview' +
           '</button>' +

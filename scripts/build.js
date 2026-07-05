@@ -41,6 +41,7 @@ function analyticsScriptsHtml(depth) {
   var prefix = depth === 0 ? '' : '../';
   return (
     '  <script src="' + prefix + 'site-config.js"></script>\n' +
+    '  <script src="' + prefix + 'site-init.js"></script>\n' +
     '  <script src="' + prefix + 'analytics.js"></script>\n'
   );
 }
@@ -64,13 +65,16 @@ function escapeHtml(text) {
     .replace(/"/g, '&quot;');
 }
 
-function navHtml(active) {
+function navHtml(active, config) {
   const links = [
     { href: 'index.html', label: 'Directory', key: 'home' },
     { href: 'about.html', label: 'About', key: 'about' },
-    { href: 'submit.html', label: 'Submit', key: 'submit' },
-    { href: GITHUB_URL, label: 'GitHub', key: 'github', external: true }
+    { href: 'submit.html', label: 'Submit', key: 'submit' }
   ];
+
+  if (config.showGithub) {
+    links.push({ href: GITHUB_URL, label: 'GitHub', key: 'github', external: true });
+  }
 
   const homeHref = active === 'home' ? 'index.html' : '../index.html';
   const items = links.map(function (link) {
@@ -178,7 +182,7 @@ ${tailwindHead()}
 
   <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
 
-${navHtml('')}
+${navHtml('', config)}
 
     <header class="mb-6 sm:mb-8">
       <div class="flex flex-wrap gap-1.5 mb-3">

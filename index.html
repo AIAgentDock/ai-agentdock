@@ -10,6 +10,7 @@
   <link rel="canonical" href="https://ai-agentdock.com/" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <script src="site-config.js"></script>
+  <script src="site-init.js"></script>
   <script src="analytics.js"></script>
 
   <!-- Open Graph -->
@@ -276,7 +277,7 @@
         <a href="index.html" class="site-nav__link site-nav__link--active">Directory</a>
         <a href="about.html" class="site-nav__link">About</a>
         <a href="submit.html" class="site-nav__link">Submit</a>
-        <a href="https://github.com/AIAgentDock/ai-agentdock" id="githubNavLink" class="site-nav__link" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://github.com/AIAgentDock/ai-agentdock" id="githubNavLink" class="site-nav__link site-github-link" target="_blank" rel="noopener noreferrer">GitHub</a>
       </div>
     </nav>
 
@@ -555,7 +556,7 @@
         </details>
         <details class="faq-item">
           <summary class="faq-item__question">How do I submit my own rule?</summary>
-          <p class="faq-item__answer">Visit <a href="submit.html" class="text-indigo-400 hover:text-indigo-300 transition-colors">Submit a Rule</a> for guidelines, then send by email or open a pull request on <a href="https://github.com/AIAgentDock/ai-agentdock" class="text-indigo-400 hover:text-indigo-300 transition-colors">GitHub</a>.</p>
+          <p class="faq-item__answer">Visit <a href="submit.html" class="text-indigo-400 hover:text-indigo-300 transition-colors">Submit a Rule</a> for guidelines, then send your rule by email.</p>
         </details>
       </div>
     </section>
@@ -610,7 +611,7 @@
           "name": "How do I submit my own rule?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Visit the Submit a Rule page for guidelines, then send by email or open a pull request on GitHub."
+            "text": "Visit the Submit a Rule page for guidelines, then send your rule by email."
           }
         }
       ]
@@ -662,7 +663,7 @@
     (function () {
       var cfg = window.SITE_CONFIG || {};
       var link = document.getElementById('githubNavLink');
-      if (link && cfg.githubUrl) link.href = cfg.githubUrl;
+      if (link && cfg.showGithub && cfg.githubUrl) link.href = cfg.githubUrl;
     })();
   </script>
 </body>
