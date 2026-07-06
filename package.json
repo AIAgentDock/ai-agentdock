@@ -4,7 +4,7 @@
   "description": "Curated Cursor and Windsurf AI coding rules directory",
   "scripts": {
     "build": "node scripts/build.js",
-    "deploy": "node scripts/build.js && wrangler deploy",
+    "deploy": "node scripts/build.js && node scripts/verify-dist.js && wrangler deploy --config wrangler.jsonc",
     "postinstall": "node scripts/build.js"
   },
   "dependencies": {

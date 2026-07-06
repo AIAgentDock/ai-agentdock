@@ -82,21 +82,27 @@ Open `http://localhost:8080` and verify rule cards render, search/filter work, a
 4. Each push to `main` runs the build and Cloudflare Pages publishes the site automatically.
 5. Add your custom domain (`ai-agentdock.com`) under **Custom domains**.
 
-### Option B — Workers Builds (`npx wrangler deploy`)
+### Option B — Workers Builds (recommended for `wrangler deploy`)
 
-If the dashboard uses **Deploy command:** `npx wrangler deploy`, this repo includes:
+This repo builds a `dist/` folder and uploads **only that directory** (about 50 small HTML/JS/CSS files, well under Cloudflare's 25 MiB per-file limit). Do **not** point assets at the repo root — that uploads `node_modules/workerd` (~121 MiB) and fails.
 
 | File | Purpose |
 |------|---------|
-| `wrangler.jsonc` | Worker name; assets served from `dist/` only |
+| `wrangler.jsonc` | Worker name; `assets.directory` = `./dist` |
 | `scripts/build.js` | Generates rule pages and copies the site into `dist/` |
+| `scripts/verify-dist.js` | Fails deploy early if `dist/` is missing or any file exceeds 24 MiB |
+| `.assetsignore` | Safety net to skip `node_modules/` if assets dir is ever misconfigured |
 
-Recommended dashboard settings:
+**Cloudflare dashboard → Worker → Settings → Builds:**
 
-- **Build command:** leave empty
-- **Deploy command:** `npx wrangler deploy` (or `npm run deploy`)
+| Setting | Value |
+|---------|-------|
+| **Build command** | `npm run build` (or leave empty if using deploy below) |
+| **Deploy command** | `npm run deploy` |
 
-`wrangler` is a production `dependency` (not devDependency) so Cloudflare's `bun install` always installs it. `postinstall` builds `dist/` before deploy, keeping assets separate from `node_modules/`.
+Use `npm run deploy` instead of bare `npx wrangler deploy`. The npm script builds `dist/`, verifies asset sizes, then runs `wrangler deploy --config wrangler.jsonc`. Bare `npx wrangler deploy` on a repo without `wrangler.jsonc` triggers auto-setup with `assets.directory: "."` and uploads the whole repo.
+
+`wrangler` is a production `dependency` so `bun install` / `npm install` installs it. `postinstall` also runs the build after install.
 
 ## SEO checklist
 

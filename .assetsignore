@@ -1,0 +1,15 @@
+# Safety net when assets directory is misconfigured to repo root.
+# Primary deploy path uses wrangler.jsonc assets.directory = "dist".
+node_modules/
+.git/
+.wrangler/
+scripts/
+package.json
+package-lock.json
+bun.lockb
+wrangler.jsonc
+wrangler.toml
+.gitignore
+README.md
+.dev.vars
+dist/
