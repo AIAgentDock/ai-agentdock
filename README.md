@@ -91,18 +91,25 @@ This repo builds a `dist/` folder and uploads **only that directory** (about 50 
 | `wrangler.jsonc` | Worker name; `assets.directory` = `./dist` |
 | `scripts/build.js` | Generates rule pages and copies the site into `dist/` |
 | `scripts/verify-dist.js` | Fails deploy early if `dist/` is missing or any file exceeds 24 MiB |
+| `deploy.js` | Root-level Cloudflare deploy entry point |
 | `.assetsignore` | Safety net to skip `node_modules/` if assets dir is ever misconfigured |
 
 **Cloudflare dashboard → Worker → Settings → Builds:**
 
 | Setting | Value |
 |---------|-------|
+| **Root directory** | leave **empty** (repo root — not `dist/`) |
 | **Build command** | leave empty |
-| **Deploy command** | `node scripts/deploy.js` |
+| **Build caching** | **disabled** (until first successful deploy) |
+| **Deploy command** | `node deploy.js` |
 
-Use `node scripts/deploy.js` (not `npm run deploy`). It builds `dist/`, verifies asset sizes, then runs `npx wrangler deploy --config wrangler.jsonc`. This avoids relying on npm scripts or a local `wrangler` binary when Cloudflare's `bun install` skips dependencies.
+Alternative deploy command (no extra file):
 
-If a previous failed build cached an old `package.json`, disable **Build caching** under Worker → Settings → Builds and redeploy.
+```bash
+node scripts/build.js && node scripts/verify-dist.js && npx wrangler deploy --config wrangler.jsonc
+```
+
+`bun install` may print `No packages!` — that is OK. The deploy command uses `npx wrangler` and does not need local `node_modules`. If deploy fails with missing files, the build cache or Root directory is wrong: clear cache and confirm Root directory is empty.
 
 ## SEO checklist
 
