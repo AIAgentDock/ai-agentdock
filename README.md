@@ -1,0 +1,145 @@
+# AI Agent Dock
+
+**AI Agent Dock** is a static, SEO-friendly directory of ready-to-use AI coding rules for [Cursor](https://cursor.com), [Windsurf](https://codeium.com/windsurf), and other AI-powered editors. Browse, search, filter, and copy rules for popular stacks like Next.js, Python, Supabase, Tailwind, FastAPI, Docker, and more.
+
+Live site: [https://ai-agentdock.com/](https://ai-agentdock.com/)
+
+## Project structure
+
+| File | Purpose |
+|------|---------|
+| `index.html` | Homepage — search, filters, rule grid, SEO content |
+| `rules.js` | Rule data (`window.RULES_DATA` array) |
+| `app.js` | Renders rules, handles search/filter/copy |
+| `styles.css` | Custom styles (dark theme) |
+| `about.html` | About page |
+| `privacy.html` | Privacy policy |
+| `submit.html` | Rule submission info |
+| `sitemap.xml` | Sitemap for search engines |
+| `robots.txt` | Crawler directives |
+| `site-config.js` | Site URL and GitHub link |
+| `package.json` | `npm run build` → `node scripts/build.js` |
+| `rules/` | Generated static rule detail pages (run build script) |
+
+## How to add a new rule
+
+1. Open `rules.js`.
+2. Add a new object to the `window.RULES_DATA` array with these fields:
+
+```javascript
+{
+  id: 'unique-slug',
+  title: 'Rule Title',
+  tool: 'Cursor',           // or 'Windsurf'
+  category: 'Frontend',     // e.g. Backend, Fullstack, Mobile
+  framework: 'Next.js',
+  description: 'One-line summary.',
+  tags: ['Next.js', 'React'],
+  content: `# Rule Title\n\nMarkdown rule content here...`
+}
+```
+
+3. Run `node scripts/build.js` to regenerate detail pages, SEO directory, and sitemap.
+4. Test locally (see below) — the new rule should appear in the grid immediately.
+
+## Build script
+
+After editing `rules.js`:
+
+```bash
+node scripts/build.js
+```
+
+This creates/updates:
+- `rules/{id}.html` — one static detail page per rule
+- SEO directory in `index.html` (between `SEO-DIRECTORY` markers)
+- `sitemap.xml` with all rule URLs
+
+Run before deploy when rules change.
+
+## Local development
+
+Serve the project root with any static file server:
+
+```bash
+npx serve .
+# or
+python -m http.server 8080
+```
+
+Open `http://localhost:8080` and verify rule cards render, search/filter work, and the copy button succeeds.
+
+## Deploy to Cloudflare
+
+### Option A — Cloudflare Pages (recommended)
+
+1. Push this repository to GitHub.
+2. In the [Cloudflare dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
+3. Select the repository and configure:
+   - **Build command:** `npm run build`
+   - **Build output directory:** `/` (project root)
+   - **Deploy command:** leave **empty**
+4. Each push to `main` runs the build and Cloudflare Pages publishes the site automatically.
+5. Add your custom domain (`ai-agentdock.com`) under **Custom domains**.
+
+### Option B — Workers Builds (recommended for `wrangler deploy`)
+
+This repo builds a `dist/` folder and uploads **only that directory** (about 50 small HTML/JS/CSS files, well under Cloudflare's 25 MiB per-file limit). Do **not** point assets at the repo root — that uploads `node_modules/workerd` (~121 MiB) and fails.
+
+| File | Purpose |
+|------|---------|
+| `wrangler.jsonc` | Worker name; `assets.directory` = `./dist` |
+| `scripts/build.js` | Generates rule pages and copies the site into `dist/` |
+| `scripts/verify-dist.js` | Fails deploy early if `dist/` is missing or any file exceeds 24 MiB |
+| `deploy.js` | Root-level Cloudflare deploy entry point |
+| `.assetsignore` | Safety net to skip `node_modules/` if assets dir is ever misconfigured |
+
+**Cloudflare dashboard → Worker → Settings → Builds:**
+
+| Setting | Value |
+|---------|-------|
+| **Production branch** | **`main`** (not `cloudflare/workers-autoconfig`) |
+| **Root directory** | leave **empty** (repo root — not `dist/`) |
+| **Build command** | leave empty |
+| **Build caching** | **disabled** (until first successful deploy) |
+| **Deploy command** | `node deploy.js` |
+
+Cloudflare auto-config may create a `cloudflare/workers-autoconfig` branch and set it as the production branch. That branch lacks `deploy.js`, `scripts/`, and `package.json` — builds will fail until you switch production branch to **`main`**.
+
+Alternative deploy command (no extra file):
+
+```bash
+node scripts/build.js && node scripts/verify-dist.js && npx wrangler deploy --config wrangler.jsonc
+```
+
+`bun install` may print `No packages!` — that is OK. The deploy command uses `npx wrangler` and does not need local `node_modules`. If deploy fails with missing files, the build cache or Root directory is wrong: clear cache and confirm Root directory is empty.
+
+## SEO checklist
+
+- Canonical URLs and Open Graph tags point to `https://ai-agentdock.com/`
+- `sitemap.xml` lists all public pages and clean rule URLs (`/rules/{id}`)
+- `_redirects` maps `/rules/*` → `/rules/*.html` on Cloudflare Pages
+- `robots.txt` allows crawling and references the sitemap
+- FAQ section + FAQPage schema on the homepage
+- ItemList schema generated by the build script
+
+## Analytics & Search Console
+
+Edit `site-config.js` and fill in the IDs you receive from each service:
+
+```javascript
+plausibleDomain: 'ai-agentdock.com',        // Plausible dashboard → Site settings
+ga4MeasurementId: 'G-XXXXXXXXXX',           // GA4 → Admin → Data streams
+googleSiteVerification: 'your-token-here'   // Search Console → HTML tag method
+```
+
+Then run `node scripts/build.js` and deploy. Analytics load via `analytics.js` on every page.
+
+**Google Search Console setup:**
+1. Go to [Search Console](https://search.google.com/search-console)
+2. Add property `https://ai-agentdock.com`
+3. Choose **HTML tag** verification → copy the `content` value into `googleSiteVerification`
+4. Rebuild and deploy, then click **Verify** in Search Console
+5. Submit sitemap: `https://ai-agentdock.com/sitemap.xml`
+
+Use **either** Plausible **or** GA4, or both. Update `privacy.html` if you enable tracking.
