@@ -88,31 +88,26 @@ This repo builds a `dist/` folder and uploads **only that directory** (about 50 
 
 | File | Purpose |
 |------|---------|
-| `wrangler.jsonc` | Worker name; `assets.directory` = `./dist` |
+| `wrangler.jsonc` | Worker name, `build.command`, `assets.directory` = `./dist` |
 | `scripts/build.js` | Generates rule pages and copies the site into `dist/` |
 | `scripts/verify-dist.js` | Fails deploy early if `dist/` is missing or any file exceeds 24 MiB |
-| `deploy.js` | Root-level Cloudflare deploy entry point |
 | `.assetsignore` | Safety net to skip `node_modules/` if assets dir is ever misconfigured |
 
 **Cloudflare dashboard → Worker → Settings → Builds:**
 
 | Setting | Value |
 |---------|-------|
-| **Production branch** | **`main`** (not `cloudflare/workers-autoconfig`) |
+| **Production branch** | `main` |
 | **Root directory** | leave **empty** (repo root — not `dist/`) |
 | **Build command** | leave empty |
 | **Build caching** | **disabled** (until first successful deploy) |
-| **Deploy command** | `node deploy.js` |
+| **Deploy command** | `npx wrangler deploy --config wrangler.jsonc` |
 
-Cloudflare auto-config may create a `cloudflare/workers-autoconfig` branch and set it as the production branch. That branch lacks `deploy.js`, `scripts/`, and `package.json` — builds will fail until you switch production branch to **`main`**.
+Wrangler runs `build.command` from `wrangler.jsonc` before upload, so the deploy command does not need `deploy.js` or npm scripts. Use `npx wrangler` so `bun install` printing `No packages!` is fine.
 
-Alternative deploy command (no extra file):
+**If files are "not found" but production branch is `main`:** open the build in Cloudflare and check the **Git commit SHA**. Retrying an old failed build re-runs an **old commit** (before `deploy.js` / `scripts/` fixes). Instead, push a new commit or use **Create deployment** on the latest `main` commit — do not use **Retry deployment** on an old run.
 
-```bash
-node scripts/build.js && node scripts/verify-dist.js && npx wrangler deploy --config wrangler.jsonc
-```
-
-`bun install` may print `No packages!` — that is OK. The deploy command uses `npx wrangler` and does not need local `node_modules`. If deploy fails with missing files, the build cache or Root directory is wrong: clear cache and confirm Root directory is empty.
+`bun install` may print `No packages!` — that is OK when using `npx wrangler deploy`.
 
 ## SEO checklist
 
