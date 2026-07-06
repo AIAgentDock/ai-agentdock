@@ -97,12 +97,12 @@ This repo builds a `dist/` folder and uploads **only that directory** (about 50 
 
 | Setting | Value |
 |---------|-------|
-| **Build command** | `npm run build` (or leave empty if using deploy below) |
-| **Deploy command** | `npm run deploy` |
+| **Build command** | leave empty |
+| **Deploy command** | `node scripts/deploy.js` |
 
-Use `npm run deploy` instead of bare `npx wrangler deploy`. The npm script builds `dist/`, verifies asset sizes, then runs `wrangler deploy --config wrangler.jsonc`. Bare `npx wrangler deploy` on a repo without `wrangler.jsonc` triggers auto-setup with `assets.directory: "."` and uploads the whole repo.
+Use `node scripts/deploy.js` (not `npm run deploy`). It builds `dist/`, verifies asset sizes, then runs `npx wrangler deploy --config wrangler.jsonc`. This avoids relying on npm scripts or a local `wrangler` binary when Cloudflare's `bun install` skips dependencies.
 
-`wrangler` is a production `dependency` so `bun install` / `npm install` installs it. `postinstall` also runs the build after install.
+If a previous failed build cached an old `package.json`, disable **Build caching** under Worker → Settings → Builds and redeploy.
 
 ## SEO checklist
 
