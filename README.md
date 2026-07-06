@@ -98,10 +98,13 @@ This repo builds a `dist/` folder and uploads **only that directory** (about 50 
 
 | Setting | Value |
 |---------|-------|
+| **Production branch** | **`main`** (not `cloudflare/workers-autoconfig`) |
 | **Root directory** | leave **empty** (repo root — not `dist/`) |
 | **Build command** | leave empty |
 | **Build caching** | **disabled** (until first successful deploy) |
 | **Deploy command** | `node deploy.js` |
+
+Cloudflare auto-config may create a `cloudflare/workers-autoconfig` branch and set it as the production branch. That branch lacks `deploy.js`, `scripts/`, and `package.json` — builds will fail until you switch production branch to **`main`**.
 
 Alternative deploy command (no extra file):
 
