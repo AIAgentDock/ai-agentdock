@@ -1,6 +1,6 @@
 # AI Agent Dock
 
-**AI Agent Dock** is a static, SEO-friendly directory of ready-to-use AI coding rules for [Cursor](https://cursor.com), [Windsurf](https://codeium.com/windsurf), and other AI-powered editors. Browse, search, filter, and copy rules for popular stacks like Next.js, Python, Supabase, Tailwind, FastAPI, Docker, and more.
+**AI Agent Dock** is a static, SEO-friendly directory of copy-ready AI coding assets — rules, roles, skills, hooks, workflows, and MCP configs — for [Cursor](https://cursor.com), [Windsurf](https://codeium.com/windsurf), Claude Code, GitHub Copilot, Codex, and MCP-compatible tools. Browse, search, filter, and copy assets for popular stacks like Next.js, Python, Supabase, Tailwind, FastAPI, Docker, and more.
 
 Live site: [https://ai-agentdock.com/](https://ai-agentdock.com/)
 
@@ -8,54 +8,59 @@ Live site: [https://ai-agentdock.com/](https://ai-agentdock.com/)
 
 | File | Purpose |
 |------|---------|
-| `index.html` | Homepage — search, filters, rule grid, SEO content |
-| `rules.js` | Rule data (`window.RULES_DATA` array) |
-| `app.js` | Renders rules, handles search/filter/copy |
+| `index.html` | Homepage — search, filters, asset grid, SEO content |
+| `rules.js` | Base rule data (`window.RULES_DATA` array) |
+| `extra-assets.js` | Roles, skills, hooks, workflows, MCP configs, and tool-specific assets |
+| `app.js` | Renders assets, handles search/filter/copy |
 | `styles.css` | Custom styles (dark theme) |
 | `about.html` | About page |
 | `privacy.html` | Privacy policy |
-| `submit.html` | Rule submission info |
+| `submit.html` | Asset submission form |
 | `sitemap.xml` | Sitemap for search engines |
 | `robots.txt` | Crawler directives |
 | `site-config.js` | Site URL and GitHub link |
 | `package.json` | `npm run build` → `node scripts/build.js` |
 | `rules/` | Generated static rule detail pages (run build script) |
 
-## How to add a new rule
+## How to add a new asset
 
-1. Open `rules.js`.
-2. Add a new object to the `window.RULES_DATA` array with these fields:
+1. Open `rules.js` for rules, or `extra-assets.js` for roles, skills, hooks, workflows, and MCP configs.
+2. Add a new object using the existing format:
 
 ```javascript
 {
   id: 'unique-slug',
-  title: 'Rule Title',
-  tool: 'Cursor',           // or 'Windsurf'
-  category: 'Frontend',     // e.g. Backend, Fullstack, Mobile
+  title: 'Asset Title',
+  tool: 'Cursor',           // Cursor, Windsurf, Claude Code, GitHub Copilot, Codex, MCP
+  assetType: 'Rules',       // Rules, Roles, Skills, Hooks, Workflows, MCP Configs
+  category: 'Frontend',
   framework: 'Next.js',
   description: 'One-line summary.',
   tags: ['Next.js', 'React'],
-  content: `# Rule Title\n\nMarkdown rule content here...`
+  content: `# Asset Title\n\nMarkdown or prompt content here...`
 }
 ```
 
 3. Run `node scripts/build.js` to regenerate detail pages, SEO directory, and sitemap.
-4. Test locally (see below) — the new rule should appear in the grid immediately.
+4. Test locally (see below) — the new asset should appear in the grid immediately.
 
 ## Build script
 
-After editing `rules.js`:
+After editing `rules.js` or `extra-assets.js`:
 
 ```bash
 node scripts/build.js
 ```
 
 This creates/updates:
-- `rules/{id}.html` — one static detail page per rule
+- `rules/{id}.html` — one static detail page per asset
 - SEO directory in `index.html` (between `SEO-DIRECTORY` markers)
-- `sitemap.xml` with all rule URLs
+- `sitemap.xml` with all asset URLs
+- `dist/` — deployable copy of the site (when the build completes)
 
-Run before deploy when rules change.
+### Windows build troubleshooting
+
+On Windows, if the build fails with an **EPERM**, **EBUSY**, or **ENOTEMPTY** error while deleting `dist/`, close any running dev server, file explorer window, preview process, or antivirus scan that may be locking files in `dist/`, then run the build again. The build script retries folder deletion automatically, but a locked file handle can still block cleanup.
 
 ## Local development
 

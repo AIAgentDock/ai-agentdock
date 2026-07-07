@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Submit a Rule — AI Agent Dock</title>
-  <meta name="description" content="Submit your Cursor or Windsurf AI coding rule to AI Agent Dock and share it with the community." />
+  <title>Submit an AI Coding Asset — AI Agent Dock</title>
+  <meta name="description" content="Submit a rule, role, skill, hook, workflow or MCP config for Cursor, Windsurf, Claude Code, GitHub Copilot, Codex and MCP-compatible tools." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://ai-agentdock.com/submit.html" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -45,8 +45,13 @@
             <svg class="site-nav__dropdown-caret" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </span>
           <div class="site-nav__dropdown-menu" role="menu">
-            <a href="index.html" class="site-nav__dropdown-item" role="menuitem">Cursor</a>
+            <a href="index.html#directory" class="site-nav__dropdown-item" role="menuitem">All Assets</a>
+            <a href="cursor.html" class="site-nav__dropdown-item" role="menuitem">Cursor</a>
             <a href="windsurf.html" class="site-nav__dropdown-item" role="menuitem">Windsurf</a>
+            <a href="index.html?tool=claude-code#directory" class="site-nav__dropdown-item" role="menuitem">Claude Code</a>
+            <a href="index.html?tool=github-copilot#directory" class="site-nav__dropdown-item" role="menuitem">GitHub Copilot</a>
+            <a href="index.html?tool=codex#directory" class="site-nav__dropdown-item" role="menuitem">Codex</a>
+            <a href="index.html?tool=mcp#directory" class="site-nav__dropdown-item" role="menuitem">MCP</a>
           </div>
         </div>
         <a href="index.html#faq" class="site-nav__link">FAQ</a>
@@ -58,10 +63,10 @@
 
     <header class="mb-8 sm:mb-10">
       <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-        <span class="gradient-text">Submit a Rule</span>
+        <span class="gradient-text">Submit an AI Coding Asset</span>
       </h1>
       <p class="text-gray-400 text-base sm:text-lg leading-relaxed">
-        Share a rule that works well for your stack and help other developers get better AI-assisted code.
+        Share a useful rule, role, skill, hook, workflow or MCP config for AI coding agents such as Cursor, Windsurf, Claude Code, GitHub Copilot, Codex and MCP-compatible tools.
       </p>
     </header>
 
@@ -69,60 +74,166 @@
       <section class="mb-8">
         <h2 class="text-xl sm:text-2xl font-bold mb-4">What Makes a Good Submission?</h2>
         <ul class="list-disc list-inside text-sm sm:text-base space-y-2 mb-4">
-          <li>Clear, actionable instructions an AI editor can follow consistently</li>
-          <li>Focused on a specific stack, framework, or workflow (e.g. Next.js App Router, FastAPI, Supabase RLS)</li>
+          <li>Clear, actionable instructions an AI coding agent can follow consistently</li>
+          <li>Focused on a specific stack, framework, or workflow (e.g. Next.js App Router, FastAPI, MCP integration)</li>
           <li>Reasonable length — concise enough to fit in a context window after trimming</li>
           <li>Original or properly attributed — do not submit copyrighted content without permission</li>
         </ul>
       </section>
 
-      <section class="mb-8">
-        <h2 class="text-xl sm:text-2xl font-bold mb-4">What to Include</h2>
-        <p class="text-sm sm:text-base mb-4">When submitting, please provide:</p>
-        <ul class="list-disc list-inside text-sm sm:text-base space-y-2 mb-4">
-          <li><strong class="text-gray-200 font-medium">Title</strong> — a short, descriptive name</li>
-          <li><strong class="text-gray-200 font-medium">Category</strong> — e.g. Frontend, Backend, Mobile, AI/ML</li>
-          <li><strong class="text-gray-200 font-medium">Tags</strong> — technologies covered (React, Python, Go, etc.)</li>
-          <li><strong class="text-gray-200 font-medium">Rule content</strong> — the full text to copy into Cursor or Windsurf</li>
-          <li><strong class="text-gray-200 font-medium">Brief description</strong> — one or two sentences on what the rule does</li>
-        </ul>
-      </section>
-
-      <section class="mb-8">
-        <h2 class="text-xl sm:text-2xl font-bold mb-4">How to Submit</h2>
-        <p class="text-sm sm:text-base mb-6">
-          Online submission is coming soon. For now, send your rule via
-          <a href="mailto:aiagentdock.admin@gmail.com?subject=Rule%20Submission%20for%20AI%20Agent%20Dock" id="submitEmailLink" class="text-indigo-400 hover:text-indigo-300 transition-colors">email</a>.
+      <section class="mb-10" aria-labelledby="submit-form-heading">
+        <h2 id="submit-form-heading" class="text-xl sm:text-2xl font-bold mb-4">Submission Form</h2>
+        <p class="text-sm sm:text-base text-gray-400 mb-6">
+          Fill in the details below. When you submit, your email client will open with a pre-filled message. You can also send the same details via GitHub.
         </p>
 
-        <div class="flex flex-col sm:flex-row gap-4">
-          <a
-            href="mailto:aiagentdock.admin@gmail.com?subject=Rule%20Submission%20for%20AI%20Agent%20Dock"
-            id="submitEmailButton"
-            class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition-colors"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-            Email your rule
-          </a>
-          <a
-            href="https://github.com/AIAgentDock/ai-agentdock"
-            id="githubSubmitLink"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="site-github-link inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-gray-700 bg-surface-card hover:border-indigo-500/40 text-gray-300 hover:text-indigo-300 text-sm font-medium transition-colors"
-          >
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/>
-            </svg>
-            Submit via GitHub
-          </a>
-        </div>
+        <form id="assetSubmitForm" class="submit-form space-y-5" novalidate>
+          <div class="submit-form__field">
+            <label for="assetTitle" class="submit-form__label">Asset title <span class="text-red-400" aria-hidden="true">*</span></label>
+            <input type="text" id="assetTitle" name="assetTitle" required class="submit-form__input" placeholder="e.g. Next.js App Router Rules" autocomplete="off" />
+            <p id="assetTitleError" class="submit-form__error hidden" role="alert">Please enter an asset title.</p>
+          </div>
 
-        <p class="site-github-link text-xs text-gray-600 mt-4">
-          GitHub submission can be enabled in <code class="text-indigo-400/80">site-config.js</code> (<code class="text-indigo-400/80">showGithub: true</code>).
-        </p>
+          <div class="submit-form__grid">
+            <div class="submit-form__field">
+              <label for="assetTool" class="submit-form__label">Tool <span class="text-red-400" aria-hidden="true">*</span></label>
+              <select id="assetTool" name="assetTool" required class="submit-form__select">
+                <option value="">Select tool…</option>
+                <option value="Cursor">Cursor</option>
+                <option value="Windsurf">Windsurf</option>
+                <option value="Claude Code">Claude Code</option>
+                <option value="GitHub Copilot">GitHub Copilot</option>
+                <option value="Codex">Codex</option>
+                <option value="MCP">MCP</option>
+                <option value="Other">Other</option>
+              </select>
+              <p id="assetToolError" class="submit-form__error hidden" role="alert">Please select a tool.</p>
+            </div>
+
+            <div class="submit-form__field">
+              <label for="assetType" class="submit-form__label">Asset type <span class="text-red-400" aria-hidden="true">*</span></label>
+              <select id="assetType" name="assetType" required class="submit-form__select">
+                <option value="">Select type…</option>
+                <option value="Rules">Rules</option>
+                <option value="Roles">Roles</option>
+                <option value="Skills">Skills</option>
+                <option value="Hooks">Hooks</option>
+                <option value="Workflows">Workflows</option>
+                <option value="MCP Configs">MCP Configs</option>
+              </select>
+              <p id="assetTypeError" class="submit-form__error hidden" role="alert">Please select an asset type.</p>
+            </div>
+          </div>
+
+          <div class="submit-form__grid">
+            <div class="submit-form__field">
+              <label for="assetCategory" class="submit-form__label">Category <span class="text-red-400" aria-hidden="true">*</span></label>
+              <select id="assetCategory" name="assetCategory" required class="submit-form__select">
+                <option value="">Select category…</option>
+                <option value="Full-Stack">Full-Stack</option>
+                <option value="Frontend">Frontend</option>
+                <option value="Backend">Backend</option>
+                <option value="AI Agent">AI Agent</option>
+                <option value="SaaS">SaaS</option>
+                <option value="DevOps">DevOps</option>
+                <option value="Testing">Testing</option>
+                <option value="Security">Security</option>
+                <option value="Performance">Performance</option>
+                <option value="Database">Database</option>
+                <option value="Documentation">Documentation</option>
+                <option value="Debugging">Debugging</option>
+                <option value="Refactoring">Refactoring</option>
+              </select>
+              <p id="assetCategoryError" class="submit-form__error hidden" role="alert">Please select a category.</p>
+            </div>
+
+            <div class="submit-form__field">
+              <label for="assetFramework" class="submit-form__label">Framework <span class="text-red-400" aria-hidden="true">*</span></label>
+              <select id="assetFramework" name="assetFramework" required class="submit-form__select">
+                <option value="">Select framework…</option>
+                <option value="Generic">Generic</option>
+                <option value="Next.js">Next.js</option>
+                <option value="React">React</option>
+                <option value="TypeScript">TypeScript</option>
+                <option value="Python">Python</option>
+                <option value="FastAPI">FastAPI</option>
+                <option value="Django">Django</option>
+                <option value="Laravel">Laravel</option>
+                <option value="Express">Express</option>
+                <option value="NestJS">NestJS</option>
+                <option value="Supabase">Supabase</option>
+                <option value="Tailwind CSS">Tailwind CSS</option>
+                <option value="Playwright">Playwright</option>
+                <option value="Vitest">Vitest</option>
+                <option value="Vercel">Vercel</option>
+                <option value="Cloudflare">Cloudflare</option>
+                <option value="GitHub">GitHub</option>
+                <option value="Figma">Figma</option>
+                <option value="Other">Other</option>
+              </select>
+              <p id="assetFrameworkError" class="submit-form__error hidden" role="alert">Please select a framework.</p>
+            </div>
+          </div>
+
+          <div class="submit-form__field">
+            <label for="assetDescription" class="submit-form__label">Short description <span class="text-red-400" aria-hidden="true">*</span></label>
+            <input type="text" id="assetDescription" name="assetDescription" required class="submit-form__input" placeholder="One or two sentences describing what this asset does" />
+            <p id="assetDescriptionError" class="submit-form__error hidden" role="alert">Please enter a short description.</p>
+          </div>
+
+          <div class="submit-form__field">
+            <label for="assetContent" class="submit-form__label">Copy-ready content or prompt <span class="text-red-400" aria-hidden="true">*</span></label>
+            <textarea id="assetContent" name="assetContent" required rows="8" class="submit-form__textarea" placeholder="Paste the full rule, role, skill, hook, workflow or MCP config text here"></textarea>
+            <p id="assetContentError" class="submit-form__error hidden" role="alert">Please enter the asset content.</p>
+          </div>
+
+          <div class="submit-form__field">
+            <label for="assetTags" class="submit-form__label">Tags</label>
+            <input type="text" id="assetTags" name="assetTags" class="submit-form__input" placeholder="e.g. Next.js, Testing, Code Review (comma-separated)" />
+          </div>
+
+          <div class="submit-form__field">
+            <label for="assetUseCases" class="submit-form__label">Use cases</label>
+            <textarea id="assetUseCases" name="assetUseCases" rows="3" class="submit-form__textarea" placeholder="List when someone should use this asset (one per line or comma-separated)"></textarea>
+          </div>
+
+          <div class="submit-form__grid">
+            <div class="submit-form__field">
+              <label for="assetSourceUrl" class="submit-form__label">Source URL <span class="text-gray-500 font-normal">(optional)</span></label>
+              <input type="url" id="assetSourceUrl" name="assetSourceUrl" class="submit-form__input" placeholder="https://github.com/…" />
+            </div>
+
+            <div class="submit-form__field">
+              <label for="assetAuthor" class="submit-form__label">Author name <span class="text-gray-500 font-normal">(optional)</span></label>
+              <input type="text" id="assetAuthor" name="assetAuthor" class="submit-form__input" placeholder="Your name or handle" autocomplete="name" />
+            </div>
+          </div>
+
+          <div id="submitSuccess" class="submit-form__success hidden" role="status">
+            Thanks for submitting your AI coding asset. We’ll review it before adding it to AI Agent Dock.
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-4 pt-2">
+            <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              Submit via email
+            </button>
+            <a
+              href="https://github.com/AIAgentDock/ai-agentdock"
+              id="githubSubmitLink"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="site-github-link inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-gray-700 bg-surface-card hover:border-indigo-500/40 text-gray-300 hover:text-indigo-300 text-sm font-medium transition-colors"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/>
+              </svg>
+              Submit via GitHub
+            </a>
+          </div>
+        </form>
       </section>
 
       <section>
@@ -136,13 +247,12 @@
 
     <footer class="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-gray-800/60 text-center text-gray-600 text-xs sm:text-sm">
       <p>
-        AI Agent Dock · Open-source rule directory · Paste into
-        <code class="text-indigo-400/80">.cursor/rules</code> or Windsurf Rules
+        AI Agent Dock · Copy-ready AI coding assets · Cursor, Windsurf, Claude Code, Copilot &amp; MCP
       </p>
       <nav class="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1" aria-label="Footer navigation">
         <a href="about.html" class="hover:text-gray-400 transition-colors">About</a>
         <a href="privacy.html" class="hover:text-gray-400 transition-colors">Privacy</a>
-        <a href="submit.html" class="text-indigo-400/80 hover:text-indigo-300 transition-colors">Submit a Rule</a>
+        <a href="submit.html" class="text-indigo-400/80 hover:text-indigo-300 transition-colors">Submit an Asset</a>
       </nav>
       <p class="mt-2 text-gray-700">&copy; 2026 AI Agent Dock</p>
     </footer>
@@ -151,20 +261,111 @@
   <script>
     (function () {
       var cfg = window.SITE_CONFIG || {};
-      var subject = 'Rule Submission for AI Agent Dock';
-      if (cfg.submitEmail) {
-        var mailto = 'mailto:' + cfg.submitEmail + '?subject=' + encodeURIComponent(subject);
-        ['submitEmailLink', 'submitEmailButton'].forEach(function (id) {
-          var el = document.getElementById(id);
-          if (el) {
-            el.href = mailto;
-          }
-        });
-      }
+      var submitEmail = cfg.submitEmail || 'aiagentdock.admin@gmail.com';
+      var subject = 'AI Coding Asset Submission for AI Agent Dock';
+
       if (cfg.showGithub) {
         ['githubNavLink', 'githubSubmitLink'].forEach(function (id) {
           var el = document.getElementById(id);
           if (el && cfg.githubUrl) el.href = cfg.githubUrl;
+        });
+      }
+
+      var form = document.getElementById('assetSubmitForm');
+      var successEl = document.getElementById('submitSuccess');
+
+      var requiredFields = [
+        { id: 'assetTitle', errorId: 'assetTitleError' },
+        { id: 'assetTool', errorId: 'assetToolError' },
+        { id: 'assetType', errorId: 'assetTypeError' },
+        { id: 'assetCategory', errorId: 'assetCategoryError' },
+        { id: 'assetFramework', errorId: 'assetFrameworkError' },
+        { id: 'assetDescription', errorId: 'assetDescriptionError' },
+        { id: 'assetContent', errorId: 'assetContentError' }
+      ];
+
+      function getValue(id) {
+        var el = document.getElementById(id);
+        return el ? el.value.trim() : '';
+      }
+
+      function showError(fieldId, errorId, show) {
+        var field = document.getElementById(fieldId);
+        var error = document.getElementById(errorId);
+        if (field) {
+          field.setAttribute('aria-invalid', show ? 'true' : 'false');
+        }
+        if (error) {
+          error.classList.toggle('hidden', !show);
+        }
+      }
+
+      function validateForm() {
+        var valid = true;
+        requiredFields.forEach(function (field) {
+          var value = getValue(field.id);
+          var isValid = value.length > 0;
+          showError(field.id, field.errorId, !isValid);
+          if (!isValid) valid = false;
+        });
+        return valid;
+      }
+
+      function buildEmailBody() {
+        var lines = [
+          'Title: ' + getValue('assetTitle'),
+          'Tool: ' + getValue('assetTool'),
+          'Asset Type: ' + getValue('assetType'),
+          'Category: ' + getValue('assetCategory'),
+          'Framework: ' + getValue('assetFramework'),
+          'Description: ' + getValue('assetDescription'),
+          '',
+          'Tags: ' + (getValue('assetTags') || '(none)'),
+          'Use Cases: ' + (getValue('assetUseCases') || '(none)'),
+          'Source URL: ' + (getValue('assetSourceUrl') || '(none)'),
+          'Author: ' + (getValue('assetAuthor') || '(anonymous)'),
+          '',
+          '--- Content ---',
+          getValue('assetContent')
+        ];
+        return lines.join('\n');
+      }
+
+      if (form) {
+        form.addEventListener('submit', function (event) {
+          event.preventDefault();
+          if (!validateForm()) {
+            if (successEl) successEl.classList.add('hidden');
+            return;
+          }
+
+          var body = buildEmailBody();
+          var mailto = 'mailto:' + submitEmail +
+            '?subject=' + encodeURIComponent(subject) +
+            '&body=' + encodeURIComponent(body);
+
+          window.location.href = mailto;
+
+          if (successEl) {
+            successEl.classList.remove('hidden');
+            successEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+
+        requiredFields.forEach(function (field) {
+          var el = document.getElementById(field.id);
+          if (el) {
+            el.addEventListener('input', function () {
+              if (getValue(field.id)) {
+                showError(field.id, field.errorId, false);
+              }
+            });
+            el.addEventListener('change', function () {
+              if (getValue(field.id)) {
+                showError(field.id, field.errorId, false);
+              }
+            });
+          }
         });
       }
     })();

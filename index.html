@@ -61,7 +61,7 @@
     "@context": "https://schema.org",
     "@type": "ItemList",
     "name": "AI Agent Dock Assets",
-    "numberOfItems": 71,
+    "numberOfItems": 90,
     "itemListElement": [
       {
         "@type": "ListItem",
@@ -488,6 +488,120 @@
         "position": 71,
         "name": "MCP Server Setup Workflow",
         "url": "https://ai-agentdock.com/rules/mcp-server-setup-workflow"
+      },
+      {
+        "@type": "ListItem",
+        "position": 72,
+        "name": "GitHub MCP Config",
+        "url": "https://ai-agentdock.com/rules/github-mcp-config"
+      },
+      {
+        "@type": "ListItem",
+        "position": 73,
+        "name": "Filesystem MCP Config",
+        "url": "https://ai-agentdock.com/rules/filesystem-mcp-config"
+      },
+      {
+        "@type": "ListItem",
+        "position": 74,
+        "name": "Browser MCP Config",
+        "url": "https://ai-agentdock.com/rules/browser-mcp-config"
+      },
+      {
+        "@type": "ListItem",
+        "position": 75,
+        "name": "Database MCP Config",
+        "url": "https://ai-agentdock.com/rules/database-mcp-config"
+      },
+      {
+        "@type": "ListItem",
+        "position": 76,
+        "name": "Figma MCP Config",
+        "url": "https://ai-agentdock.com/rules/figma-mcp-config"
+      },
+      {
+        "@type": "ListItem",
+        "position": 77,
+        "name": "Claude Code Refactoring Role",
+        "url": "https://ai-agentdock.com/rules/claude-code-refactoring-role"
+      },
+      {
+        "@type": "ListItem",
+        "position": 78,
+        "name": "Claude Code Debugging Hook",
+        "url": "https://ai-agentdock.com/rules/claude-code-debugging-hook"
+      },
+      {
+        "@type": "ListItem",
+        "position": 79,
+        "name": "Claude Code Codebase Explanation Skill",
+        "url": "https://ai-agentdock.com/rules/claude-code-codebase-explanation-skill"
+      },
+      {
+        "@type": "ListItem",
+        "position": 80,
+        "name": "GitHub Copilot PR Review Prompt",
+        "url": "https://ai-agentdock.com/rules/github-copilot-pr-review-prompt"
+      },
+      {
+        "@type": "ListItem",
+        "position": 81,
+        "name": "GitHub Copilot Test Generation Prompt",
+        "url": "https://ai-agentdock.com/rules/github-copilot-test-generation-prompt"
+      },
+      {
+        "@type": "ListItem",
+        "position": 82,
+        "name": "GitHub Copilot Issue-to-Code Workflow",
+        "url": "https://ai-agentdock.com/rules/github-copilot-issue-to-code-workflow"
+      },
+      {
+        "@type": "ListItem",
+        "position": 83,
+        "name": "Windsurf Cascade Debugging Skill",
+        "url": "https://ai-agentdock.com/rules/windsurf-cascade-debugging-skill"
+      },
+      {
+        "@type": "ListItem",
+        "position": 84,
+        "name": "Windsurf Frontend UI Polish Skill",
+        "url": "https://ai-agentdock.com/rules/windsurf-frontend-ui-polish-skill"
+      },
+      {
+        "@type": "ListItem",
+        "position": 85,
+        "name": "Windsurf Refactor Safely Skill",
+        "url": "https://ai-agentdock.com/rules/windsurf-refactor-safely-skill"
+      },
+      {
+        "@type": "ListItem",
+        "position": 86,
+        "name": "Codex Project Planning Prompt",
+        "url": "https://ai-agentdock.com/rules/codex-project-planning-prompt"
+      },
+      {
+        "@type": "ListItem",
+        "position": 87,
+        "name": "Codex Test Generation Skill",
+        "url": "https://ai-agentdock.com/rules/codex-test-generation-skill"
+      },
+      {
+        "@type": "ListItem",
+        "position": 88,
+        "name": "Codex Code Review Role",
+        "url": "https://ai-agentdock.com/rules/codex-code-review-role"
+      },
+      {
+        "@type": "ListItem",
+        "position": 89,
+        "name": "Codex Documentation Skill",
+        "url": "https://ai-agentdock.com/rules/codex-documentation-skill"
+      },
+      {
+        "@type": "ListItem",
+        "position": 90,
+        "name": "Codex Deployment Readiness Workflow",
+        "url": "https://ai-agentdock.com/rules/codex-deployment-readiness-workflow"
       }
     ]
   }
@@ -508,15 +622,27 @@
     <nav class="site-nav flex flex-wrap items-center justify-between gap-4 mb-8 sm:mb-12" aria-label="Main navigation">
       <a href="index.html" class="site-brand">AI Agent Dock</a>
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-        <a href="#directory" class="site-nav__link site-nav__link--active">Directory</a>
+        <div class="site-nav__dropdown">
+          <span class="site-nav__link site-nav__link--active site-nav__dropdown-trigger" tabindex="0">
+            Directory
+            <svg class="site-nav__dropdown-caret" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </span>
+          <div class="site-nav__dropdown-menu" role="menu">
+            <a href="index.html#directory" class="site-nav__dropdown-item site-nav__dropdown-item--active" role="menuitem">All Assets</a>
+            <a href="cursor.html" class="site-nav__dropdown-item" role="menuitem">Cursor</a>
+            <a href="windsurf.html" class="site-nav__dropdown-item" role="menuitem">Windsurf</a>
+            <a href="index.html?tool=claude-code#directory" class="site-nav__dropdown-item" role="menuitem">Claude Code</a>
+            <a href="index.html?tool=github-copilot#directory" class="site-nav__dropdown-item" role="menuitem">GitHub Copilot</a>
+            <a href="index.html?tool=codex#directory" class="site-nav__dropdown-item" role="menuitem">Codex</a>
+            <a href="index.html?tool=mcp#directory" class="site-nav__dropdown-item" role="menuitem">MCP</a>
+          </div>
+        </div>
         <a href="#browse-asset-types" data-nav-asset-type="rules" class="site-nav__link">Rules</a>
         <a href="#browse-asset-types" data-nav-asset-type="roles" class="site-nav__link">Roles</a>
         <a href="#browse-asset-types" data-nav-asset-type="skills" class="site-nav__link">Skills</a>
         <a href="#quick-hooks" class="site-nav__link">Hooks</a>
         <a href="#browse-asset-types" data-nav-asset-type="workflows" class="site-nav__link">Workflows</a>
         <a href="#browse-tools" data-nav-asset-type="mcp" class="site-nav__link">MCP</a>
-        <a href="cursor.html" class="site-nav__link">Cursor</a>
-        <a href="windsurf.html" class="site-nav__link">Windsurf</a>
         <a href="about.html" class="site-nav__link">About</a>
         <a href="submit.html" class="site-nav__link">Submit</a>
         <a href="https://github.com/AIAgentDock/ai-agentdock" id="githubNavLink" class="site-nav__link site-github-link" target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -803,7 +929,7 @@
           </ul>
         </details>
         <details class="sidebar-panel" open>
-          <summary class="sidebar-panel__summary"><a href="windsurf.html" class="sidebar-panel__tool-link">Windsurf</a> <span class="sidebar-panel__count">(17)</span></summary>
+          <summary class="sidebar-panel__summary"><a href="windsurf.html" class="sidebar-panel__tool-link">Windsurf</a> <span class="sidebar-panel__count">(20)</span></summary>
           <ul class="sidebar-panel__list">
             <li class="sidebar-panel__item">
               <a href="rules/python-scraper" class="sidebar-panel__link">Python Web Scraping Rules</a>
@@ -856,6 +982,15 @@
             <li class="sidebar-panel__item">
               <a href="rules/fastapi-python-backend" class="sidebar-panel__link">Python FastAPI Backend Rules</a>
             </li>
+            <li class="sidebar-panel__item">
+              <a href="rules/windsurf-cascade-debugging-skill" class="sidebar-panel__link">Windsurf Cascade Debugging Skill</a>
+            </li>
+            <li class="sidebar-panel__item">
+              <a href="rules/windsurf-frontend-ui-polish-skill" class="sidebar-panel__link">Windsurf Frontend UI Polish Skill</a>
+            </li>
+            <li class="sidebar-panel__item">
+              <a href="rules/windsurf-refactor-safely-skill" class="sidebar-panel__link">Windsurf Refactor Safely Skill</a>
+            </li>
           </ul>
         </details>
     <!-- SEO-DIRECTORY:END -->
@@ -866,7 +1001,7 @@
     <!-- Filters + search -->
     <section class="filter-panel mb-6 sm:mb-8" aria-label="Asset filters">
       <h2 class="filter-panel__heading text-lg sm:text-xl font-bold text-white mb-1">AI Coding Assets Directory</h2>
-      <p class="filter-panel__desc text-sm text-gray-500 mb-5 sm:mb-6">Filter by tool, asset type, category, framework, or keyword.</p>
+      <p class="filter-panel__desc text-sm text-gray-500 mb-5 sm:mb-6">Filter by tool, asset type, category, and framework to find the right rules, roles, skills, hooks, workflows, or MCP configs.</p>
 
       <div class="filter-panel__rows space-y-3 sm:space-y-4">
         <div class="filter-row">
@@ -1715,6 +1850,215 @@
         </h2>
         <p class="text-gray-400 text-sm leading-relaxed flex-1">Step-by-step workflow for setting up a Model Context Protocol server and connecting it to AI coding agents.</p>
       </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">MCP</span>
+          <span class="rule-badge rule-badge--asset-type">MCP CONFIGS</span>
+          <span class="rule-badge rule-badge--category">AI AGENT</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/github-mcp-config" class="rule-card__title">GitHub MCP Config</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A practical MCP configuration concept for connecting an AI coding agent to GitHub repositories, issues, pull requests, and code review workflows.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">MCP</span>
+          <span class="rule-badge rule-badge--asset-type">MCP CONFIGS</span>
+          <span class="rule-badge rule-badge--category">AI AGENT</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/filesystem-mcp-config" class="rule-card__title">Filesystem MCP Config</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A filesystem MCP setup concept for giving an AI coding agent structured access to local project files.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">MCP</span>
+          <span class="rule-badge rule-badge--asset-type">MCP CONFIGS</span>
+          <span class="rule-badge rule-badge--category">TESTING</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/browser-mcp-config" class="rule-card__title">Browser MCP Config</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A browser MCP setup concept for web inspection, UI testing, debugging, and browser-based workflows.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">MCP</span>
+          <span class="rule-badge rule-badge--asset-type">MCP CONFIGS</span>
+          <span class="rule-badge rule-badge--category">DATABASE</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/database-mcp-config" class="rule-card__title">Database MCP Config</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A database MCP setup concept for helping AI agents understand schemas, queries, migrations, and data relationships.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">MCP</span>
+          <span class="rule-badge rule-badge--asset-type">MCP CONFIGS</span>
+          <span class="rule-badge rule-badge--category">FRONTEND</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/figma-mcp-config" class="rule-card__title">Figma MCP Config</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A Figma MCP setup concept for connecting design context to frontend implementation.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">CLAUDE CODE</span>
+          <span class="rule-badge rule-badge--asset-type">ROLES</span>
+          <span class="rule-badge rule-badge--category">REFACTORING</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/claude-code-refactoring-role" class="rule-card__title">Claude Code Refactoring Role</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A Claude Code role for safely refactoring existing projects without changing behavior.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">CLAUDE CODE</span>
+          <span class="rule-badge rule-badge--asset-type">HOOKS</span>
+          <span class="rule-badge rule-badge--category">DEBUGGING</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/claude-code-debugging-hook" class="rule-card__title">Claude Code Debugging Hook</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A short Claude Code hook for root-cause debugging.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">CLAUDE CODE</span>
+          <span class="rule-badge rule-badge--asset-type">SKILLS</span>
+          <span class="rule-badge rule-badge--category">DOCUMENTATION</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/claude-code-codebase-explanation-skill" class="rule-card__title">Claude Code Codebase Explanation Skill</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A Claude Code skill for understanding a new or unfamiliar codebase.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">GITHUB COPILOT</span>
+          <span class="rule-badge rule-badge--asset-type">SKILLS</span>
+          <span class="rule-badge rule-badge--category">TESTING</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/github-copilot-pr-review-prompt" class="rule-card__title">GitHub Copilot PR Review Prompt</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A GitHub Copilot prompt for reviewing pull requests clearly and practically.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">GITHUB COPILOT</span>
+          <span class="rule-badge rule-badge--asset-type">SKILLS</span>
+          <span class="rule-badge rule-badge--category">TESTING</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/github-copilot-test-generation-prompt" class="rule-card__title">GitHub Copilot Test Generation Prompt</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A GitHub Copilot prompt for generating practical tests around risky code.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">GITHUB COPILOT</span>
+          <span class="rule-badge rule-badge--asset-type">WORKFLOWS</span>
+          <span class="rule-badge rule-badge--category">FULL-STACK</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/github-copilot-issue-to-code-workflow" class="rule-card__title">GitHub Copilot Issue-to-Code Workflow</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A workflow prompt for turning a GitHub issue into an implementation plan.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">WINDSURF</span>
+          <span class="rule-badge rule-badge--asset-type">SKILLS</span>
+          <span class="rule-badge rule-badge--category">DEBUGGING</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/windsurf-cascade-debugging-skill" class="rule-card__title">Windsurf Cascade Debugging Skill</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A Windsurf skill for using Cascade to debug issues step by step before changing code.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">WINDSURF</span>
+          <span class="rule-badge rule-badge--asset-type">SKILLS</span>
+          <span class="rule-badge rule-badge--category">FRONTEND</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/windsurf-frontend-ui-polish-skill" class="rule-card__title">Windsurf Frontend UI Polish Skill</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A Windsurf skill for improving frontend UI quality, spacing, responsiveness, and component consistency.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">WINDSURF</span>
+          <span class="rule-badge rule-badge--asset-type">SKILLS</span>
+          <span class="rule-badge rule-badge--category">REFACTORING</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/windsurf-refactor-safely-skill" class="rule-card__title">Windsurf Refactor Safely Skill</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A Windsurf skill for safely refactoring existing code without changing behavior.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">CODEX</span>
+          <span class="rule-badge rule-badge--asset-type">HOOKS</span>
+          <span class="rule-badge rule-badge--category">FULL-STACK</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/codex-project-planning-prompt" class="rule-card__title">Codex Project Planning Prompt</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A Codex hook for planning implementation before writing code.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">CODEX</span>
+          <span class="rule-badge rule-badge--asset-type">SKILLS</span>
+          <span class="rule-badge rule-badge--category">TESTING</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/codex-test-generation-skill" class="rule-card__title">Codex Test Generation Skill</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A Codex skill for generating practical tests around important or risky code.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">CODEX</span>
+          <span class="rule-badge rule-badge--asset-type">ROLES</span>
+          <span class="rule-badge rule-badge--category">TESTING</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/codex-code-review-role" class="rule-card__title">Codex Code Review Role</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A Codex role for reviewing code quality, correctness, maintainability, and risk.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">CODEX</span>
+          <span class="rule-badge rule-badge--asset-type">SKILLS</span>
+          <span class="rule-badge rule-badge--category">DOCUMENTATION</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/codex-documentation-skill" class="rule-card__title">Codex Documentation Skill</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A Codex skill for creating useful developer documentation.</p>
+      </article>
+      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="rule-badge rule-badge--tool">CODEX</span>
+          <span class="rule-badge rule-badge--asset-type">WORKFLOWS</span>
+          <span class="rule-badge rule-badge--category">DEVOPS</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">
+          <a href="rules/codex-deployment-readiness-workflow" class="rule-card__title">Codex Deployment Readiness Workflow</a>
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed flex-1">A Codex workflow for checking whether a project is ready to build and deploy.</p>
+      </article>
     <!-- SEO-GRID:END -->
     </main>
 
@@ -1770,6 +2114,30 @@
           <p class="use-case-block__text">E2E testing rules, automation engineer roles, and Playwright skills for stable browser tests and CI-ready user journey coverage.</p>
         </article>
         <article class="use-case-block">
+          <h3 class="use-case-block__title"><a href="#directory" data-filter-tool="mcp" data-filter-asset-type="mcp-configs" class="use-case-block__link">MCP Configs for AI Agents</a></h3>
+          <p class="use-case-block__text">GitHub, filesystem, browser, database and Figma MCP configuration concepts for connecting AI coding agents to external tools and project context.</p>
+        </article>
+        <article class="use-case-block">
+          <h3 class="use-case-block__title"><a href="#directory" data-filter-tool="claude-code" class="use-case-block__link">Claude Code Roles &amp; Skills</a></h3>
+          <p class="use-case-block__text">Copy-ready Claude Code roles, skills and hooks for refactoring, debugging, codebase explanation and safe AI-assisted development workflows.</p>
+        </article>
+        <article class="use-case-block">
+          <h3 class="use-case-block__title"><a href="#directory" data-filter-tool="github-copilot" class="use-case-block__link">GitHub Copilot Prompts</a></h3>
+          <p class="use-case-block__text">PR review prompts, test generation skills and issue-to-code workflows for GitHub Copilot Chat and copilot-instructions.md.</p>
+        </article>
+        <article class="use-case-block">
+          <h3 class="use-case-block__title"><a href="#directory" data-filter-asset-type="hooks" class="use-case-block__link">AI Coding Hooks</a></h3>
+          <p class="use-case-block__text">Short pre-task hooks for planning, debugging, refactoring, security audits and deployment prep — paste before starting any coding session.</p>
+        </article>
+        <article class="use-case-block">
+          <h3 class="use-case-block__title"><a href="cursor.html" class="use-case-block__link">Cursor Rules Directory</a></h3>
+          <p class="use-case-block__text">Browse Cursor rules, roles, skills, hooks and workflows for Agent and Chat — from Next.js and React to testing, DevOps and security.</p>
+        </article>
+        <article class="use-case-block">
+          <h3 class="use-case-block__title"><a href="windsurf.html" class="use-case-block__link">Windsurf Skills &amp; Workflows</a></h3>
+          <p class="use-case-block__text">Cascade-ready Windsurf skills, rules and workflows for full-stack, backend, testing and AI agent development.</p>
+        </article>
+        <article class="use-case-block">
           <h3 class="use-case-block__title"><a href="#directory" data-filter-tool="mcp" class="use-case-block__link">MCP Workflows for Developers</a></h3>
           <p class="use-case-block__text">Model Context Protocol setup workflows and MCP server rules for connecting tools, resources, and agents in Cursor and other AI coding environments.</p>
         </article>
@@ -1806,7 +2174,7 @@
         </details>
         <details class="faq-item">
           <summary class="faq-item__question">How do I submit my own rule?</summary>
-          <p class="faq-item__answer">Visit <a href="submit.html" class="text-indigo-400 hover:text-indigo-300 transition-colors">Submit a Rule</a> for guidelines, then send your rule by email.</p>
+          <p class="faq-item__answer">Visit <a href="submit.html" class="text-indigo-400 hover:text-indigo-300 transition-colors">Submit an AI Coding Asset</a> for guidelines, then send your asset by email.</p>
         </details>
       </div>
     </section>

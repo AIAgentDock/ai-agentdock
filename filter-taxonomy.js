@@ -266,6 +266,18 @@ window.FILTER_TAXONOMY = {
           'Monorepo',
           'pnpm'
         ]
+      },
+      debugging: {
+        label: 'Debugging',
+        frameworks: ['Generic', 'TypeScript', 'Python']
+      },
+      refactoring: {
+        label: 'Refactoring',
+        frameworks: ['Generic', 'TypeScript', 'Python']
+      },
+      documentation: {
+        label: 'Documentation',
+        frameworks: ['README', 'Markdown', 'Generic']
       }
     }
   },
@@ -279,6 +291,7 @@ window.FILTER_TAXONOMY = {
       ai: { label: 'AI Agent / RAG', frameworks: ['MCP', 'OpenAI API'] },
       testing: { label: 'Testing / QA', frameworks: ['Playwright', 'Vitest', 'Generic'] },
       debugging: { label: 'Debugging', frameworks: ['Generic'] },
+      refactoring: { label: 'Refactoring', frameworks: ['Generic', 'TypeScript'] },
       documentation: { label: 'Documentation', frameworks: ['README', 'Generic'] }
     }
   },
@@ -287,9 +300,9 @@ window.FILTER_TAXONOMY = {
     label: 'GitHub Copilot',
     categories: {
       general: { label: 'General Coding', frameworks: ['Generic'] },
-      fullstack: { label: 'Fullstack', frameworks: ['Next.js', 'React', 'TypeScript'] },
+      fullstack: { label: 'Fullstack', frameworks: ['Next.js', 'React', 'TypeScript', 'Generic'] },
       backend: { label: 'Backend / API', frameworks: ['Node.js', 'Python', 'Go'] },
-      testing: { label: 'Testing / QA', frameworks: ['Playwright', 'Vitest'] }
+      testing: { label: 'Testing / QA', frameworks: ['Playwright', 'Vitest', 'GitHub', 'Generic'] }
     }
   },
 
@@ -297,15 +310,23 @@ window.FILTER_TAXONOMY = {
     label: 'Codex',
     categories: {
       general: { label: 'General Coding', frameworks: ['Generic'] },
-      fullstack: { label: 'Fullstack', frameworks: ['Next.js', 'React'] },
-      ai: { label: 'AI Agent / RAG', frameworks: ['MCP', 'OpenAI API'] }
+      fullstack: { label: 'Fullstack', frameworks: ['Next.js', 'React', 'Generic'] },
+      ai: { label: 'AI Agent / RAG', frameworks: ['MCP', 'OpenAI API'] },
+      testing: { label: 'Testing / QA', frameworks: ['Playwright', 'Vitest', 'Generic'] },
+      debugging: { label: 'Debugging', frameworks: ['Generic'] },
+      refactoring: { label: 'Refactoring', frameworks: ['Generic'] },
+      documentation: { label: 'Documentation', frameworks: ['README', 'Generic'] },
+      devops: { label: 'DevOps / Deployment', frameworks: ['Cloudflare', 'Vercel', 'Generic'] }
     }
   },
 
   mcp: {
     label: 'MCP',
     categories: {
-      ai: { label: 'AI Agent / RAG', frameworks: ['MCP', 'Generic'] },
+      ai: { label: 'AI Agent / RAG', frameworks: ['MCP', 'Generic', 'GitHub'] },
+      testing: { label: 'Testing / QA', frameworks: ['Playwright', 'Generic'] },
+      database: { label: 'Database / ORM', frameworks: ['PostgreSQL', 'Generic'] },
+      frontend: { label: 'Frontend / UI', frameworks: ['Figma', 'React', 'Generic'] },
       devops: { label: 'DevOps / Deployment', frameworks: ['Cloudflare', 'Generic'] }
     }
   },

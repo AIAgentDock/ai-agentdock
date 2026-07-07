@@ -1555,6 +1555,12 @@ You are a senior engineer performing thorough code review with security and main
   }
 ];
 
+window.RULES_DATA.forEach(function (rule) {
+  if (!rule.assetType) {
+    rule.assetType = 'Rules';
+  }
+});
+
 if (Array.isArray(window.EXTRA_ASSETS)) {
   window.RULES_DATA = window.RULES_DATA.concat(window.EXTRA_ASSETS);
 }

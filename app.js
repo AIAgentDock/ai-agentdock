@@ -164,6 +164,14 @@
     systems: 'backend',
     ai: 'ai',
     'ai agent / rag': 'ai',
+    'ai agent': 'ai',
+    'full-stack': 'fullstack',
+    saas: 'saas',
+    refactoring: 'refactoring',
+    debugging: 'debugging',
+    documentation: 'documentation',
+    performance: 'performance',
+    database: 'database'
     testing: 'testing',
     'testing / qa': 'testing',
     devops: 'devops',
@@ -1072,7 +1080,7 @@
     } else {
       filterState.tool = pageTool;
     }
-    var urlAssetType = (params.get('type') || 'all').toLowerCase();
+    var urlAssetType = (params.get('type') || params.get('assetType') || 'all').toLowerCase();
     filterState.assetType = (urlAssetType === 'all' || ASSET_TYPE_KEYS.indexOf(urlAssetType) !== -1) ? urlAssetType : 'all';
     filterState.category = params.get('category') || 'all';
     filterState.framework = params.get('framework') || 'all';

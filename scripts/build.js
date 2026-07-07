@@ -5,6 +5,7 @@
 'use strict';
 
 const fs = require('fs');
+const fsp = fs.promises;
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
@@ -92,13 +93,34 @@ function escapeHtml(text) {
     .replace(/"/g, '&quot;');
 }
 
+function normalizeActiveToolKey(tool) {
+  var value = String(tool || '').trim().toLowerCase();
+  if (value === 'claude code') {
+    return 'claude-code';
+  }
+  if (value === 'github copilot') {
+    return 'github-copilot';
+  }
+  return value.replace(/\s+/g, '-');
+}
+
 function directoryNavHtml(activeTool, depth) {
   var prefix = depth === 0 ? '' : '../';
-  var cursorHref = prefix + 'cursor.html';
-  var windsurfHref = prefix + 'windsurf.html';
-  var cursorActive = activeTool === 'cursor' ? ' site-nav__dropdown-item--active' : '';
-  var windsurfActive = activeTool === 'windsurf' ? ' site-nav__dropdown-item--active' : '';
+  var homeHref = prefix + 'index.html';
+  var tools = [
+    { key: 'all', href: homeHref + '#directory', label: 'All Assets' },
+    { key: 'cursor', href: prefix + 'cursor.html', label: 'Cursor' },
+    { key: 'windsurf', href: prefix + 'windsurf.html', label: 'Windsurf' },
+    { key: 'claude-code', href: homeHref + '?tool=claude-code#directory', label: 'Claude Code' },
+    { key: 'github-copilot', href: homeHref + '?tool=github-copilot#directory', label: 'GitHub Copilot' },
+    { key: 'codex', href: homeHref + '?tool=codex#directory', label: 'Codex' },
+    { key: 'mcp', href: homeHref + '?tool=mcp#directory', label: 'MCP' }
+  ];
   var triggerActive = activeTool ? ' site-nav__link--active' : '';
+  var items = tools.map(function (tool) {
+    var active = activeTool === tool.key ? ' site-nav__dropdown-item--active' : '';
+    return '            <a href="' + tool.href + '" class="site-nav__dropdown-item' + active + '" role="menuitem">' + tool.label + '</a>';
+  }).join('\n');
 
   return (
     '<div class="site-nav__dropdown">\n' +
@@ -107,8 +129,7 @@ function directoryNavHtml(activeTool, depth) {
     '            <svg class="site-nav__dropdown-caret" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>\n' +
     '          </span>\n' +
     '          <div class="site-nav__dropdown-menu" role="menu">\n' +
-    '            <a href="' + cursorHref + '" class="site-nav__dropdown-item' + cursorActive + '" role="menuitem">Cursor</a>\n' +
-    '            <a href="' + windsurfHref + '" class="site-nav__dropdown-item' + windsurfActive + '" role="menuitem">Windsurf</a>\n' +
+    items + '\n' +
     '          </div>\n' +
     '        </div>'
   );
@@ -319,7 +340,7 @@ ${tailwindHead()}
 
   <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
 
-${navHtml('', config, String(rule.tool || 'Cursor').toLowerCase())}
+${navHtml('', config, normalizeActiveToolKey(rule.tool || 'Cursor'))}
 
     <header class="mb-6 sm:mb-8">
       <div class="flex flex-wrap gap-1.5 mb-3">
@@ -702,6 +723,85 @@ function generateSitemap(rules) {
   fs.writeFileSync(SITEMAP, xml, 'utf8');
 }
 
+function sleep(ms) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function removeDirWithRetry(targetDir, retries, delayMs) {
+  retries = retries || 5;
+  delayMs = delayMs || 300;
+  var fullPath = path.resolve(targetDir);
+
+  if (!fs.existsSync(fullPath)) {
+    return;
+  }
+
+  for (var attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await fsp.rm(fullPath, {
+        recursive: true,
+        force: true,
+        maxRetries: 3,
+        retryDelay: delayMs
+      });
+      return;
+    } catch (error) {
+      var retryable = ['EPERM', 'EBUSY', 'ENOTEMPTY', 'EACCES'].indexOf(error.code) !== -1;
+      if (!retryable || attempt === retries) {
+        console.error('Failed to remove ' + fullPath + '.');
+        console.error('Close any running dev server, file explorer preview, terminal process, or antivirus scan using the dist folder, then try again.');
+        throw error;
+      }
+      console.warn('Could not remove ' + fullPath + ' on attempt ' + attempt + '. Retrying...');
+      await sleep(delayMs * attempt);
+    }
+  }
+}
+
+async function clearDirContents(targetDir) {
+  var fullPath = path.resolve(targetDir);
+  if (!fs.existsSync(fullPath)) {
+    return;
+  }
+
+  var entries = await fsp.readdir(fullPath, { withFileTypes: true });
+  for (var i = 0; i < entries.length; i++) {
+    var entry = entries[i];
+    var entryPath = path.join(fullPath, entry.name);
+    await fsp.rm(entryPath, {
+      recursive: true,
+      force: true,
+      maxRetries: 3,
+      retryDelay: 100
+    });
+  }
+}
+
+async function prepareDistDir() {
+  if (!fs.existsSync(DIST)) {
+    fs.mkdirSync(DIST, { recursive: true });
+    return;
+  }
+
+  try {
+    await removeDirWithRetry(DIST);
+    fs.mkdirSync(DIST, { recursive: true });
+    return;
+  } catch (error) {
+    console.warn('Could not remove dist/ completely. Falling back to in-place dist update...');
+  }
+
+  try {
+    await clearDirContents(DIST);
+  } catch (clearError) {
+    console.warn('Some dist/ files could not be cleared. Continuing with overwrite where possible.');
+  }
+
+  fs.mkdirSync(DIST, { recursive: true });
+}
+
 function copyDir(srcDir, destDir) {
   fs.mkdirSync(destDir, { recursive: true });
   fs.readdirSync(srcDir).forEach(function (name) {
@@ -715,11 +815,8 @@ function copyDir(srcDir, destDir) {
   });
 }
 
-function copySiteToDist() {
-  if (fs.existsSync(DIST)) {
-    fs.rmSync(DIST, { recursive: true, force: true });
-  }
-  fs.mkdirSync(DIST, { recursive: true });
+async function copySiteToDist() {
+  await prepareDistDir();
 
   DIST_STATIC_FILES.forEach(function (file) {
     const srcPath = path.join(ROOT, file);
@@ -740,15 +837,15 @@ function copySiteToDist() {
 }
 
 function main() {
-  const rules = loadRules();
-  const config = loadSiteConfig();
+  var rules = loadRules();
+  var config = loadSiteConfig();
 
   if (!fs.existsSync(RULES_DIR)) {
     fs.mkdirSync(RULES_DIR, { recursive: true });
   }
 
-  const existing = fs.readdirSync(RULES_DIR).filter(function (f) { return f.endsWith('.html'); });
-  const expected = new Set(rules.map(function (r) { return r.id + '.html'; }));
+  var existing = fs.readdirSync(RULES_DIR).filter(function (f) { return f.endsWith('.html'); });
+  var expected = new Set(rules.map(function (r) { return r.id + '.html'; }));
 
   existing.forEach(function (file) {
     if (!expected.has(file)) {
@@ -757,7 +854,7 @@ function main() {
   });
 
   rules.forEach(function (rule) {
-    const outPath = path.join(RULES_DIR, rule.id + '.html');
+    var outPath = path.join(RULES_DIR, rule.id + '.html');
     fs.writeFileSync(outPath, generateRulePage(rule, config), 'utf8');
     console.log('  wrote rules/' + rule.id + '.html');
   });
@@ -782,9 +879,12 @@ function main() {
   generateSitemap(rules);
   console.log('  updated sitemap.xml');
 
-  copySiteToDist();
-
-  console.log('Built ' + rules.length + ' rule pages.');
+  return copySiteToDist().then(function () {
+    console.log('Built ' + rules.length + ' rule pages.');
+  });
 }
 
-main();
+main().catch(function (err) {
+  console.error(err);
+  process.exit(1);
+});
