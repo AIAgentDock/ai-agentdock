@@ -3,6 +3,9 @@ window.SITE_CONFIG = {
   siteUrl: 'https://ai-agentdock.com',
   githubUrl: 'https://github.com/AIAgentDock/ai-agentdock',
 
+  /** Email address for rule submissions */
+  submitEmail: 'aiagentdock.admin@gmail.com',
+
   /** Set true to show GitHub in nav / submit page */
   showGithub: false,
 
