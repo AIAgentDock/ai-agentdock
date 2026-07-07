@@ -33,6 +33,16 @@ window.FILTER_TAXONOMY = {
           'Expo'
         ]
       },
+      mobile: {
+        label: 'Mobile',
+        frameworks: [
+          'Expo',
+          'React Native',
+          'Flutter',
+          'iOS',
+          'Android'
+        ]
+      },
       backend: {
         label: 'Backend / API',
         frameworks: [
@@ -91,6 +101,8 @@ window.FILTER_TAXONOMY = {
         frameworks: [
           'Vercel',
           'Cloudflare',
+          'Cloudflare Workers',
+          'Cloudflare Pages',
           'Netlify',
           'Docker',
           'GitHub Actions',
@@ -107,7 +119,9 @@ window.FILTER_TAXONOMY = {
           'NextAuth',
           'Clerk',
           'OWASP',
-          'TypeScript'
+          'TypeScript',
+          'General',
+          'Code Review'
         ]
       },
       docs: {
@@ -148,7 +162,17 @@ window.FILTER_TAXONOMY = {
           'Angular',
           'Tailwind CSS',
           'shadcn/ui',
-          'Material UI'
+          'Material UI',
+          'React Native',
+          'Expo'
+        ]
+      },
+      mobile: {
+        label: 'Mobile',
+        frameworks: [
+          'Expo',
+          'React Native',
+          'Flutter'
         ]
       },
       backend: {
@@ -190,6 +214,8 @@ window.FILTER_TAXONOMY = {
         frameworks: [
           'Vercel',
           'Cloudflare',
+          'Cloudflare Workers',
+          'Cloudflare Pages',
           'Docker',
           'GitHub Actions',
           'Netlify'
@@ -202,7 +228,9 @@ window.FILTER_TAXONOMY = {
           'Prettier',
           'Zod',
           'TypeScript',
-          'OWASP'
+          'OWASP',
+          'General',
+          'Code Review'
         ]
       },
       docs: {

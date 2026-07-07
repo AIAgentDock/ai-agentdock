@@ -4,6 +4,8 @@
   "description": "Curated Cursor and Windsurf AI coding rules directory",
   "scripts": {
     "build": "node scripts/build.js",
+    "dev": "npx serve . -l 3000",
+    "start": "npm run dev",
     "deploy": "npx wrangler deploy --config wrangler.jsonc",
     "postinstall": "node scripts/build.js"
   },

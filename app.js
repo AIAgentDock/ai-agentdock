@@ -62,7 +62,15 @@
     'cursor-agent-skills': 'docs',
     'prompt-engineering': 'ai',
     'turborepo-monorepo': 'docs',
-    'kubernetes-devops': 'devops'
+    'kubernetes-devops': 'devops',
+    'nextjs-app-router': 'fullstack',
+    'react-typescript-components': 'frontend',
+    'tailwind-shadcn-ui': 'frontend',
+    'supabase-auth-rls': 'database',
+    'cloudflare-workers-pages': 'devops',
+    'expo-mobile-app': 'mobile',
+    'fastapi-python-backend': 'backend',
+    'ai-code-review-security': 'quality'
   };
 
   var FRAMEWORK_ALIASES = {
@@ -71,7 +79,15 @@
     Python: 'Python',
     Agent: 'General',
     Skills: 'General',
-    'Prompt Engineering': 'General'
+    'Code Review': 'General',
+    'Claude Code': 'General',
+    'GitHub Copilot': 'General',
+    'Copilot': 'General',
+    'D1': 'Cloudflare',
+    'App Router': 'Next.js',
+    'Server Components': 'Next.js',
+    'RLS': 'Supabase',
+    'Pydantic': 'FastAPI'
   };
 
   var CATEGORY_LABEL_TO_KEY = {
@@ -83,7 +99,7 @@
     database: 'database',
     'database / orm': 'database',
     data: 'backend',
-    mobile: 'frontend',
+    mobile: 'mobile',
     systems: 'backend',
     ai: 'ai',
     'ai agent / rag': 'ai',
@@ -95,6 +111,8 @@
     'code quality / security': 'quality',
     docs: 'docs',
     'documentation / productivity': 'docs',
+    'code review': 'quality',
+    'security': 'quality',
     general: 'general',
     'general coding': 'general'
   };
