@@ -13,6 +13,7 @@ const RULES_JS = path.join(ROOT, 'rules.js');
 const RULES_DIR = path.join(ROOT, 'rules');
 const DIST_STATIC_FILES = [
   'index.html',
+  'cursor.html',
   'windsurf.html',
   'about.html',
   'submit.html',
@@ -29,6 +30,7 @@ const DIST_STATIC_FILES = [
   'favicon.svg'
 ];
 const INDEX_HTML = path.join(ROOT, 'index.html');
+const CURSOR_HTML = path.join(ROOT, 'cursor.html');
 const WINDSURF_HTML = path.join(ROOT, 'windsurf.html');
 const SITEMAP = path.join(ROOT, 'sitemap.xml');
 const SITE_URL = 'https://ai-agentdock.com';
@@ -86,7 +88,7 @@ function escapeHtml(text) {
 
 function directoryNavHtml(activeTool, depth) {
   var prefix = depth === 0 ? '' : '../';
-  var cursorHref = prefix + 'index.html';
+  var cursorHref = prefix + 'cursor.html';
   var windsurfHref = prefix + 'windsurf.html';
   var cursorActive = activeTool === 'cursor' ? ' site-nav__dropdown-item--active' : '';
   var windsurfActive = activeTool === 'windsurf' ? ' site-nav__dropdown-item--active' : '';
@@ -107,7 +109,7 @@ function directoryNavHtml(activeTool, depth) {
 }
 
 function navHtml(active, config, activeTool) {
-  var depth = active === 'home' || active === 'windsurf' ? 0 : 1;
+  var depth = active === 'home' || active === 'windsurf' || active === 'cursor' ? 0 : 1;
   var prefix = depth === 0 ? '' : '../';
   var homeHref = prefix + 'index.html';
   var faqHref = homeHref + '#faq';
@@ -182,11 +184,10 @@ function toolHint(tool) {
 
 function recommendedPathForRule(rule) {
   const tool = String(rule.tool || 'Cursor').toLowerCase();
-  const filename = rule.recommendedFilename || (rule.id + '.md');
   if (tool === 'windsurf') {
-    return '.devin/rules/' + filename + ' (preferred) · .windsurf/rules/' + filename;
+    return '.devin/rules/' + rule.id + '.md';
   }
-  return '.cursor/rules/' + (rule.recommendedFilename || rule.id + '.mdc');
+  return '.cursor/rules/' + rule.id + '.mdc';
 }
 
 function triggerModeForRule(rule) {
@@ -195,9 +196,9 @@ function triggerModeForRule(rule) {
   }
   const tool = String(rule.tool || 'Cursor').toLowerCase();
   if (tool === 'windsurf') {
-    return 'Workspace-wide (always active)';
+    return 'always_on (default)';
   }
-  return 'Project rules (auto-applied in Agent & Chat)';
+  return 'Auto-applied in Agent & Chat';
 }
 
 function lastUpdatedForRule(rule) {
@@ -232,7 +233,7 @@ function renderRuleDetailMeta(rule) {
     '          <dd class="rule-detail-meta__value"><code class="path-badge">' + recommended + '</code></dd>\n' +
     '        </div>\n' +
     '        <div class="rule-detail-meta__item">\n' +
-    '          <dt class="rule-detail-meta__label">Trigger mode</dt>\n' +
+    '          <dt class="rule-detail-meta__label">Activation / Trigger</dt>\n' +
     '          <dd class="rule-detail-meta__value">' + trigger + '</dd>\n' +
     '        </div>\n' +
     '        <div class="rule-detail-meta__item">\n' +
@@ -249,7 +250,10 @@ function renderRuleDetailMeta(rule) {
 
 function ruleDirectoryHref(rule) {
   var tool = String(rule.tool || 'Cursor').toLowerCase();
-  return tool === 'windsurf' ? '../windsurf.html' : '../index.html';
+  if (tool === 'windsurf') {
+    return '../windsurf.html';
+  }
+  return '../cursor.html';
 }
 
 function generateRulePage(rule, config) {
@@ -358,7 +362,7 @@ ${footerHtml()}
 function generateSeoDirectory(rules, activeTool, options) {
   options = options || {};
   const groups = { Cursor: [], Windsurf: [] };
-  const pageHref = { Cursor: 'index.html', Windsurf: 'windsurf.html' };
+  const pageHref = { Cursor: 'cursor.html', Windsurf: 'windsurf.html' };
   const toolOrder = options.toolOrder || ['Cursor', 'Windsurf'];
   const sectionLabels = options.sectionLabels || {};
 
@@ -376,6 +380,7 @@ function generateSeoDirectory(rules, activeTool, options) {
     var linkClass = 'sidebar-panel__tool-link' + (isActive ? ' sidebar-panel__tool-link--active' : '');
     var panelClass = 'sidebar-panel' + (options.secondaryTools && options.secondaryTools.indexOf(tool) !== -1 ? ' sidebar-panel--secondary' : '');
     var sectionLabel = sectionLabels[tool] || tool;
+    var isOpen = isActive || options.openAll === true;
     var items = toolRules.map(function (rule) {
       return (
         '            <li class="sidebar-panel__item">\n' +
@@ -385,7 +390,7 @@ function generateSeoDirectory(rules, activeTool, options) {
     }).join('\n');
 
     return (
-      '        <details class="' + panelClass + '"' + (isActive ? ' open' : '') + '>\n' +
+      '        <details class="' + panelClass + '"' + (isOpen ? ' open' : '') + '>\n' +
       '          <summary class="sidebar-panel__summary"><a href="' + pageHref[tool] + '" class="' + linkClass + '">' + sectionLabel + '</a> <span class="sidebar-panel__count">(' + toolRules.length + ')</span></summary>\n' +
       '          <ul class="sidebar-panel__list">\n' +
       items + '\n' +
@@ -410,13 +415,83 @@ function updatePageSeoDirectory(htmlPath, rules, activeTool, options) {
 }
 
 function updateIndexSeoDirectory(rules) {
-  updatePageSeoDirectory(INDEX_HTML, rules, 'Cursor');
+  updatePageSeoDirectory(INDEX_HTML, rules, '', {
+    toolOrder: ['Cursor', 'Windsurf'],
+    openAll: true
+  });
+
+  if (fs.existsSync(CURSOR_HTML)) {
+    updatePageSeoDirectory(CURSOR_HTML, rules, 'Cursor', {
+      toolOrder: ['Cursor', 'Windsurf'],
+      sectionLabels: { Windsurf: 'Also available — Windsurf' },
+      secondaryTools: ['Windsurf']
+    });
+  }
+
   if (fs.existsSync(WINDSURF_HTML)) {
     updatePageSeoDirectory(WINDSURF_HTML, rules, 'Windsurf', {
       toolOrder: ['Windsurf', 'Cursor'],
       sectionLabels: { Cursor: 'Also available — Cursor' },
       secondaryTools: ['Cursor']
     });
+  }
+}
+
+function filterRulesForPage(rules, pageTool) {
+  if (pageTool === 'windsurf') {
+    return rules.filter(function (rule) {
+      return String(rule.tool || 'Cursor').toLowerCase() === 'windsurf';
+    });
+  }
+  if (pageTool === 'cursor') {
+    return rules.filter(function (rule) {
+      return String(rule.tool || 'Cursor').toLowerCase() !== 'windsurf';
+    });
+  }
+  return rules;
+}
+
+function generateSeoRulesGrid(rules) {
+  return rules.map(function (rule) {
+    var tool = escapeHtml(rule.tool || 'Cursor');
+    var category = escapeHtml(rule.category || '');
+    return (
+      '      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">\n' +
+      '        <div class="flex flex-wrap gap-1.5 mb-3">\n' +
+      '          <span class="rule-badge rule-badge--tool">' + tool.toUpperCase() + '</span>\n' +
+      '          <span class="rule-badge rule-badge--category">' + category.toUpperCase() + '</span>\n' +
+      '        </div>\n' +
+      '        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">\n' +
+      '          <a href="' + rulePagePath(rule.id) + '" class="rule-card__title">' + escapeHtml(rule.title) + '</a>\n' +
+      '        </h2>\n' +
+      '        <p class="text-gray-400 text-sm leading-relaxed flex-1">' + escapeHtml(rule.description || '') + '</p>\n' +
+      '      </article>'
+    );
+  }).join('\n');
+}
+
+function updatePageSeoGrid(htmlPath, rules, pageTool) {
+  let html = fs.readFileSync(htmlPath, 'utf8');
+  const startMarker = '<!-- SEO-GRID:START -->';
+  const endMarker = '<!-- SEO-GRID:END -->';
+  const filtered = filterRulesForPage(rules, pageTool);
+  const section = generateSeoRulesGrid(filtered);
+  const replacement = startMarker + '\n' + section + '\n    ' + endMarker;
+
+  if (html.includes(startMarker)) {
+    html = html.replace(new RegExp(startMarker + '[\\s\\S]*?' + endMarker), replacement);
+  }
+
+  fs.writeFileSync(htmlPath, html, 'utf8');
+}
+
+function updateSeoGrids(rules) {
+  updatePageSeoGrid(INDEX_HTML, rules, 'all');
+  if (fs.existsSync(CURSOR_HTML)) {
+    updatePageSeoGrid(CURSOR_HTML, rules, 'cursor');
+  }
+  if (fs.existsSync(WINDSURF_HTML)) {
+    updatePageSeoGrid(WINDSURF_HTML, rules, 'windsurf');
   }
 }
 
@@ -454,6 +529,50 @@ function updateItemListSchema(rules) {
   fs.writeFileSync(INDEX_HTML, html, 'utf8');
 }
 
+function updateCursorItemListSchema(rules) {
+  if (!fs.existsSync(CURSOR_HTML)) {
+    return;
+  }
+
+  let html = fs.readFileSync(CURSOR_HTML, 'utf8');
+  const startMarker = '<!-- ITEMLIST-SCHEMA:START -->';
+  const endMarker = '<!-- ITEMLIST-SCHEMA:END -->';
+
+  const cursorRules = rules.filter(function (rule) {
+    return String(rule.tool || 'Cursor').toLowerCase() !== 'windsurf';
+  });
+
+  const items = cursorRules.map(function (rule, index) {
+    return (
+      '      {\n' +
+      '        "@type": "ListItem",\n' +
+      '        "position": ' + (index + 1) + ',\n' +
+      '        "name": ' + JSON.stringify(rule.title) + ',\n' +
+      '        "url": ' + JSON.stringify(rulePageUrl(rule.id)) + '\n' +
+      '      }'
+    );
+  }).join(',\n');
+
+  const schema =
+    '  <script type="application/ld+json">\n' +
+    '  {\n' +
+    '    "@context": "https://schema.org",\n' +
+    '    "@type": "ItemList",\n' +
+    '    "name": "Cursor Rules",\n' +
+    '    "numberOfItems": ' + cursorRules.length + ',\n' +
+    '    "itemListElement": [\n' +
+    items + '\n' +
+    '    ]\n' +
+    '  }\n' +
+    '  </script>';
+
+  const replacement = startMarker + '\n' + schema + '\n  ' + endMarker;
+  if (html.includes(startMarker)) {
+    html = html.replace(new RegExp(startMarker + '[\\s\\S]*?' + endMarker), replacement);
+    fs.writeFileSync(CURSOR_HTML, html, 'utf8');
+  }
+}
+
 function updateWindsurfItemListSchema(rules) {
   if (!fs.existsSync(WINDSURF_HTML)) {
     return;
@@ -469,7 +588,8 @@ function updateWindsurfItemListSchema(rules) {
   const cursorRules = rules.filter(function (rule) {
     return String(rule.tool || 'Cursor').toLowerCase() !== 'windsurf';
   });
-  const orderedRules = windsurfRules.concat(cursorRules);
+  const windsurfOnly = windsurfRules;
+  const orderedRules = windsurfOnly;
 
   const items = orderedRules.map(function (rule, index) {
     return (
@@ -488,7 +608,7 @@ function updateWindsurfItemListSchema(rules) {
     '    "@context": "https://schema.org",\n' +
     '    "@type": "ItemList",\n' +
     '    "name": "Windsurf / Devin Desktop Rules",\n' +
-    '    "numberOfItems": ' + orderedRules.length + ',\n' +
+    '    "numberOfItems": ' + windsurfOnly.length + ',\n' +
     '    "itemListElement": [\n' +
     items + '\n' +
     '    ]\n' +
@@ -506,7 +626,7 @@ function injectVerificationMeta(config) {
   }
 
   const meta = '  <meta name="google-site-verification" content="' + escapeHtml(config.googleSiteVerification) + '" />';
-  const pages = ['index.html', 'windsurf.html', 'about.html', 'submit.html', 'privacy.html'];
+  const pages = ['index.html', 'cursor.html', 'windsurf.html', 'about.html', 'submit.html', 'privacy.html'];
 
   pages.forEach(function (file) {
     const filePath = path.join(ROOT, file);
@@ -524,7 +644,8 @@ function generateSitemap(rules) {
   const today = new Date().toISOString().slice(0, 10);
   const staticPages = [
     { loc: '/', priority: '1.0', changefreq: 'weekly' },
-    { loc: '/windsurf.html', priority: '0.9', changefreq: 'weekly' },
+    { loc: '/cursor', priority: '0.9', changefreq: 'weekly' },
+    { loc: '/windsurf', priority: '0.9', changefreq: 'weekly' },
     { loc: '/about.html', priority: '0.6', changefreq: 'monthly' },
     { loc: '/privacy.html', priority: '0.4', changefreq: 'yearly' },
     { loc: '/submit.html', priority: '0.7', changefreq: 'monthly' }
@@ -623,10 +744,16 @@ function main() {
   });
 
   updateIndexSeoDirectory(rules);
-  console.log('  updated index.html SEO directory');
+  console.log('  updated directory page SEO sidebars');
+
+  updateSeoGrids(rules);
+  console.log('  updated directory page SEO grids');
 
   updateItemListSchema(rules);
-  console.log('  updated ItemList schema');
+  console.log('  updated index.html ItemList schema');
+
+  updateCursorItemListSchema(rules);
+  console.log('  updated cursor.html ItemList schema');
 
   updateWindsurfItemListSchema(rules);
   console.log('  updated windsurf.html ItemList schema');

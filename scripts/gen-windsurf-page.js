@@ -96,11 +96,11 @@ html = html.replace(
 
 html = html.replace(
   '<link rel="canonical" href="https://ai-agentdock.com/" />',
-  '<link rel="canonical" href="https://ai-agentdock.com/windsurf.html" />'
+  '<link rel="canonical" href="https://ai-agentdock.com/windsurf" />'
 );
 html = html.replace(
   '<meta property="og:url" content="https://ai-agentdock.com/" />',
-  '<meta property="og:url" content="https://ai-agentdock.com/windsurf.html" />'
+  '<meta property="og:url" content="https://ai-agentdock.com/windsurf" />'
 );
 html = html.replace(
   '"target": "https://ai-agentdock.com/?q={search_term_string}"',

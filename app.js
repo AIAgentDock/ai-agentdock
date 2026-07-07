@@ -514,13 +514,13 @@
     if (filtered.length === 0) {
       rulesGrid.innerHTML = '';
       updateShowMoreButton(0, 0);
-      emptyState.classList.add('is-visible');
+      emptyState.removeAttribute('hidden');
       emptyState.setAttribute('aria-hidden', 'false');
       syncUrlFromState();
       return;
     }
 
-    emptyState.classList.remove('is-visible');
+    emptyState.setAttribute('hidden', '');
     emptyState.setAttribute('aria-hidden', 'true');
 
     var cardsHtml = '';

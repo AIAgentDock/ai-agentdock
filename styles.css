@@ -1065,10 +1065,8 @@ body.modal-open {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-  list-style: none;
   padding: 0;
   margin: 0;
-  counter-reset: step;
 }
 
 @media (min-width: 640px) {
@@ -1239,11 +1237,11 @@ body.modal-open {
 }
 
 /* Empty state — hidden until JS filter returns zero */
-#emptyState {
+#emptyState[hidden] {
   display: none;
 }
 
-#emptyState.is-visible {
+#emptyState:not([hidden]) {
   display: block;
 }
 
