@@ -13,6 +13,7 @@
   var searchInput = document.getElementById('searchInput');
   var resultCount = document.getElementById('resultCount');
   var emptyState = document.getElementById('emptyState');
+  var toolFilter = document.getElementById('toolFilter');
   var categoryFilter = document.getElementById('categoryFilter');
   var frameworkChips = document.getElementById('frameworkChips');
   var resetFiltersBtn = document.getElementById('resetFilters');
@@ -28,9 +29,11 @@
     return;
   }
 
-  var pageTool = (document.body.dataset.pageTool || 'cursor').toLowerCase();
-  if (TOOL_KEYS.indexOf(pageTool) === -1) {
-    pageTool = 'cursor';
+  var pageTool = (document.body.dataset.pageTool || 'all').toLowerCase();
+  var showToolFilter = pageTool === 'all';
+  if (pageTool !== 'all' && TOOL_KEYS.indexOf(pageTool) === -1) {
+    pageTool = 'all';
+    showToolFilter = true;
   }
 
   var allRules = Array.isArray(window.RULES_DATA) ? window.RULES_DATA : [];
@@ -203,7 +206,7 @@
     var toolKey = normalizeToolKey(rule);
     var categoryKey = normalizeCategoryKey(rule);
 
-    if (toolKey !== filterState.tool) {
+    if (filterState.tool !== 'all' && toolKey !== filterState.tool) {
       return false;
     }
     if (filterState.category !== 'all' && categoryKey !== filterState.category) {
@@ -241,7 +244,7 @@
       var ruleTool = normalizeToolKey(rule);
       var catKey = normalizeCategoryKey(rule);
 
-      if (ruleTool !== toolKey) {
+      if (toolKey !== 'all' && ruleTool !== toolKey) {
         return;
       }
 
@@ -492,7 +495,8 @@
     var filtered = getFilteredRules();
     var hasActiveFilters = filterState.category !== 'all' ||
       filterState.framework !== 'all' ||
-      filterState.search;
+      filterState.search ||
+      (showToolFilter && filterState.tool !== 'all');
     var visibleRules = showAllCards ? filtered : filtered.slice(0, INITIAL_VISIBLE_COUNT);
 
     if (hasActiveFilters) {
@@ -721,12 +725,20 @@
   function readStateFromUrl() {
     var params = new URLSearchParams(window.location.search);
 
-    filterState.tool = pageTool;
+    if (showToolFilter) {
+      var urlTool = (params.get('tool') || 'all').toLowerCase();
+      filterState.tool = (urlTool === 'all' || TOOL_KEYS.indexOf(urlTool) !== -1) ? urlTool : 'all';
+    } else {
+      filterState.tool = pageTool;
+    }
     filterState.category = params.get('category') || 'all';
     filterState.framework = params.get('framework') || 'all';
     filterState.search = params.get('q') || '';
 
     searchInput.value = filterState.search;
+    if (toolFilter) {
+      toolFilter.value = filterState.tool;
+    }
   }
 
   function syncUrlFromState() {
@@ -738,6 +750,9 @@
 
     if (filterState.search) {
       params.set('q', filterState.search);
+    }
+    if (showToolFilter && filterState.tool !== 'all') {
+      params.set('tool', filterState.tool);
     }
     if (filterState.category !== 'all') {
       params.set('category', filterState.category);
@@ -792,6 +807,17 @@
       if (e.key === 'Escape' && !ruleModal.classList.contains('hidden')) {
         closeRuleModal();
       }
+    });
+  }
+
+  if (toolFilter) {
+    toolFilter.addEventListener('change', function () {
+      filterState.tool = toolFilter.value;
+      filterState.category = 'all';
+      filterState.framework = 'all';
+      showAllCards = false;
+      syncFilterOptions();
+      renderRules();
     });
   }
 
