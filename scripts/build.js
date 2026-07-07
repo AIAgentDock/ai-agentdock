@@ -267,7 +267,7 @@ function generateSeoDirectory(rules) {
 
   return (
     '    <section class="seo-section mt-12 sm:mt-16 pt-8 sm:pt-10" aria-labelledby="rules-directory-heading">\n' +
-    '      <h2 id="rules-directory-heading" class="text-xl sm:text-2xl font-bold mb-6">Available Rules Directory</h2>\n' +
+    '      <h2 id="rules-directory-heading" class="text-xl sm:text-2xl font-bold mb-6">Rules Directory</h2>\n' +
     '      <ul class="space-y-4 text-sm sm:text-base">\n' +
     items + '\n' +
     '      </ul>\n' +

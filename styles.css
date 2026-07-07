@@ -172,6 +172,18 @@ body {
   border-color: rgba(99, 102, 241, 0.55);
 }
 
+.show-more-btn {
+  background: #12121a;
+  color: #c7d2fe;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.show-more-btn:hover {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.55);
+}
+
 .rule-badge {
   display: inline-flex;
   align-items: center;

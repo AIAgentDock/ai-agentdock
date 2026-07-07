@@ -7,6 +7,7 @@
   var TAXONOMY = window.FILTER_TAXONOMY || {};
   var TOOL_KEYS = ['cursor', 'windsurf'];
   var SEARCH_DEBOUNCE_MS = 200;
+  var INITIAL_VISIBLE_COUNT = 9;
 
   var rulesGrid = document.getElementById('rulesGrid');
   var searchInput = document.getElementById('searchInput');
@@ -19,6 +20,8 @@
   var searchKbd = document.getElementById('searchKbd');
   var ruleModal = document.getElementById('ruleModal');
   var toastContainer = document.getElementById('toastContainer');
+  var showMoreWrap = document.getElementById('showMoreWrap');
+  var showMoreBtn = document.getElementById('showMoreBtn');
 
   if (!rulesGrid || !searchInput || !resultCount || !emptyState ||
       !toolFilter || !categoryFilter || !frameworkChips || !resetFiltersBtn) {
@@ -40,6 +43,7 @@
 
   var searchDebounceTimer = null;
   var urlSyncEnabled = false;
+  var showAllCards = false;
 
   var RULE_CATEGORY_OVERRIDES = {
     'python-scraper': 'backend',
@@ -465,21 +469,44 @@
     );
   }
 
+  function updateShowMoreButton(visibleCount, totalCount) {
+    if (!showMoreWrap || !showMoreBtn) {
+      return;
+    }
+
+    if (showAllCards || totalCount <= INITIAL_VISIBLE_COUNT) {
+      showMoreWrap.classList.add('hidden');
+      return;
+    }
+
+    var remaining = totalCount - visibleCount;
+    showMoreBtn.textContent = 'Show more rules (' + remaining + ' more)';
+    showMoreWrap.classList.remove('hidden');
+  }
+
   function renderRules() {
     var filtered = getFilteredRules();
     var hasActiveFilters = filterState.tool !== 'all' ||
       filterState.category !== 'all' ||
       filterState.framework !== 'all' ||
       filterState.search;
+    var visibleRules = showAllCards ? filtered : filtered.slice(0, INITIAL_VISIBLE_COUNT);
 
     if (hasActiveFilters) {
-      resultCount.textContent = 'Showing ' + filtered.length + ' rule' + (filtered.length === 1 ? '' : 's');
+      if (!showAllCards && filtered.length > INITIAL_VISIBLE_COUNT) {
+        resultCount.textContent = 'Showing ' + visibleRules.length + ' of ' + filtered.length + ' rules';
+      } else {
+        resultCount.textContent = 'Showing ' + filtered.length + ' rule' + (filtered.length === 1 ? '' : 's');
+      }
+    } else if (!showAllCards && filtered.length > INITIAL_VISIBLE_COUNT) {
+      resultCount.textContent = 'Showing ' + visibleRules.length + ' of ' + allRules.length + ' rules';
     } else {
       resultCount.textContent = 'Showing ' + allRules.length + ' rules';
     }
 
     if (filtered.length === 0) {
       rulesGrid.innerHTML = '';
+      updateShowMoreButton(0, 0);
       emptyState.classList.remove('hidden');
       emptyState.setAttribute('aria-hidden', 'false');
       syncUrlFromState();
@@ -490,10 +517,11 @@
     emptyState.setAttribute('aria-hidden', 'true');
 
     var cardsHtml = '';
-    filtered.forEach(function (rule) {
+    visibleRules.forEach(function (rule) {
       cardsHtml += createRuleCard(rule);
     });
     rulesGrid.innerHTML = cardsHtml;
+    updateShowMoreButton(visibleRules.length, filtered.length);
 
     rulesGrid.querySelectorAll('[data-copy-id]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -671,6 +699,7 @@
       filterState.framework = 'all';
     }
 
+    showAllCards = false;
     syncFilterOptions();
     renderRules();
   }
@@ -680,6 +709,7 @@
     filterState.category = 'all';
     filterState.framework = 'all';
     filterState.search = '';
+    showAllCards = false;
     searchInput.value = '';
     toolFilter.value = 'all';
     syncFilterOptions();
@@ -775,6 +805,7 @@
     filterState.tool = toolFilter.value;
     filterState.category = 'all';
     filterState.framework = 'all';
+    showAllCards = false;
     syncFilterOptions();
     renderRules();
   });
@@ -782,6 +813,7 @@
   categoryFilter.addEventListener('change', function () {
     filterState.category = categoryFilter.value;
     filterState.framework = 'all';
+    showAllCards = false;
     syncFilterOptions();
     renderRules();
   });
@@ -792,6 +824,7 @@
       return;
     }
     filterState.framework = chip.getAttribute('data-framework');
+    showAllCards = false;
     renderFrameworkChips();
     renderRules();
   });
@@ -801,11 +834,19 @@
     var value = e.target.value.trim();
     searchDebounceTimer = setTimeout(function () {
       filterState.search = value;
+      showAllCards = false;
       renderRules();
     }, SEARCH_DEBOUNCE_MS);
   });
 
   resetFiltersBtn.addEventListener('click', resetFilters);
+
+  if (showMoreBtn) {
+    showMoreBtn.addEventListener('click', function () {
+      showAllCards = true;
+      renderRules();
+    });
+  }
 
   document.addEventListener('keydown', function (e) {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
