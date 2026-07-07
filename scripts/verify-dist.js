@@ -4,7 +4,18 @@ const fs = require('fs');
 const path = require('path');
 
 const DIST = path.join(__dirname, '..', 'dist');
+const RULES_JS = path.join(__dirname, '..', 'rules.js');
 const MAX_BYTES = 24 * 1024 * 1024;
+
+function loadRuleIds() {
+  const content = fs.readFileSync(RULES_JS, 'utf8');
+  const sandbox = { window: {} };
+  require('vm').runInNewContext(content, sandbox);
+  if (!Array.isArray(sandbox.window.RULES_DATA)) {
+    throw new Error('RULES_DATA not found in rules.js');
+  }
+  return sandbox.window.RULES_DATA.map(function (rule) { return rule.id; });
+}
 
 function walk(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -30,6 +41,16 @@ function main() {
 
   if (!fs.existsSync(path.join(DIST, 'index.html'))) {
     console.error('dist/index.html is missing. Run: node scripts/build.js');
+    process.exit(1);
+  }
+
+  const ruleIds = loadRuleIds();
+  const missingRules = ruleIds.filter(function (id) {
+    return !fs.existsSync(path.join(DIST, 'rules', id + '.html'));
+  });
+
+  if (missingRules.length > 0) {
+    console.error('Missing rule pages in dist/rules/: ' + missingRules.join(', '));
     process.exit(1);
   }
 

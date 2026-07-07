@@ -25,8 +25,7 @@ const DIST_STATIC_FILES = [
   'filter-taxonomy.js',
   'sitemap.xml',
   'robots.txt',
-  'favicon.svg',
-  '_redirects'
+  'favicon.svg'
 ];
 const INDEX_HTML = path.join(ROOT, 'index.html');
 const SITEMAP = path.join(ROOT, 'sitemap.xml');
@@ -45,7 +44,7 @@ function rulePageUrl(ruleId) {
 }
 
 function rulePagePath(ruleId) {
-  return 'rules/' + ruleId + '.html';
+  return 'rules/' + ruleId;
 }
 
 function verificationMetaHtml(config) {

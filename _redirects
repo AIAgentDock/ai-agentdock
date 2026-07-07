@@ -1,2 +1,0 @@
-# Clean rule URLs on Cloudflare Pages (200 = rewrite, serve .html file)
-/rules/*  /rules/:splat.html  200

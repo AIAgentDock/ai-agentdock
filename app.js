@@ -452,7 +452,7 @@
           frameworkBadges +
         '</div>' +
         '<h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">' +
-          '<a href="rules/' + escapeHtml(rule.id) + '.html" class="rule-card__title">' + escapeHtml(safeStr(rule.title)) + '</a>' +
+          '<a href="rules/' + escapeHtml(rule.id) + '" class="rule-card__title">' + escapeHtml(safeStr(rule.title)) + '</a>' +
         '</h2>' +
         '<p class="text-gray-400 text-sm leading-relaxed flex-1 mb-4">' + escapeHtml(safeStr(rule.description)) + '</p>' +
         '<div class="flex flex-wrap gap-1.5 mb-4">' + tagsHtml + '</div>' +
