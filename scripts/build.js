@@ -85,6 +85,7 @@ function escapeHtml(text) {
 function navHtml(active, config) {
   const links = [
     { href: 'index.html', label: 'Directory', key: 'home' },
+    { href: 'index.html#faq', label: 'FAQ', key: 'faq' },
     { href: 'about.html', label: 'About', key: 'about' },
     { href: 'submit.html', label: 'Submit', key: 'submit' }
   ];
@@ -95,7 +96,16 @@ function navHtml(active, config) {
 
   const homeHref = active === 'home' ? 'index.html' : '../index.html';
   const items = links.map(function (link) {
-    var href = link.key === 'home' ? homeHref : (link.external ? link.href : '../' + link.href);
+    var href;
+    if (link.key === 'home') {
+      href = homeHref;
+    } else if (link.key === 'faq') {
+      href = homeHref + '#faq';
+    } else if (link.external) {
+      href = link.href;
+    } else {
+      href = '../' + link.href;
+    }
     var cls = link.key === active ? ' site-nav__link site-nav__link--active' : ' site-nav__link';
     var extra = link.external ? ' target="_blank" rel="noopener noreferrer"' : '';
     return '<a href="' + href + '" class="' + cls.trim() + '"' + extra + '>' + link.label + '</a>';
@@ -255,23 +265,35 @@ ${footerHtml()}
 }
 
 function generateSeoDirectory(rules) {
-  const items = rules.map(function (rule) {
+  const groups = { Cursor: [], Windsurf: [] };
+  rules.forEach(function (rule) {
+    var tool = rule.tool || 'Cursor';
+    if (!groups[tool]) {
+      groups[tool] = [];
+    }
+    groups[tool].push(rule);
+  });
+
+  const toolOrder = ['Cursor', 'Windsurf'];
+  return toolOrder.map(function (tool) {
+    var toolRules = groups[tool] || [];
+    var items = toolRules.map(function (rule) {
+      return (
+        '            <li class="sidebar-panel__item">\n' +
+        '              <a href="' + rulePagePath(rule.id) + '" class="sidebar-panel__link">' + escapeHtml(rule.title) + '</a>\n' +
+        '            </li>'
+      );
+    }).join('\n');
+
     return (
-      '        <li>\n' +
-      '          <h3 class="font-semibold text-gray-200"><a href="' + rulePagePath(rule.id) + '" class="hover:text-indigo-300 transition-colors">' + escapeHtml(rule.title) + '</a></h3>\n' +
-      '          <p class="text-gray-500 mt-1">' + escapeHtml(rule.description || '') + '</p>\n' +
-      '        </li>'
+      '        <details class="sidebar-panel">\n' +
+      '          <summary class="sidebar-panel__summary">' + tool + ' <span class="sidebar-panel__count">(' + toolRules.length + ')</span></summary>\n' +
+      '          <ul class="sidebar-panel__list">\n' +
+      items + '\n' +
+      '          </ul>\n' +
+      '        </details>'
     );
   }).join('\n');
-
-  return (
-    '    <section class="seo-section mt-12 sm:mt-16 pt-8 sm:pt-10" aria-labelledby="rules-directory-heading">\n' +
-    '      <h2 id="rules-directory-heading" class="text-xl sm:text-2xl font-bold mb-6">Rules Directory</h2>\n' +
-    '      <ul class="space-y-4 text-sm sm:text-base">\n' +
-    items + '\n' +
-    '      </ul>\n' +
-    '    </section>'
-  );
 }
 
 function updateIndexSeoDirectory(rules) {
