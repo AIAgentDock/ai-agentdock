@@ -13,7 +13,6 @@
   var searchInput = document.getElementById('searchInput');
   var resultCount = document.getElementById('resultCount');
   var emptyState = document.getElementById('emptyState');
-  var toolFilter = document.getElementById('toolFilter');
   var categoryFilter = document.getElementById('categoryFilter');
   var frameworkChips = document.getElementById('frameworkChips');
   var resetFiltersBtn = document.getElementById('resetFilters');
@@ -24,9 +23,14 @@
   var showMoreBtn = document.getElementById('showMoreBtn');
 
   if (!rulesGrid || !searchInput || !resultCount || !emptyState ||
-      !toolFilter || !categoryFilter || !frameworkChips || !resetFiltersBtn) {
-    console.error('Required DOM elements missing — check index.html IDs');
+      !categoryFilter || !frameworkChips || !resetFiltersBtn) {
+    console.error('Required DOM elements missing — check directory page IDs');
     return;
+  }
+
+  var pageTool = (document.body.dataset.pageTool || 'cursor').toLowerCase();
+  if (TOOL_KEYS.indexOf(pageTool) === -1) {
+    pageTool = 'cursor';
   }
 
   var allRules = Array.isArray(window.RULES_DATA) ? window.RULES_DATA : [];
@@ -35,7 +39,7 @@
   }
 
   var filterState = {
-    tool: 'all',
+    tool: pageTool,
     category: 'all',
     framework: 'all',
     search: ''
@@ -152,7 +156,7 @@
       return tool.categories[categoryKey].label;
     }
 
-    var keys = filterState.tool === 'all' ? TOOL_KEYS : [toolKey];
+    var keys = [filterState.tool];
     var i;
     for (i = 0; i < keys.length; i++) {
       var entry = TAXONOMY[keys[i]];
@@ -199,7 +203,7 @@
     var toolKey = normalizeToolKey(rule);
     var categoryKey = normalizeCategoryKey(rule);
 
-    if (filterState.tool !== 'all' && toolKey !== filterState.tool) {
+    if (toolKey !== filterState.tool) {
       return false;
     }
     if (filterState.category !== 'all' && categoryKey !== filterState.category) {
@@ -237,7 +241,7 @@
       var ruleTool = normalizeToolKey(rule);
       var catKey = normalizeCategoryKey(rule);
 
-      if (toolKey !== 'all' && ruleTool !== toolKey) {
+      if (ruleTool !== toolKey) {
         return;
       }
 
@@ -486,8 +490,7 @@
 
   function renderRules() {
     var filtered = getFilteredRules();
-    var hasActiveFilters = filterState.tool !== 'all' ||
-      filterState.category !== 'all' ||
+    var hasActiveFilters = filterState.category !== 'all' ||
       filterState.framework !== 'all' ||
       filterState.search;
     var visibleRules = showAllCards ? filtered : filtered.slice(0, INITIAL_VISIBLE_COUNT);
@@ -705,13 +708,12 @@
   }
 
   function resetFilters() {
-    filterState.tool = 'all';
+    filterState.tool = pageTool;
     filterState.category = 'all';
     filterState.framework = 'all';
     filterState.search = '';
     showAllCards = false;
     searchInput.value = '';
-    toolFilter.value = 'all';
     syncFilterOptions();
     renderRules();
   }
@@ -719,17 +721,12 @@
   function readStateFromUrl() {
     var params = new URLSearchParams(window.location.search);
 
-    filterState.tool = params.get('tool') || 'all';
+    filterState.tool = pageTool;
     filterState.category = params.get('category') || 'all';
     filterState.framework = params.get('framework') || 'all';
     filterState.search = params.get('q') || '';
 
-    if (TOOL_KEYS.indexOf(filterState.tool) === -1 && filterState.tool !== 'all') {
-      filterState.tool = 'all';
-    }
-
     searchInput.value = filterState.search;
-    toolFilter.value = filterState.tool;
   }
 
   function syncUrlFromState() {
@@ -741,9 +738,6 @@
 
     if (filterState.search) {
       params.set('q', filterState.search);
-    }
-    if (filterState.tool !== 'all') {
-      params.set('tool', filterState.tool);
     }
     if (filterState.category !== 'all') {
       params.set('category', filterState.category);
@@ -800,15 +794,6 @@
       }
     });
   }
-
-  toolFilter.addEventListener('change', function () {
-    filterState.tool = toolFilter.value;
-    filterState.category = 'all';
-    filterState.framework = 'all';
-    showAllCards = false;
-    syncFilterOptions();
-    renderRules();
-  });
 
   categoryFilter.addEventListener('change', function () {
     filterState.category = categoryFilter.value;

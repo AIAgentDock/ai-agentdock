@@ -13,6 +13,7 @@ const RULES_JS = path.join(ROOT, 'rules.js');
 const RULES_DIR = path.join(ROOT, 'rules');
 const DIST_STATIC_FILES = [
   'index.html',
+  'windsurf.html',
   'about.html',
   'submit.html',
   'privacy.html',
@@ -28,6 +29,7 @@ const DIST_STATIC_FILES = [
   'favicon.svg'
 ];
 const INDEX_HTML = path.join(ROOT, 'index.html');
+const WINDSURF_HTML = path.join(ROOT, 'windsurf.html');
 const SITEMAP = path.join(ROOT, 'sitemap.xml');
 const SITE_URL = 'https://ai-agentdock.com';
 const GITHUB_URL = 'https://github.com/AIAgentDock/ai-agentdock';
@@ -82,38 +84,54 @@ function escapeHtml(text) {
     .replace(/"/g, '&quot;');
 }
 
-function navHtml(active, config) {
-  const links = [
-    { href: 'index.html', label: 'Directory', key: 'home' },
-    { href: 'index.html#faq', label: 'FAQ', key: 'faq' },
-    { href: 'about.html', label: 'About', key: 'about' },
-    { href: 'submit.html', label: 'Submit', key: 'submit' }
+function directoryNavHtml(activeTool, depth) {
+  var prefix = depth === 0 ? '' : '../';
+  var cursorHref = prefix + 'index.html';
+  var windsurfHref = prefix + 'windsurf.html';
+  var cursorActive = activeTool === 'cursor' ? ' site-nav__dropdown-item--active' : '';
+  var windsurfActive = activeTool === 'windsurf' ? ' site-nav__dropdown-item--active' : '';
+  var triggerActive = activeTool ? ' site-nav__link--active' : '';
+
+  return (
+    '<div class="site-nav__dropdown">\n' +
+    '          <span class="site-nav__link' + triggerActive + ' site-nav__dropdown-trigger" tabindex="0">\n' +
+    '            Directory\n' +
+    '            <svg class="site-nav__dropdown-caret" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>\n' +
+    '          </span>\n' +
+    '          <div class="site-nav__dropdown-menu" role="menu">\n' +
+    '            <a href="' + cursorHref + '" class="site-nav__dropdown-item' + cursorActive + '" role="menuitem">Cursor</a>\n' +
+    '            <a href="' + windsurfHref + '" class="site-nav__dropdown-item' + windsurfActive + '" role="menuitem">Windsurf</a>\n' +
+    '          </div>\n' +
+    '        </div>'
+  );
+}
+
+function navHtml(active, config, activeTool) {
+  var depth = active === 'home' || active === 'windsurf' ? 0 : 1;
+  var prefix = depth === 0 ? '' : '../';
+  var homeHref = prefix + 'index.html';
+  var faqHref = homeHref + '#faq';
+
+  var links = [
+    { href: faqHref, label: 'FAQ', key: 'faq' },
+    { href: prefix + 'about.html', label: 'About', key: 'about' },
+    { href: prefix + 'submit.html', label: 'Submit', key: 'submit' }
   ];
 
   if (config.showGithub) {
     links.push({ href: GITHUB_URL, label: 'GitHub', key: 'github', external: true });
   }
 
-  const homeHref = active === 'home' ? 'index.html' : '../index.html';
-  const items = links.map(function (link) {
-    var href;
-    if (link.key === 'home') {
-      href = homeHref;
-    } else if (link.key === 'faq') {
-      href = homeHref + '#faq';
-    } else if (link.external) {
-      href = link.href;
-    } else {
-      href = '../' + link.href;
-    }
+  var items = directoryNavHtml(activeTool || '', depth);
+  items += '\n        ' + links.map(function (link) {
     var cls = link.key === active ? ' site-nav__link site-nav__link--active' : ' site-nav__link';
     var extra = link.external ? ' target="_blank" rel="noopener noreferrer"' : '';
-    return '<a href="' + href + '" class="' + cls.trim() + '"' + extra + '>' + link.label + '</a>';
+    return '<a href="' + link.href + '" class="' + cls.trim() + '"' + extra + '>' + link.label + '</a>';
   }).join('\n        ');
 
   return (
     '<nav class="site-nav flex flex-wrap items-center justify-between gap-4 mb-8 sm:mb-12" aria-label="Main navigation">\n' +
-    '      <a href="' + homeHref + '" class="text-lg font-bold text-white tracking-tight">AI Agent Dock</a>\n' +
+    '      <a href="' + homeHref + '" class="site-brand">AI Agent Dock</a>\n' +
     '      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">\n' +
     '        ' + items + '\n' +
     '      </div>\n' +
@@ -160,6 +178,11 @@ function toolHint(tool) {
     return 'Import via Windsurf → Rules panel in your editor.';
   }
   return 'Paste into .cursor/rules/ (or .mdc files) in your project root.';
+}
+
+function ruleDirectoryHref(rule) {
+  var tool = String(rule.tool || 'Cursor').toLowerCase();
+  return tool === 'windsurf' ? '../windsurf.html' : '../index.html';
 }
 
 function generateRulePage(rule, config) {
@@ -209,7 +232,7 @@ ${tailwindHead()}
 
   <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
 
-${navHtml('', config)}
+${navHtml('', config, String(rule.tool || 'Cursor').toLowerCase())}
 
     <header class="mb-6 sm:mb-8">
       <div class="flex flex-wrap gap-1.5 mb-3">
@@ -227,7 +250,7 @@ ${navHtml('', config)}
       <p class="rule-detail__hint text-sm text-gray-500 mt-4">${hint}</p>
       <div class="flex flex-col sm:flex-row gap-3 mt-6">
         <button type="button" id="copyRuleBtn" class="btn-copy py-3 px-6 min-h-[44px] rounded-lg text-white font-semibold text-sm">Copy Rule</button>
-        <a href="../index.html" class="inline-flex items-center justify-center py-3 px-6 min-h-[44px] rounded-lg border border-gray-700 text-gray-300 hover:border-indigo-500/40 hover:text-indigo-300 text-sm font-medium transition-colors">← Back to directory</a>
+        <a href="${ruleDirectoryHref(rule)}" class="inline-flex items-center justify-center py-3 px-6 min-h-[44px] rounded-lg border border-gray-700 text-gray-300 hover:border-indigo-500/40 hover:text-indigo-300 text-sm font-medium transition-colors">← Back to directory</a>
       </div>
     </main>
 
@@ -264,8 +287,10 @@ ${footerHtml()}
 `;
 }
 
-function generateSeoDirectory(rules) {
+function generateSeoDirectory(rules, activeTool) {
   const groups = { Cursor: [], Windsurf: [] };
+  const pageHref = { Cursor: 'index.html', Windsurf: 'windsurf.html' };
+
   rules.forEach(function (rule) {
     var tool = rule.tool || 'Cursor';
     if (!groups[tool]) {
@@ -277,6 +302,9 @@ function generateSeoDirectory(rules) {
   const toolOrder = ['Cursor', 'Windsurf'];
   return toolOrder.map(function (tool) {
     var toolRules = groups[tool] || [];
+    var isActive = activeTool === tool;
+    var toolKey = tool.toLowerCase();
+    var linkClass = 'sidebar-panel__tool-link' + (isActive ? ' sidebar-panel__tool-link--active' : '');
     var items = toolRules.map(function (rule) {
       return (
         '            <li class="sidebar-panel__item">\n' +
@@ -286,8 +314,8 @@ function generateSeoDirectory(rules) {
     }).join('\n');
 
     return (
-      '        <details class="sidebar-panel">\n' +
-      '          <summary class="sidebar-panel__summary">' + tool + ' <span class="sidebar-panel__count">(' + toolRules.length + ')</span></summary>\n' +
+      '        <details class="sidebar-panel"' + (isActive ? ' open' : '') + '>\n' +
+      '          <summary class="sidebar-panel__summary"><a href="' + pageHref[tool] + '" class="' + linkClass + '">' + tool + '</a> <span class="sidebar-panel__count">(' + toolRules.length + ')</span></summary>\n' +
       '          <ul class="sidebar-panel__list">\n' +
       items + '\n' +
       '          </ul>\n' +
@@ -296,23 +324,25 @@ function generateSeoDirectory(rules) {
   }).join('\n');
 }
 
-function updateIndexSeoDirectory(rules) {
-  let html = fs.readFileSync(INDEX_HTML, 'utf8');
+function updatePageSeoDirectory(htmlPath, rules, activeTool) {
+  let html = fs.readFileSync(htmlPath, 'utf8');
   const startMarker = '<!-- SEO-DIRECTORY:START -->';
   const endMarker = '<!-- SEO-DIRECTORY:END -->';
-  const section = generateSeoDirectory(rules);
+  const section = generateSeoDirectory(rules, activeTool);
   const replacement = startMarker + '\n' + section + '\n    ' + endMarker;
 
   if (html.includes(startMarker)) {
     html = html.replace(new RegExp(startMarker + '[\\s\\S]*?' + endMarker), replacement);
-  } else {
-    html = html.replace(
-      /<section class="seo-section mt-12 sm:mt-16 pt-8 sm:pt-10" aria-labelledby="rules-directory-heading">[\s\S]*?<\/section>/,
-      replacement
-    );
   }
 
-  fs.writeFileSync(INDEX_HTML, html, 'utf8');
+  fs.writeFileSync(htmlPath, html, 'utf8');
+}
+
+function updateIndexSeoDirectory(rules) {
+  updatePageSeoDirectory(INDEX_HTML, rules, 'Cursor');
+  if (fs.existsSync(WINDSURF_HTML)) {
+    updatePageSeoDirectory(WINDSURF_HTML, rules, 'Windsurf');
+  }
 }
 
 function updateItemListSchema(rules) {
@@ -355,7 +385,7 @@ function injectVerificationMeta(config) {
   }
 
   const meta = '  <meta name="google-site-verification" content="' + escapeHtml(config.googleSiteVerification) + '" />';
-  const pages = ['index.html', 'about.html', 'submit.html', 'privacy.html'];
+  const pages = ['index.html', 'windsurf.html', 'about.html', 'submit.html', 'privacy.html'];
 
   pages.forEach(function (file) {
     const filePath = path.join(ROOT, file);
@@ -373,6 +403,7 @@ function generateSitemap(rules) {
   const today = new Date().toISOString().slice(0, 10);
   const staticPages = [
     { loc: '/', priority: '1.0', changefreq: 'weekly' },
+    { loc: '/windsurf.html', priority: '0.9', changefreq: 'weekly' },
     { loc: '/about.html', priority: '0.6', changefreq: 'monthly' },
     { loc: '/privacy.html', priority: '0.4', changefreq: 'yearly' },
     { loc: '/submit.html', priority: '0.7', changefreq: 'monthly' }

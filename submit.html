@@ -37,9 +37,18 @@
   <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
 
     <nav class="site-nav flex flex-wrap items-center justify-between gap-4 mb-8 sm:mb-12" aria-label="Main navigation">
-      <a href="index.html" class="text-lg font-bold text-white tracking-tight">AI Agent Dock</a>
+      <a href="index.html" class="site-brand">AI Agent Dock</a>
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-        <a href="index.html" class="site-nav__link">Directory</a>
+        <div class="site-nav__dropdown">
+          <span class="site-nav__link site-nav__dropdown-trigger" tabindex="0">
+            Directory
+            <svg class="site-nav__dropdown-caret" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </span>
+          <div class="site-nav__dropdown-menu" role="menu">
+            <a href="index.html" class="site-nav__dropdown-item" role="menuitem">Cursor</a>
+            <a href="windsurf.html" class="site-nav__dropdown-item" role="menuitem">Windsurf</a>
+          </div>
+        </div>
         <a href="index.html#faq" class="site-nav__link">FAQ</a>
         <a href="about.html" class="site-nav__link">About</a>
         <a href="submit.html" class="site-nav__link site-nav__link--active">Submit</a>
