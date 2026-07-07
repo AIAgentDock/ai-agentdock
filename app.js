@@ -1,19 +1,42 @@
 /**
- * Render RULES_DATA into #rulesGrid with Tool → Category → Framework filters.
+ * Render RULES_DATA into #rulesGrid with Tool → Asset Type → Category → Framework filters.
  */
 (function () {
   'use strict';
 
   var TAXONOMY = window.FILTER_TAXONOMY || {};
-  var TOOL_KEYS = ['cursor', 'windsurf'];
+  var TOOL_KEYS = ['cursor', 'windsurf', 'claude-code', 'github-copilot', 'codex', 'mcp'];
+  var ASSET_TYPE_KEYS = ['rules', 'roles', 'skills', 'hooks', 'workflows', 'mcp-configs'];
   var SEARCH_DEBOUNCE_MS = 200;
   var INITIAL_VISIBLE_COUNT = 9;
+
+  var POPULAR_ASSET_IDS = [
+    'nextjs-architect-role',
+    'senior-fullstack-developer-role',
+    'debugging-expert-role',
+    'build-saas-mvp-skill',
+    'plan-before-coding-hook',
+    'mcp-server-setup-workflow'
+  ];
+
+  var GOAL_FILTERS = {
+    'build-saas-mvp': { label: 'Build SaaS MVP', search: '', category: 'saas', assetType: 'skills' },
+    'fix-bugs': { label: 'Fix Bugs', search: '', category: 'debugging', assetType: 'all' },
+    'review-code': { label: 'Review Code', search: 'code review', category: 'testing', assetType: 'all' },
+    'refactor-project': { label: 'Refactor Project', search: 'refactor', category: 'refactoring', assetType: 'all' },
+    'add-tests': { label: 'Add Tests', search: 'test', category: 'testing', assetType: 'all' },
+    'deploy-app': { label: 'Deploy App', search: 'deploy', category: 'devops', assetType: 'all' },
+    'improve-ui': { label: 'Improve UI', search: 'UI', category: 'frontend', assetType: 'all' },
+    'secure-app': { label: 'Secure App', search: 'security', category: 'security', assetType: 'all' },
+    'write-docs': { label: 'Write Docs', search: 'documentation', category: 'documentation', assetType: 'all' }
+  };
 
   var rulesGrid = document.getElementById('rulesGrid');
   var searchInput = document.getElementById('searchInput');
   var resultCount = document.getElementById('resultCount');
   var emptyState = document.getElementById('emptyState');
   var toolFilter = document.getElementById('toolFilter');
+  var assetTypeFilter = document.getElementById('assetTypeFilter');
   var categoryFilter = document.getElementById('categoryFilter');
   var frameworkChips = document.getElementById('frameworkChips');
   var resetFiltersBtn = document.getElementById('resetFilters');
@@ -22,6 +45,8 @@
   var toastContainer = document.getElementById('toastContainer');
   var showMoreWrap = document.getElementById('showMoreWrap');
   var showMoreBtn = document.getElementById('showMoreBtn');
+  var popularAssetsGrid = document.getElementById('popularAssetsGrid');
+  var quickHooksGrid = document.getElementById('quickHooksGrid');
 
   if (!rulesGrid || !searchInput || !resultCount || !emptyState ||
       !categoryFilter || !frameworkChips || !resetFiltersBtn) {
@@ -43,6 +68,7 @@
 
   var filterState = {
     tool: pageTool,
+    assetType: 'all',
     category: 'all',
     framework: 'all',
     search: ''
@@ -70,7 +96,42 @@
     'cloudflare-workers-pages': 'devops',
     'expo-mobile-app': 'mobile',
     'fastapi-python-backend': 'backend',
-    'ai-code-review-security': 'quality'
+    'ai-code-review-security': 'quality',
+    'security': 'security',
+    'saas': 'saas',
+    'performance': 'performance',
+    'documentation': 'documentation',
+    'debugging': 'debugging',
+    'refactoring': 'refactoring',
+    'full-stack': 'fullstack'
+  };
+
+  var ASSET_TYPE_LABEL_TO_KEY = {
+    rules: 'rules',
+    roles: 'roles',
+    skills: 'skills',
+    hooks: 'hooks',
+    workflows: 'workflows',
+    'mcp configs': 'mcp-configs',
+    'mcp-configs': 'mcp-configs'
+  };
+
+  var ASSET_TYPE_KEY_TO_LABEL = {
+    rules: 'Rules',
+    roles: 'Roles',
+    skills: 'Skills',
+    hooks: 'Hooks',
+    workflows: 'Workflows',
+    'mcp-configs': 'MCP Configs'
+  };
+
+  var TOOL_LABEL_TO_KEY = {
+    cursor: 'cursor',
+    windsurf: 'windsurf',
+    'claude code': 'claude-code',
+    'github copilot': 'github-copilot',
+    codex: 'codex',
+    mcp: 'mcp'
   };
 
   var FRAMEWORK_ALIASES = {
@@ -118,9 +179,13 @@
   };
 
   var TOOL_USAGE_HINTS = {
-    cursor: 'Paste into .cursor/rules/ (or .mdc files) in your project root.',
+    cursor: 'Paste into .cursor/rules/ (or .mdc files), use as a role/skill prompt, or add to Cursor hooks.',
     windsurf: 'Save as Markdown under .devin/rules/ (preferred) or .windsurf/rules/, or paste via Cascade Customizations → Rules.',
-    universal: 'Paste into your editor\'s rules or instructions file.'
+    'claude-code': 'Paste into CLAUDE.md, project instructions, or use as a slash-command prompt.',
+    'github-copilot': 'Add to .github/copilot-instructions.md or paste into Copilot Chat.',
+    codex: 'Paste into your Codex instructions or system prompt.',
+    mcp: 'Use in MCP server config or as a workflow guide for MCP integration.',
+    universal: 'Paste into your editor\'s rules, roles, skills, or instructions file.'
   };
 
   function escapeHtml(text) {
@@ -139,18 +204,63 @@
     if (rule.toolKey) {
       return rule.toolKey.toLowerCase();
     }
-    var tool = safeStr(rule.tool).toLowerCase();
-    if (tool === 'cursor' || tool === 'windsurf' || tool === 'universal') {
+    var tool = safeStr(rule.tool).trim().toLowerCase();
+    if (TOOL_LABEL_TO_KEY[tool]) {
+      return TOOL_LABEL_TO_KEY[tool];
+    }
+    if (TOOL_KEYS.indexOf(tool) !== -1) {
       return tool;
     }
+    if (tool === 'universal') {
+      return 'cursor';
+    }
     return 'cursor';
+  }
+
+  function normalizeAssetTypeKey(rule) {
+    if (rule.assetTypeKey) {
+      return rule.assetTypeKey.toLowerCase();
+    }
+    var raw = safeStr(rule.assetType || 'Rules').trim().toLowerCase();
+    if (ASSET_TYPE_LABEL_TO_KEY[raw]) {
+      return ASSET_TYPE_LABEL_TO_KEY[raw];
+    }
+    return raw.replace(/\s+/g, '-');
+  }
+
+  function getAssetTypeLabel(assetTypeKey) {
+    if (assetTypeKey === 'all') {
+      return 'All Types';
+    }
+    return ASSET_TYPE_KEY_TO_LABEL[assetTypeKey] || assetTypeKey;
+  }
+
+  function getCopyButtonLabel(assetTypeKey) {
+    var labels = {
+      rules: 'Copy Rule',
+      roles: 'Copy Role',
+      skills: 'Copy Skill',
+      hooks: 'Copy Hook',
+      workflows: 'Copy Workflow',
+      'mcp-configs': 'Copy Config'
+    };
+    return labels[assetTypeKey] || 'Copy';
   }
 
   function getToolLabel(toolKey) {
     if (toolKey === 'all') {
       return 'All Tools';
     }
-    return (TAXONOMY[toolKey] && TAXONOMY[toolKey].label) || toolKey;
+    if (TAXONOMY[toolKey] && TAXONOMY[toolKey].label) {
+      return TAXONOMY[toolKey].label;
+    }
+    var labels = {
+      'claude-code': 'Claude Code',
+      'github-copilot': 'GitHub Copilot',
+      codex: 'Codex',
+      mcp: 'MCP'
+    };
+    return labels[toolKey] || toolKey;
   }
 
   function getToolUsageHint(toolKey) {
@@ -223,8 +333,12 @@
   function ruleMatchesToolCategory(rule) {
     var toolKey = normalizeToolKey(rule);
     var categoryKey = normalizeCategoryKey(rule);
+    var assetTypeKey = normalizeAssetTypeKey(rule);
 
     if (filterState.tool !== 'all' && toolKey !== filterState.tool) {
+      return false;
+    }
+    if (filterState.assetType !== 'all' && assetTypeKey !== filterState.assetType) {
       return false;
     }
     if (filterState.category !== 'all' && categoryKey !== filterState.category) {
@@ -364,14 +478,19 @@
     var q = filterState.search.toLowerCase();
     var toolKey = normalizeToolKey(rule);
     var categoryKey = normalizeCategoryKey(rule);
+    var assetTypeKey = normalizeAssetTypeKey(rule);
     var frameworks = getRuleFrameworks(rule);
     var searchText = [
       rule.title,
       getToolLabel(toolKey),
+      getAssetTypeLabel(assetTypeKey),
       getCategoryLabel(toolKey, categoryKey),
+      rule.category,
+      rule.framework,
       frameworks.join(' '),
       rule.description,
       (rule.tags || []).join(' '),
+      (rule.useCases || []).join(' '),
       rule.content
     ].map(safeStr).join(' ').toLowerCase();
 
@@ -454,42 +573,49 @@
     return '<div class="rule-meta">' + items.join('') + '</div>';
   }
 
-  function createRuleCard(rule) {
+  function createRuleCard(rule, options) {
+    options = options || {};
+    var compact = options.compact === true;
     var toolKey = normalizeToolKey(rule);
     var categoryKey = normalizeCategoryKey(rule);
+    var assetTypeKey = normalizeAssetTypeKey(rule);
     var frameworks = getRuleFrameworks(rule);
     var displayFrameworks = frameworks.length ? frameworks : [normalizeFrameworkName(rule.framework)].filter(Boolean);
+    var copyLabel = getCopyButtonLabel(assetTypeKey);
 
     var frameworkBadges = displayFrameworks.slice(0, 3).map(function (fw) {
       return renderBadge(fw, 'framework');
     }).join('');
 
-    var tagsHtml = (rule.tags || []).slice(0, 5).map(function (tag) {
+    var tagsHtml = (rule.tags || []).slice(0, compact ? 3 : 5).map(function (tag) {
       return '<button type="button" class="tag-chip" data-tag="' + escapeHtml(tag) + '">' +
         escapeHtml(tag) + '</button>';
     }).join('');
+
+    var actionsHtml = compact
+      ? '<button type="button" class="btn-copy w-full py-2.5 px-4 min-h-[44px] rounded-lg text-white font-semibold text-sm" data-copy-id="' + escapeHtml(rule.id) + '">' + escapeHtml(copyLabel) + '</button>'
+      : '<div class="flex flex-col sm:flex-row gap-2 mt-auto">' +
+          '<button type="button" class="btn-preview flex-1 py-3 px-4 min-h-[44px] rounded-lg text-sm font-semibold" data-preview-id="' + escapeHtml(rule.id) + '">Preview</button>' +
+          '<button type="button" class="btn-copy flex-1 py-3 px-4 min-h-[44px] rounded-lg text-white font-semibold text-sm" data-copy-id="' + escapeHtml(rule.id) + '">' + escapeHtml(copyLabel) + '</button>' +
+        '</div>';
 
     return (
       '<article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full" data-id="' + escapeHtml(safeStr(rule.id)) + '">' +
         '<div class="flex flex-wrap gap-1.5 mb-3">' +
           renderBadge(getToolLabel(toolKey), 'tool') +
+          renderBadge(getAssetTypeLabel(assetTypeKey), 'asset-type') +
           renderBadge(getCategoryLabel(toolKey, categoryKey), 'category') +
           frameworkBadges +
         '</div>' +
         '<h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">' +
-          '<a href="rules/' + escapeHtml(rule.id) + '" class="rule-card__title">' + escapeHtml(safeStr(rule.title)) + '</a>' +
+          (compact
+            ? '<span class="rule-card__title">' + escapeHtml(safeStr(rule.title)) + '</span>'
+            : '<a href="rules/' + escapeHtml(rule.id) + '" class="rule-card__title">' + escapeHtml(safeStr(rule.title)) + '</a>') +
         '</h2>' +
         '<p class="text-gray-400 text-sm leading-relaxed flex-1 mb-4">' + escapeHtml(safeStr(rule.description)) + '</p>' +
-        '<div class="flex flex-wrap gap-1.5 mb-4">' + tagsHtml + '</div>' +
-        renderRuleMeta(rule) +
-        '<div class="flex flex-col sm:flex-row gap-2 mt-auto">' +
-          '<button type="button" class="btn-preview flex-1 py-3 px-4 min-h-[44px] rounded-lg text-sm font-semibold" data-preview-id="' + escapeHtml(rule.id) + '">' +
-            'Preview' +
-          '</button>' +
-          '<button type="button" class="btn-copy flex-1 py-3 px-4 min-h-[44px] rounded-lg text-white font-semibold text-sm" data-copy-id="' + escapeHtml(rule.id) + '">' +
-            'Copy Rule' +
-          '</button>' +
-        '</div>' +
+        (tagsHtml ? '<div class="flex flex-wrap gap-1.5 mb-4">' + tagsHtml + '</div>' : '') +
+        (compact ? '' : renderRuleMeta(rule)) +
+        actionsHtml +
       '</article>'
     );
   }
@@ -505,28 +631,30 @@
     }
 
     var remaining = totalCount - visibleCount;
-    showMoreBtn.textContent = 'Show more rules (' + remaining + ' more)';
+    showMoreBtn.textContent = 'Show more assets (' + remaining + ' more)';
     showMoreWrap.classList.remove('hidden');
   }
 
   function renderRules() {
     var filtered = getFilteredRules();
     var hasActiveFilters = filterState.category !== 'all' ||
+      filterState.assetType !== 'all' ||
       filterState.framework !== 'all' ||
       filterState.search ||
       (showToolFilter && filterState.tool !== 'all');
     var visibleRules = showAllCards ? filtered : filtered.slice(0, INITIAL_VISIBLE_COUNT);
+    var noun = filtered.length === 1 ? 'asset' : 'assets';
 
     if (hasActiveFilters) {
       if (!showAllCards && filtered.length > INITIAL_VISIBLE_COUNT) {
-        resultCount.textContent = 'Showing ' + visibleRules.length + ' of ' + filtered.length + ' rules';
+        resultCount.textContent = 'Showing ' + visibleRules.length + ' of ' + filtered.length + ' ' + noun;
       } else {
-        resultCount.textContent = 'Showing ' + filtered.length + ' rule' + (filtered.length === 1 ? '' : 's');
+        resultCount.textContent = 'Showing ' + filtered.length + ' ' + noun;
       }
     } else if (!showAllCards && filtered.length > INITIAL_VISIBLE_COUNT) {
-      resultCount.textContent = 'Showing ' + visibleRules.length + ' of ' + filtered.length + ' rules';
+      resultCount.textContent = 'Showing ' + visibleRules.length + ' of ' + filtered.length + ' ' + noun;
     } else {
-      resultCount.textContent = 'Showing ' + filtered.length + ' rule' + (filtered.length === 1 ? '' : 's');
+      resultCount.textContent = 'Showing ' + filtered.length + ' ' + noun;
     }
 
     if (filtered.length === 0) {
@@ -547,26 +675,32 @@
     });
     rulesGrid.innerHTML = cardsHtml;
     updateShowMoreButton(visibleRules.length, filtered.length);
+    bindCardActions(rulesGrid);
+    syncUrlFromState();
+  }
 
-    rulesGrid.querySelectorAll('[data-copy-id]').forEach(function (btn) {
+  function bindCardActions(container) {
+    if (!container) {
+      return;
+    }
+
+    container.querySelectorAll('[data-copy-id]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         copyRule(btn.getAttribute('data-copy-id'), btn);
       });
     });
 
-    rulesGrid.querySelectorAll('[data-preview-id]').forEach(function (btn) {
+    container.querySelectorAll('[data-preview-id]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         openRuleModal(btn.getAttribute('data-preview-id'));
       });
     });
 
-    rulesGrid.querySelectorAll('.tag-chip').forEach(function (chip) {
+    container.querySelectorAll('.tag-chip').forEach(function (chip) {
       chip.addEventListener('click', function () {
         applyTagFilter(chip.getAttribute('data-tag'));
       });
     });
-
-    syncUrlFromState();
   }
 
   function copyText(text, ruleId, triggerEl) {
@@ -585,7 +719,7 @@
         }, 2000);
       }
 
-      showToast('Rule copied! ' + getToolUsageHint(toolKey));
+      showToast('Copied! ' + getToolUsageHint(toolKey));
     }
 
     if (!text) {
@@ -668,9 +802,13 @@
     }
 
     var toolKey = normalizeToolKey(rule);
+    var categoryKey = normalizeCategoryKey(rule);
+    var assetTypeKey = normalizeAssetTypeKey(rule);
     var titleEl = ruleModal.querySelector('#ruleModalTitle');
     var bodyEl = ruleModal.querySelector('#ruleModalBody');
     var copyBtn = ruleModal.querySelector('#ruleModalCopy');
+    var metaEl = ruleModal.querySelector('#ruleModalMeta');
+    var relatedEl = ruleModal.querySelector('#ruleModalRelated');
 
     if (titleEl) {
       titleEl.textContent = rule.title;
@@ -680,6 +818,39 @@
     }
     if (copyBtn) {
       copyBtn.setAttribute('data-copy-id', rule.id);
+      copyBtn.textContent = getCopyButtonLabel(assetTypeKey);
+    }
+
+    if (metaEl) {
+      var useCases = (rule.useCases || []).map(function (item) {
+        return '<li>' + escapeHtml(item) + '</li>';
+      }).join('');
+      metaEl.innerHTML =
+        '<dl class="rule-modal__meta-grid">' +
+          '<div><dt>Tool</dt><dd>' + escapeHtml(getToolLabel(toolKey)) + '</dd></div>' +
+          '<div><dt>Asset type</dt><dd>' + escapeHtml(getAssetTypeLabel(assetTypeKey)) + '</dd></div>' +
+          '<div><dt>Category</dt><dd>' + escapeHtml(getCategoryLabel(toolKey, categoryKey)) + '</dd></div>' +
+          '<div><dt>Framework</dt><dd>' + escapeHtml(safeStr(rule.framework)) + '</dd></div>' +
+        '</dl>' +
+        (useCases ? '<div class="rule-modal__use-cases"><h3>Use cases</h3><ul>' + useCases + '</ul></div>' : '');
+    }
+
+    if (relatedEl) {
+      var relatedHtml = '';
+      (rule.relatedItems || []).forEach(function (relatedId) {
+        var related = allRules.find(function (r) { return r.id === relatedId; });
+        if (related) {
+          relatedHtml += '<button type="button" class="related-asset-chip" data-preview-id="' + escapeHtml(relatedId) + '">' + escapeHtml(related.title) + '</button>';
+        }
+      });
+      relatedEl.innerHTML = relatedHtml
+        ? '<h3>Related assets</h3><div class="related-assets">' + relatedHtml + '</div>'
+        : '';
+      relatedEl.querySelectorAll('[data-preview-id]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          openRuleModal(btn.getAttribute('data-preview-id'));
+        });
+      });
     }
 
     ruleModal.querySelector('#ruleModalHint').textContent = getToolUsageHint(toolKey);
@@ -731,13 +902,165 @@
 
   function resetFilters() {
     filterState.tool = pageTool;
+    filterState.assetType = 'all';
     filterState.category = 'all';
     filterState.framework = 'all';
     filterState.search = '';
     showAllCards = false;
     searchInput.value = '';
+    if (toolFilter) {
+      toolFilter.value = pageTool;
+    }
+    if (assetTypeFilter) {
+      assetTypeFilter.value = 'all';
+    }
     syncFilterOptions();
+    categoryFilter.value = 'all';
     renderRules();
+  }
+
+  function applyFilters(partial, scrollToDir) {
+    if (partial.tool !== undefined && showToolFilter && toolFilter) {
+      filterState.tool = partial.tool;
+      toolFilter.value = partial.tool;
+    }
+    if (partial.assetType !== undefined && assetTypeFilter) {
+      filterState.assetType = partial.assetType;
+      assetTypeFilter.value = partial.assetType;
+    }
+    if (partial.category !== undefined) {
+      filterState.category = partial.category;
+    }
+    if (partial.framework !== undefined) {
+      filterState.framework = partial.framework;
+    }
+    if (partial.search !== undefined) {
+      filterState.search = partial.search;
+      searchInput.value = partial.search;
+    }
+    showAllCards = false;
+    syncFilterOptions();
+    if (partial.category !== undefined) {
+      categoryFilter.value = partial.category;
+    }
+    renderRules();
+    if (scrollToDir) {
+      var dir = document.getElementById('directory');
+      if (dir) {
+        dir.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }
+
+  function applyGoalFilter(goalKey) {
+    var goal = GOAL_FILTERS[goalKey];
+    if (!goal) {
+      return;
+    }
+    applyFilters({
+      tool: 'all',
+      assetType: goal.assetType || 'all',
+      category: goal.category || 'all',
+      framework: 'all',
+      search: goal.search || ''
+    }, true);
+  }
+
+  function renderPopularAssets() {
+    if (!popularAssetsGrid) {
+      return;
+    }
+    var html = '';
+    POPULAR_ASSET_IDS.forEach(function (id) {
+      var rule = allRules.find(function (r) { return r.id === id; });
+      if (rule) {
+        html += createRuleCard(rule, { compact: true });
+      }
+    });
+    popularAssetsGrid.innerHTML = html;
+    bindCardActions(popularAssetsGrid);
+  }
+
+  function renderQuickHooks() {
+    if (!quickHooksGrid) {
+      return;
+    }
+    var hooks = allRules.filter(function (rule) {
+      return normalizeAssetTypeKey(rule) === 'hooks';
+    });
+    var html = '';
+    hooks.forEach(function (hook) {
+      html +=
+        '<div class="hook-card">' +
+          '<p class="hook-card__text">' + escapeHtml(safeStr(hook.content)) + '</p>' +
+          '<div class="hook-card__footer">' +
+            '<span class="hook-card__label">' + escapeHtml(hook.title) + '</span>' +
+            '<button type="button" class="btn-copy hook-card__copy py-2 px-4 min-h-[40px] rounded-lg text-white font-semibold text-xs" data-copy-id="' + escapeHtml(hook.id) + '">Copy</button>' +
+          '</div>' +
+        '</div>';
+    });
+    quickHooksGrid.innerHTML = html;
+    bindCardActions(quickHooksGrid);
+  }
+
+  function setupBrowseShortcuts() {
+    document.querySelectorAll('[data-filter-tool]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyFilters({
+          tool: el.getAttribute('data-filter-tool'),
+          assetType: 'all',
+          category: 'all',
+          framework: 'all',
+          search: ''
+        }, true);
+      });
+    });
+
+    document.querySelectorAll('[data-filter-asset-type]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyFilters({
+          tool: 'all',
+          assetType: el.getAttribute('data-filter-asset-type'),
+          category: 'all',
+          framework: 'all',
+          search: ''
+        }, true);
+      });
+    });
+
+    document.querySelectorAll('[data-filter-goal]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyGoalFilter(el.getAttribute('data-filter-goal'));
+      });
+    });
+
+    document.querySelectorAll('[data-filter-search]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyFilters({
+          tool: 'all',
+          assetType: 'all',
+          category: 'all',
+          framework: 'all',
+          search: el.getAttribute('data-filter-search')
+        }, true);
+      });
+    });
+
+    document.querySelectorAll('[data-nav-asset-type]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        var type = el.getAttribute('data-nav-asset-type');
+        if (type === 'mcp') {
+          applyFilters({ tool: 'mcp', assetType: 'all', category: 'all', framework: 'all', search: '' }, true);
+        } else {
+          applyFilters({ tool: 'all', assetType: type, category: 'all', framework: 'all', search: '' }, true);
+        }
+      });
+    });
   }
 
   function readStateFromUrl() {
@@ -749,6 +1072,8 @@
     } else {
       filterState.tool = pageTool;
     }
+    var urlAssetType = (params.get('type') || 'all').toLowerCase();
+    filterState.assetType = (urlAssetType === 'all' || ASSET_TYPE_KEYS.indexOf(urlAssetType) !== -1) ? urlAssetType : 'all';
     filterState.category = params.get('category') || 'all';
     filterState.framework = params.get('framework') || 'all';
     filterState.search = params.get('q') || '';
@@ -756,6 +1081,9 @@
     searchInput.value = filterState.search;
     if (toolFilter) {
       toolFilter.value = filterState.tool;
+    }
+    if (assetTypeFilter) {
+      assetTypeFilter.value = filterState.assetType;
     }
   }
 
@@ -771,6 +1099,9 @@
     }
     if (showToolFilter && filterState.tool !== 'all') {
       params.set('tool', filterState.tool);
+    }
+    if (filterState.assetType !== 'all') {
+      params.set('type', filterState.assetType);
     }
     if (filterState.category !== 'all') {
       params.set('category', filterState.category);
@@ -839,6 +1170,16 @@
     });
   }
 
+  if (assetTypeFilter) {
+    assetTypeFilter.addEventListener('change', function () {
+      filterState.assetType = assetTypeFilter.value;
+      filterState.framework = 'all';
+      showAllCards = false;
+      syncFilterOptions();
+      renderRules();
+    });
+  }
+
   categoryFilter.addEventListener('change', function () {
     filterState.category = categoryFilter.value;
     filterState.framework = 'all';
@@ -890,6 +1231,9 @@
   urlSyncEnabled = true;
   setupSearchKbdHint();
   setupModal();
+  setupBrowseShortcuts();
+  renderPopularAssets();
+  renderQuickHooks();
   renderRules();
 
   var previewParam = new URLSearchParams(window.location.search).get('preview');

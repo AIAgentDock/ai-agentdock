@@ -1,17 +1,10 @@
 /**
- * Rules 数据源 — 后续可替换为 rules.json + fetch 加载
+ * AI coding assets data source — rules, roles, skills, hooks, workflows, MCP configs.
  *
- * 字段说明：
- *   id          唯一标识
- *   title       规则标题
- *   tool        适用编辑器：Cursor | Windsurf
- *   category    业务分类
- *   framework   技术栈 / 框架
- *   description 一句话简介
- *   source      来源 { label, url? } — e.g. { label: 'GitHub', url: 'https://...' }
- *   license     许可证名称 — e.g. 'MIT'
- *   tags        搜索标签
- *   content     规则正文（Markdown）
+ * Fields:
+ *   id, title, description, tool, assetType, category, framework,
+ *   tags, difficulty, popularity, content, useCases, relatedItems
+ *   source, license (optional legacy fields)
  */
 window.RULES_DATA = [
   {
@@ -1557,7 +1550,12 @@ You are a senior engineer performing thorough code review with security and main
 - Group findings: Critical, Warning, Suggestion
 - Reference file and line when possible; propose concrete fixes, not vague advice
 - Acknowledge what is done well to keep feedback balanced
-- Do not rewrite entire files unless asked — minimal fix diffs are preferred`
+- Do not rewrite entire files unless asked — minimal fix diffs are preferred`,
+    assetType: 'Rules'
   }
 ];
+
+if (Array.isArray(window.EXTRA_ASSETS)) {
+  window.RULES_DATA = window.RULES_DATA.concat(window.EXTRA_ASSETS);
+}
 

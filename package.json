@@ -1,7 +1,7 @@
 {
   "name": "ai-agent-dock",
   "private": true,
-  "description": "Curated Cursor and Windsurf AI coding rules directory",
+  "description": "Copy-ready AI coding rules, roles, skills, hooks and workflows for Cursor, Windsurf, Claude Code, GitHub Copilot, Codex and MCP",
   "scripts": {
     "build": "node scripts/build.js",
     "dev": "npx serve . -l 3000",

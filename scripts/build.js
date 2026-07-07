@@ -19,6 +19,7 @@ const DIST_STATIC_FILES = [
   'submit.html',
   'privacy.html',
   'app.js',
+  'extra-assets.js',
   'rules.js',
   'styles.css',
   'site-config.js',
@@ -68,9 +69,14 @@ function analyticsScriptsHtml(depth) {
 }
 
 function loadRules() {
+  const extraPath = path.join(ROOT, 'extra-assets.js');
   const content = fs.readFileSync(RULES_JS, 'utf8');
+  const extraContent = fs.existsSync(extraPath) ? fs.readFileSync(extraPath, 'utf8') : '';
   const sandbox = { window: {} };
   const vm = require('vm');
+  if (extraContent) {
+    vm.runInNewContext(extraContent, sandbox);
+  }
   vm.runInNewContext(content, sandbox);
   if (!Array.isArray(sandbox.window.RULES_DATA)) {
     throw new Error('RULES_DATA not found in rules.js');
@@ -205,10 +211,15 @@ function lastUpdatedForRule(rule) {
   return rule.lastUpdated || new Date().toISOString().slice(0, 10);
 }
 
+function assetTypeLabel(rule) {
+  return rule.assetType || 'Rules';
+}
+
 function renderRuleDetailMeta(rule) {
   const tool = escapeHtml(rule.tool || 'Cursor');
   const category = escapeHtml(rule.category || '');
   const framework = escapeHtml(rule.framework || '');
+  const assetType = escapeHtml(assetTypeLabel(rule));
   const recommended = escapeHtml(recommendedPathForRule(rule));
   const trigger = escapeHtml(triggerModeForRule(rule));
   const license = escapeHtml(rule.license || 'MIT');
@@ -219,6 +230,10 @@ function renderRuleDetailMeta(rule) {
     '        <div class="rule-detail-meta__item">\n' +
     '          <dt class="rule-detail-meta__label">Tool</dt>\n' +
     '          <dd class="rule-detail-meta__value">' + tool + '</dd>\n' +
+    '        </div>\n' +
+    '        <div class="rule-detail-meta__item">\n' +
+    '          <dt class="rule-detail-meta__label">Asset type</dt>\n' +
+    '          <dd class="rule-detail-meta__value">' + assetType + '</dd>\n' +
     '        </div>\n' +
     '        <div class="rule-detail-meta__item">\n' +
     '          <dt class="rule-detail-meta__label">Category</dt>\n' +
@@ -260,6 +275,7 @@ function generateRulePage(rule, config) {
   const tool = escapeHtml(rule.tool || 'Cursor');
   const category = escapeHtml(rule.category || '');
   const framework = escapeHtml(rule.framework || '');
+  const assetType = escapeHtml(assetTypeLabel(rule));
   const title = escapeHtml(rule.title);
   const description = escapeHtml(rule.description || '');
   const content = escapeHtml(rule.content || '');
@@ -308,6 +324,7 @@ ${navHtml('', config, String(rule.tool || 'Cursor').toLowerCase())}
     <header class="mb-6 sm:mb-8">
       <div class="flex flex-wrap gap-1.5 mb-3">
         <span class="rule-badge rule-badge--tool">${tool.toUpperCase()}</span>
+        <span class="rule-badge rule-badge--asset-type">${assetType.toUpperCase()}</span>
         <span class="rule-badge rule-badge--category">${category.toUpperCase()}</span>
         <span class="rule-badge rule-badge--framework">${framework}</span>
       </div>
@@ -455,10 +472,12 @@ function generateSeoRulesGrid(rules) {
   return rules.map(function (rule) {
     var tool = escapeHtml(rule.tool || 'Cursor');
     var category = escapeHtml(rule.category || '');
+    var assetType = escapeHtml(assetTypeLabel(rule));
     return (
       '      <article class="rule-card rounded-xl p-5 sm:p-6 flex flex-col h-full seo-static-card">\n' +
       '        <div class="flex flex-wrap gap-1.5 mb-3">\n' +
       '          <span class="rule-badge rule-badge--tool">' + tool.toUpperCase() + '</span>\n' +
+      '          <span class="rule-badge rule-badge--asset-type">' + assetType.toUpperCase() + '</span>\n' +
       '          <span class="rule-badge rule-badge--category">' + category.toUpperCase() + '</span>\n' +
       '        </div>\n' +
       '        <h2 class="text-base sm:text-lg font-bold text-white mb-3 leading-snug">\n' +
@@ -516,7 +535,7 @@ function updateItemListSchema(rules) {
     '  {\n' +
     '    "@context": "https://schema.org",\n' +
     '    "@type": "ItemList",\n' +
-    '    "name": "AI Agent Dock Rules",\n' +
+    '    "name": "AI Agent Dock Assets",\n' +
     '    "numberOfItems": ' + rules.length + ',\n' +
     '    "itemListElement": [\n' +
     items + '\n' +

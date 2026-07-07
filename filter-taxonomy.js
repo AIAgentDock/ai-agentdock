@@ -134,6 +134,30 @@ window.FILTER_TAXONOMY = {
           'Turborepo',
           'pnpm'
         ]
+      },
+      saas: {
+        label: 'SaaS',
+        frameworks: ['Next.js', 'Supabase', 'Generic']
+      },
+      security: {
+        label: 'Security',
+        frameworks: ['Generic', 'Auth.js', 'Supabase', 'OWASP']
+      },
+      debugging: {
+        label: 'Debugging',
+        frameworks: ['Generic', 'TypeScript', 'Python']
+      },
+      refactoring: {
+        label: 'Refactoring',
+        frameworks: ['Generic', 'TypeScript', 'Python']
+      },
+      performance: {
+        label: 'Performance',
+        frameworks: ['Next.js', 'React', 'Generic']
+      },
+      documentation: {
+        label: 'Documentation',
+        frameworks: ['README', 'Markdown', 'Generic']
       }
     }
   },
@@ -243,6 +267,46 @@ window.FILTER_TAXONOMY = {
           'pnpm'
         ]
       }
+    }
+  },
+
+  'claude-code': {
+    label: 'Claude Code',
+    categories: {
+      general: { label: 'General Coding', frameworks: ['Generic'] },
+      fullstack: { label: 'Fullstack', frameworks: ['Next.js', 'React', 'TypeScript'] },
+      frontend: { label: 'Frontend / UI', frameworks: ['React', 'TypeScript', 'Tailwind CSS'] },
+      ai: { label: 'AI Agent / RAG', frameworks: ['MCP', 'OpenAI API'] },
+      testing: { label: 'Testing / QA', frameworks: ['Playwright', 'Vitest', 'Generic'] },
+      debugging: { label: 'Debugging', frameworks: ['Generic'] },
+      documentation: { label: 'Documentation', frameworks: ['README', 'Generic'] }
+    }
+  },
+
+  'github-copilot': {
+    label: 'GitHub Copilot',
+    categories: {
+      general: { label: 'General Coding', frameworks: ['Generic'] },
+      fullstack: { label: 'Fullstack', frameworks: ['Next.js', 'React', 'TypeScript'] },
+      backend: { label: 'Backend / API', frameworks: ['Node.js', 'Python', 'Go'] },
+      testing: { label: 'Testing / QA', frameworks: ['Playwright', 'Vitest'] }
+    }
+  },
+
+  codex: {
+    label: 'Codex',
+    categories: {
+      general: { label: 'General Coding', frameworks: ['Generic'] },
+      fullstack: { label: 'Fullstack', frameworks: ['Next.js', 'React'] },
+      ai: { label: 'AI Agent / RAG', frameworks: ['MCP', 'OpenAI API'] }
+    }
+  },
+
+  mcp: {
+    label: 'MCP',
+    categories: {
+      ai: { label: 'AI Agent / RAG', frameworks: ['MCP', 'Generic'] },
+      devops: { label: 'DevOps / Deployment', frameworks: ['Cloudflare', 'Generic'] }
     }
   },
 
