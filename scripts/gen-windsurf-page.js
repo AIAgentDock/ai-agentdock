@@ -22,7 +22,29 @@ html = html.replace(
 html = html.replace('Cursor · AI Rules', 'Windsurf · AI Rules');
 html = html.replace(
   'Curated AI coding rules for Cursor — copy to your project in one click',
-  'Curated AI coding rules for Windsurf — copy to your project in one click'
+  'Curated Windsurf / Devin Desktop rules for Cascade — copy to your project in one click'
+);
+
+html = html.replace(/<title>Windsurf Rules — AI Agent Dock<\/title>/, '<title>Windsurf / Devin Desktop Rules — AI Agent Dock</title>');
+html = html.replace(
+  'content="Curated Windsurf AI coding rules for Next.js, React, Supabase, Tailwind, Docker, and more. Copy rules to the Windsurf Rules panel in one click."',
+  'content="Curated Windsurf / Devin Desktop rules for Cascade — Next.js, React, Supabase, Tailwind, Docker, and more. Copy to your project in one click."'
+);
+html = html.replace(
+  'content="Windsurf Rules,AI coding rules,Next.js,React,Supabase,Tailwind"',
+  'content="Windsurf Rules,Devin Desktop Rules,Cascade rules,AI coding rules,Next.js,React,Supabase,Tailwind"'
+);
+html = html.replaceAll(
+  'content="Windsurf Rules — AI Agent Dock"',
+  'content="Windsurf / Devin Desktop Rules — AI Agent Dock"'
+);
+html = html.replace(
+  'content="Curated Windsurf AI coding rules for Next.js, React, Supabase, Tailwind, Docker, and more."',
+  'content="Curated Windsurf / Devin Desktop rules for Cascade — Next.js, React, Supabase, Tailwind, Docker, and more."'
+);
+html = html.replace(
+  'content="Search and copy curated Windsurf AI coding rules for your project."',
+  'content="Search and copy curated Windsurf / Devin Desktop rules for Cascade."'
 );
 
 html = html.replace(
@@ -37,11 +59,20 @@ html = html.replace(
   `<div class="tool-usage mb-2">
         <div class="tool-usage__panel">
           <h2 class="tool-usage__title">How to use Windsurf Rules</h2>
-          <p>Persistent instructions for Windsurf Cascade sessions. Open Windsurf → <strong class="text-gray-300 font-medium">Rules</strong> panel → import or paste the rule text.</p>
-          <p>Windsurf uses these across all Cascade conversations. Browse the directory, copy a rule, and paste into the Rules panel.</p>
-          <p>Tip: Trim sections after copying to fit your project and avoid overrunning the AI context window.</p>
+          <p>Persistent instructions for Windsurf / Devin Desktop Cascade. For workspace rules, create Markdown files under <code class="path-badge">.devin/rules/</code> (preferred), or legacy <code class="path-badge">.windsurf/rules/</code>. Legacy <code class="path-badge">.windsurfrules</code> files are still read.</p>
+          <p>You can also manage rules from the Cascade <strong class="text-gray-300 font-medium">Customizations → Rules</strong> panel. Open any rule page and click <strong class="text-gray-300 font-medium">Copy Rule</strong> to paste into your project.</p>
         </div>
       </div>`
+);
+
+html = html.replace(
+  '<p class="faq-item__answer">Open Windsurf → <strong class="text-gray-200 font-medium">Rules</strong> panel → import or paste the rule text. Windsurf uses these as persistent instructions across Cascade sessions.</p>',
+  '<p class="faq-item__answer">For workspace rules, create Markdown files under <code class="path-badge">.devin/rules/</code> (preferred) or legacy <code class="path-badge">.windsurf/rules/</code> at your repo root. Legacy <code class="path-badge">.windsurfrules</code> files are still read. You can also manage rules from Cascade <strong class="text-gray-200 font-medium">Customizations → Rules</strong>.</p>'
+);
+
+html = html.replace(
+  '"text": "Open Windsurf, go to the Rules panel, and import or paste the rule text. Windsurf uses these as persistent instructions across Cascade sessions."',
+  '"text": "For workspace rules, create Markdown files under .devin/rules/ (preferred) or legacy .windsurf/rules/ at your repo root. Legacy .windsurfrules files are still read. You can also manage rules from Cascade Customizations → Rules."'
 );
 
 html = html.replace('Narrow Cursor rules', 'Narrow Windsurf rules');

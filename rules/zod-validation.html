@@ -81,6 +81,37 @@
           <span class="tag-chip tag-chip--static">API</span></div>
     </header>
 
+      <dl class="rule-detail-meta">
+        <div class="rule-detail-meta__item">
+          <dt class="rule-detail-meta__label">Tool</dt>
+          <dd class="rule-detail-meta__value">Windsurf</dd>
+        </div>
+        <div class="rule-detail-meta__item">
+          <dt class="rule-detail-meta__label">Category</dt>
+          <dd class="rule-detail-meta__value">Code Quality / Security</dd>
+        </div>
+        <div class="rule-detail-meta__item">
+          <dt class="rule-detail-meta__label">Framework</dt>
+          <dd class="rule-detail-meta__value">Zod</dd>
+        </div>
+        <div class="rule-detail-meta__item rule-detail-meta__item--wide">
+          <dt class="rule-detail-meta__label">Recommended path</dt>
+          <dd class="rule-detail-meta__value"><code class="path-badge">.devin/rules/zod-validation.md (preferred) · .windsurf/rules/zod-validation.md</code></dd>
+        </div>
+        <div class="rule-detail-meta__item">
+          <dt class="rule-detail-meta__label">Trigger mode</dt>
+          <dd class="rule-detail-meta__value">Workspace-wide (always active)</dd>
+        </div>
+        <div class="rule-detail-meta__item">
+          <dt class="rule-detail-meta__label">License</dt>
+          <dd class="rule-detail-meta__value">MIT</dd>
+        </div>
+        <div class="rule-detail-meta__item">
+          <dt class="rule-detail-meta__label">Last updated</dt>
+          <dd class="rule-detail-meta__value">2026-07-07</dd>
+        </div>
+      </dl>
+
     <main class="rule-detail">
       <pre class="rule-detail__content" id="ruleContent"># Zod Schema Validation Rules
 
@@ -105,7 +136,7 @@ You are an expert using Zod for runtime validation.
 ## Testing
 - Test schemas with valid/invalid fixtures
 - Snapshot error messages for critical validation rules</pre>
-      <p class="rule-detail__hint text-sm text-gray-500 mt-4">Import via Windsurf → Rules panel in your editor.</p>
+      <p class="rule-detail__hint text-sm text-gray-500 mt-4">Save as Markdown under .devin/rules/*.md (preferred) or .windsurf/rules/*.md, or paste via Cascade → Customizations → Rules.</p>
       <div class="flex flex-col sm:flex-row gap-3 mt-6">
         <button type="button" id="copyRuleBtn" class="btn-copy py-3 px-6 min-h-[44px] rounded-lg text-white font-semibold text-sm">Copy Rule</button>
         <a href="../windsurf.html" class="inline-flex items-center justify-center py-3 px-6 min-h-[44px] rounded-lg border border-gray-700 text-gray-300 hover:border-indigo-500/40 hover:text-indigo-300 text-sm font-medium transition-colors">← Back to directory</a>
@@ -129,7 +160,7 @@ You are an expert using Zod for runtime validation.
     (function () {
       var content = document.getElementById('ruleContent').textContent;
       var btn = document.getElementById('copyRuleBtn');
-      var hint = "Import via Windsurf → Rules panel in your editor.";
+      var hint = "Save as Markdown under .devin/rules/*.md (preferred) or .windsurf/rules/*.md, or paste via Cascade → Customizations → Rules.";
       btn.addEventListener('click', function () {
         navigator.clipboard.writeText(content).then(function () {
           btn.classList.add('copied');

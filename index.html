@@ -489,9 +489,9 @@
       <button type="button" id="showMoreBtn" class="show-more-btn px-6 py-3 min-h-[44px] rounded-lg text-sm font-medium">Show more rules</button>
     </div>
 
-    <!-- Empty state -->
-    <div id="emptyState" class="hidden text-center py-16 sm:py-20" aria-hidden="true">
-      <p class="text-gray-400 text-base sm:text-lg">No rules found. Try changing the category, framework, or search keyword.</p>
+    <!-- Empty state (shown only when JS filtering returns zero results) -->
+    <div id="emptyState" aria-hidden="true">
+      <p class="text-gray-400 text-base sm:text-lg text-center py-16 sm:py-20">No rules found. Try changing the category, framework, or search keyword.</p>
     </div>
 
       </div><!-- /.page-main -->
@@ -514,7 +514,7 @@
         </details>
         <details class="faq-item">
           <summary class="faq-item__question">Where do Windsurf rules go?</summary>
-          <p class="faq-item__answer">Open Windsurf → <strong class="text-gray-200 font-medium">Rules</strong> panel → import or paste the rule text. Windsurf uses these as persistent instructions across Cascade sessions.</p>
+          <p class="faq-item__answer">For workspace rules, create Markdown files under <code class="path-badge">.devin/rules/</code> (preferred) or legacy <code class="path-badge">.windsurf/rules/</code> at your repo root. Legacy <code class="path-badge">.windsurfrules</code> files are still read. You can also manage rules from Cascade <strong class="text-gray-200 font-medium">Customizations → Rules</strong>.</p>
         </details>
         <details class="faq-item">
           <summary class="faq-item__question">How do I use a rule from AI Agent Dock?</summary>
@@ -553,7 +553,7 @@
           "name": "Where do Windsurf rules go?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Open Windsurf, go to the Rules panel, and import or paste the rule text. Windsurf uses these as persistent instructions across Cascade sessions."
+            "text": "For workspace rules, create Markdown files under .devin/rules/ (preferred) or legacy .windsurf/rules/ at your repo root. Legacy .windsurfrules files are still read. You can also manage rules from Cascade Customizations → Rules."
           }
         },
         {

@@ -98,7 +98,7 @@
 
   var TOOL_USAGE_HINTS = {
     cursor: 'Paste into .cursor/rules/ (or .mdc files) in your project root.',
-    windsurf: 'Import via Windsurf → Rules panel in your editor.',
+    windsurf: 'Save as Markdown under .devin/rules/ (preferred) or .windsurf/rules/, or paste via Cascade Customizations → Rules.',
     universal: 'Paste into your editor\'s rules or instructions file.'
   };
 
@@ -502,21 +502,21 @@
         resultCount.textContent = 'Showing ' + filtered.length + ' rule' + (filtered.length === 1 ? '' : 's');
       }
     } else if (!showAllCards && filtered.length > INITIAL_VISIBLE_COUNT) {
-      resultCount.textContent = 'Showing ' + visibleRules.length + ' of ' + allRules.length + ' rules';
+      resultCount.textContent = 'Showing ' + visibleRules.length + ' of ' + filtered.length + ' rules';
     } else {
-      resultCount.textContent = 'Showing ' + allRules.length + ' rules';
+      resultCount.textContent = 'Showing ' + filtered.length + ' rule' + (filtered.length === 1 ? '' : 's');
     }
 
     if (filtered.length === 0) {
       rulesGrid.innerHTML = '';
       updateShowMoreButton(0, 0);
-      emptyState.classList.remove('hidden');
+      emptyState.classList.add('is-visible');
       emptyState.setAttribute('aria-hidden', 'false');
       syncUrlFromState();
       return;
     }
 
-    emptyState.classList.add('hidden');
+    emptyState.classList.remove('is-visible');
     emptyState.setAttribute('aria-hidden', 'true');
 
     var cardsHtml = '';

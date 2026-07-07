@@ -175,9 +175,76 @@ function footerHtml() {
 function toolHint(tool) {
   const t = String(tool || '').toLowerCase();
   if (t === 'windsurf') {
-    return 'Import via Windsurf → Rules panel in your editor.';
+    return 'Save as Markdown under .devin/rules/*.md (preferred) or .windsurf/rules/*.md, or paste via Cascade → Customizations → Rules.';
   }
   return 'Paste into .cursor/rules/ (or .mdc files) in your project root.';
+}
+
+function recommendedPathForRule(rule) {
+  const tool = String(rule.tool || 'Cursor').toLowerCase();
+  const filename = rule.recommendedFilename || (rule.id + '.md');
+  if (tool === 'windsurf') {
+    return '.devin/rules/' + filename + ' (preferred) · .windsurf/rules/' + filename;
+  }
+  return '.cursor/rules/' + (rule.recommendedFilename || rule.id + '.mdc');
+}
+
+function triggerModeForRule(rule) {
+  if (rule.triggerMode) {
+    return rule.triggerMode;
+  }
+  const tool = String(rule.tool || 'Cursor').toLowerCase();
+  if (tool === 'windsurf') {
+    return 'Workspace-wide (always active)';
+  }
+  return 'Project rules (auto-applied in Agent & Chat)';
+}
+
+function lastUpdatedForRule(rule) {
+  return rule.lastUpdated || new Date().toISOString().slice(0, 10);
+}
+
+function renderRuleDetailMeta(rule) {
+  const tool = escapeHtml(rule.tool || 'Cursor');
+  const category = escapeHtml(rule.category || '');
+  const framework = escapeHtml(rule.framework || '');
+  const recommended = escapeHtml(recommendedPathForRule(rule));
+  const trigger = escapeHtml(triggerModeForRule(rule));
+  const license = escapeHtml(rule.license || 'MIT');
+  const updated = escapeHtml(lastUpdatedForRule(rule));
+
+  return (
+    '      <dl class="rule-detail-meta">\n' +
+    '        <div class="rule-detail-meta__item">\n' +
+    '          <dt class="rule-detail-meta__label">Tool</dt>\n' +
+    '          <dd class="rule-detail-meta__value">' + tool + '</dd>\n' +
+    '        </div>\n' +
+    '        <div class="rule-detail-meta__item">\n' +
+    '          <dt class="rule-detail-meta__label">Category</dt>\n' +
+    '          <dd class="rule-detail-meta__value">' + category + '</dd>\n' +
+    '        </div>\n' +
+    '        <div class="rule-detail-meta__item">\n' +
+    '          <dt class="rule-detail-meta__label">Framework</dt>\n' +
+    '          <dd class="rule-detail-meta__value">' + framework + '</dd>\n' +
+    '        </div>\n' +
+    '        <div class="rule-detail-meta__item rule-detail-meta__item--wide">\n' +
+    '          <dt class="rule-detail-meta__label">Recommended path</dt>\n' +
+    '          <dd class="rule-detail-meta__value"><code class="path-badge">' + recommended + '</code></dd>\n' +
+    '        </div>\n' +
+    '        <div class="rule-detail-meta__item">\n' +
+    '          <dt class="rule-detail-meta__label">Trigger mode</dt>\n' +
+    '          <dd class="rule-detail-meta__value">' + trigger + '</dd>\n' +
+    '        </div>\n' +
+    '        <div class="rule-detail-meta__item">\n' +
+    '          <dt class="rule-detail-meta__label">License</dt>\n' +
+    '          <dd class="rule-detail-meta__value">' + license + '</dd>\n' +
+    '        </div>\n' +
+    '        <div class="rule-detail-meta__item">\n' +
+    '          <dt class="rule-detail-meta__label">Last updated</dt>\n' +
+    '          <dd class="rule-detail-meta__value">' + updated + '</dd>\n' +
+    '        </div>\n' +
+    '      </dl>\n'
+  );
 }
 
 function ruleDirectoryHref(rule) {
@@ -245,6 +312,7 @@ ${navHtml('', config, String(rule.tool || 'Cursor').toLowerCase())}
       <div class="flex flex-wrap gap-1.5 mt-4">${tags}</div>
     </header>
 
+${renderRuleDetailMeta(rule)}
     <main class="rule-detail">
       <pre class="rule-detail__content" id="ruleContent">${content}</pre>
       <p class="rule-detail__hint text-sm text-gray-500 mt-4">${hint}</p>
@@ -287,9 +355,12 @@ ${footerHtml()}
 `;
 }
 
-function generateSeoDirectory(rules, activeTool) {
+function generateSeoDirectory(rules, activeTool, options) {
+  options = options || {};
   const groups = { Cursor: [], Windsurf: [] };
   const pageHref = { Cursor: 'index.html', Windsurf: 'windsurf.html' };
+  const toolOrder = options.toolOrder || ['Cursor', 'Windsurf'];
+  const sectionLabels = options.sectionLabels || {};
 
   rules.forEach(function (rule) {
     var tool = rule.tool || 'Cursor';
@@ -299,12 +370,12 @@ function generateSeoDirectory(rules, activeTool) {
     groups[tool].push(rule);
   });
 
-  const toolOrder = ['Cursor', 'Windsurf'];
   return toolOrder.map(function (tool) {
     var toolRules = groups[tool] || [];
     var isActive = activeTool === tool;
-    var toolKey = tool.toLowerCase();
     var linkClass = 'sidebar-panel__tool-link' + (isActive ? ' sidebar-panel__tool-link--active' : '');
+    var panelClass = 'sidebar-panel' + (options.secondaryTools && options.secondaryTools.indexOf(tool) !== -1 ? ' sidebar-panel--secondary' : '');
+    var sectionLabel = sectionLabels[tool] || tool;
     var items = toolRules.map(function (rule) {
       return (
         '            <li class="sidebar-panel__item">\n' +
@@ -314,8 +385,8 @@ function generateSeoDirectory(rules, activeTool) {
     }).join('\n');
 
     return (
-      '        <details class="sidebar-panel"' + (isActive ? ' open' : '') + '>\n' +
-      '          <summary class="sidebar-panel__summary"><a href="' + pageHref[tool] + '" class="' + linkClass + '">' + tool + '</a> <span class="sidebar-panel__count">(' + toolRules.length + ')</span></summary>\n' +
+      '        <details class="' + panelClass + '"' + (isActive ? ' open' : '') + '>\n' +
+      '          <summary class="sidebar-panel__summary"><a href="' + pageHref[tool] + '" class="' + linkClass + '">' + sectionLabel + '</a> <span class="sidebar-panel__count">(' + toolRules.length + ')</span></summary>\n' +
       '          <ul class="sidebar-panel__list">\n' +
       items + '\n' +
       '          </ul>\n' +
@@ -324,11 +395,11 @@ function generateSeoDirectory(rules, activeTool) {
   }).join('\n');
 }
 
-function updatePageSeoDirectory(htmlPath, rules, activeTool) {
+function updatePageSeoDirectory(htmlPath, rules, activeTool, options) {
   let html = fs.readFileSync(htmlPath, 'utf8');
   const startMarker = '<!-- SEO-DIRECTORY:START -->';
   const endMarker = '<!-- SEO-DIRECTORY:END -->';
-  const section = generateSeoDirectory(rules, activeTool);
+  const section = generateSeoDirectory(rules, activeTool, options);
   const replacement = startMarker + '\n' + section + '\n    ' + endMarker;
 
   if (html.includes(startMarker)) {
@@ -341,7 +412,11 @@ function updatePageSeoDirectory(htmlPath, rules, activeTool) {
 function updateIndexSeoDirectory(rules) {
   updatePageSeoDirectory(INDEX_HTML, rules, 'Cursor');
   if (fs.existsSync(WINDSURF_HTML)) {
-    updatePageSeoDirectory(WINDSURF_HTML, rules, 'Windsurf');
+    updatePageSeoDirectory(WINDSURF_HTML, rules, 'Windsurf', {
+      toolOrder: ['Windsurf', 'Cursor'],
+      sectionLabels: { Cursor: 'Also available — Cursor' },
+      secondaryTools: ['Cursor']
+    });
   }
 }
 
@@ -377,6 +452,52 @@ function updateItemListSchema(rules) {
   const replacement = startMarker + '\n' + schema + '\n  ' + endMarker;
   html = html.replace(new RegExp(startMarker + '[\\s\\S]*?' + endMarker), replacement);
   fs.writeFileSync(INDEX_HTML, html, 'utf8');
+}
+
+function updateWindsurfItemListSchema(rules) {
+  if (!fs.existsSync(WINDSURF_HTML)) {
+    return;
+  }
+
+  let html = fs.readFileSync(WINDSURF_HTML, 'utf8');
+  const startMarker = '<!-- ITEMLIST-SCHEMA:START -->';
+  const endMarker = '<!-- ITEMLIST-SCHEMA:END -->';
+
+  const windsurfRules = rules.filter(function (rule) {
+    return String(rule.tool || 'Cursor').toLowerCase() === 'windsurf';
+  });
+  const cursorRules = rules.filter(function (rule) {
+    return String(rule.tool || 'Cursor').toLowerCase() !== 'windsurf';
+  });
+  const orderedRules = windsurfRules.concat(cursorRules);
+
+  const items = orderedRules.map(function (rule, index) {
+    return (
+      '      {\n' +
+      '        "@type": "ListItem",\n' +
+      '        "position": ' + (index + 1) + ',\n' +
+      '        "name": ' + JSON.stringify(rule.title) + ',\n' +
+      '        "url": ' + JSON.stringify(rulePageUrl(rule.id)) + '\n' +
+      '      }'
+    );
+  }).join(',\n');
+
+  const schema =
+    '  <script type="application/ld+json">\n' +
+    '  {\n' +
+    '    "@context": "https://schema.org",\n' +
+    '    "@type": "ItemList",\n' +
+    '    "name": "Windsurf / Devin Desktop Rules",\n' +
+    '    "numberOfItems": ' + orderedRules.length + ',\n' +
+    '    "itemListElement": [\n' +
+    items + '\n' +
+    '    ]\n' +
+    '  }\n' +
+    '  </script>';
+
+  const replacement = startMarker + '\n' + schema + '\n  ' + endMarker;
+  html = html.replace(new RegExp(startMarker + '[\\s\\S]*?' + endMarker), replacement);
+  fs.writeFileSync(WINDSURF_HTML, html, 'utf8');
 }
 
 function injectVerificationMeta(config) {
@@ -506,6 +627,9 @@ function main() {
 
   updateItemListSchema(rules);
   console.log('  updated ItemList schema');
+
+  updateWindsurfItemListSchema(rules);
+  console.log('  updated windsurf.html ItemList schema');
 
   injectVerificationMeta(config);
 
