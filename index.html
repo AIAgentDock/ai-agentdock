@@ -692,9 +692,9 @@
         <a href="#directory" class="browse-card" data-filter-tool="cursor"><span class="browse-card__title">Cursor</span><span class="browse-card__desc">Rules, roles, skills &amp; hooks</span></a>
         <a href="#directory" class="browse-card" data-filter-tool="windsurf"><span class="browse-card__title">Windsurf</span><span class="browse-card__desc">Cascade rules &amp; prompts</span></a>
         <a href="#directory" class="browse-card" data-filter-tool="claude-code"><span class="browse-card__title">Claude Code</span><span class="browse-card__desc">Project instructions &amp; roles</span></a>
-        <a href="#directory" class="browse-card" data-filter-tool="github-copilot"><span class="browse-card__title">GitHub Copilot</span><span class="browse-card__desc">Copilot instructions</span></a>
+        <a href="#directory" class="browse-card" data-filter-tool="github-copilot"><span class="browse-card__title">GitHub Copilot</span><span class="browse-card__desc">Instructions &amp; prompts</span></a>
         <a href="#directory" class="browse-card" data-filter-tool="codex"><span class="browse-card__title">Codex</span><span class="browse-card__desc">Agent system prompts</span></a>
-        <a href="#directory" class="browse-card" data-filter-tool="mcp"><span class="browse-card__title">MCP</span><span class="browse-card__desc">MCP configs &amp; workflows</span></a>
+        <a href="#directory" class="browse-card" data-filter-tool="mcp"><span class="browse-card__title">MCP</span><span class="browse-card__desc">Configs &amp; workflows</span></a>
       </div>
     </section>
 
@@ -2130,7 +2130,7 @@
           <p class="use-case-block__text">Short pre-task hooks for planning, debugging, refactoring, security audits and deployment prep — paste before starting any coding session.</p>
         </article>
         <article class="use-case-block">
-          <h3 class="use-case-block__title"><a href="cursor.html" class="use-case-block__link">Cursor Rules Directory</a></h3>
+          <h3 class="use-case-block__title"><a href="cursor.html" class="use-case-block__link">Cursor Assets Directory</a></h3>
           <p class="use-case-block__text">Browse Cursor rules, roles, skills, hooks and workflows for Agent and Chat — from Next.js and React to testing, DevOps and security.</p>
         </article>
         <article class="use-case-block">
@@ -2161,19 +2161,19 @@
           <p class="faq-item__answer"><code class="path-badge">AGENTS.md</code> is another supported project instruction format — a repo-level brief describing architecture, commands, and workflow. It complements tool-specific rules files; use both when your project needs a high-level map plus detailed coding standards.</p>
         </details>
         <details class="faq-item">
-          <summary class="faq-item__question">How do I use a rule from AI Agent Dock?</summary>
-          <p class="faq-item__answer">Find a rule in the <a href="#rules-directory-heading" class="text-indigo-400 hover:text-indigo-300 transition-colors">directory</a>, open its detail page, click <strong class="text-gray-200 font-medium">Copy Rule</strong>, then paste into your editor. Each rule has a permanent URL you can bookmark or share (e.g. <a href="rules/fastapi-backend.html" class="text-indigo-400 hover:text-indigo-300 transition-colors">/rules/fastapi-backend</a>).</p>
+          <summary class="faq-item__question">How do I use an asset from AI Agent Dock?</summary>
+          <p class="faq-item__answer">Find an asset in the <a href="#rules-directory-heading" class="text-indigo-400 hover:text-indigo-300 transition-colors">directory</a>, open its detail page, click <strong class="text-gray-200 font-medium">Copy</strong> (the button label matches the asset type — Rule, Role, Skill, Hook, Workflow, or MCP Config), then paste into your editor. Each asset has a permanent URL you can bookmark or share (e.g. <a href="rules/fastapi-backend.html" class="text-indigo-400 hover:text-indigo-300 transition-colors">/rules/fastapi-backend</a>).</p>
         </details>
         <details class="faq-item">
-          <summary class="faq-item__question">Can I edit rules after copying?</summary>
-          <p class="faq-item__answer">Yes. Rules are starting templates — remove sections you do not need, add project-specific conventions, and keep total length reasonable so you do not overrun the AI context window.</p>
+          <summary class="faq-item__question">Can I edit assets after copying?</summary>
+          <p class="faq-item__answer">Yes. Assets are starting templates — remove sections you do not need, add project-specific conventions, and keep total length reasonable so you do not overrun the AI context window.</p>
         </details>
         <details class="faq-item">
-          <summary class="faq-item__question">Are these rules free to use?</summary>
-          <p class="faq-item__answer">Yes. Rules on this site are original templates or properly attributed community submissions. Most rules are MIT-licensed unless noted otherwise on the rule page. Check the License line on each card or detail page.</p>
+          <summary class="faq-item__question">Are these assets free to use?</summary>
+          <p class="faq-item__answer">Yes. Assets on this site are original templates or properly attributed community submissions. Most are MIT-licensed unless noted otherwise on the detail page. Check the License line on each card or detail page.</p>
         </details>
         <details class="faq-item">
-          <summary class="faq-item__question">How do I submit my own rule?</summary>
+          <summary class="faq-item__question">How do I submit my own asset?</summary>
           <p class="faq-item__answer">Visit <a href="submit.html" class="text-indigo-400 hover:text-indigo-300 transition-colors">Submit an AI Coding Asset</a> for guidelines, then send your asset by email.</p>
         </details>
       </div>
@@ -2210,34 +2210,34 @@
         },
         {
           "@type": "Question",
-          "name": "How do I use a rule from AI Agent Dock?",
+          "name": "How do I use an asset from AI Agent Dock?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Browse the directory, open a rule detail page, click Copy Rule, and paste into your editor. Each rule has a permanent URL you can bookmark or share."
+            "text": "Browse the directory, open an asset detail page, click Copy (Rule, Role, Skill, Hook, Workflow, or MCP Config), and paste into your editor. Each asset has a permanent URL you can bookmark or share."
           }
         },
         {
           "@type": "Question",
-          "name": "Can I edit rules after copying?",
+          "name": "Can I edit assets after copying?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. Rules are templates — trim sections you do not need and add project-specific conventions to fit your context window."
+            "text": "Yes. Assets are templates — trim sections you do not need and add project-specific conventions to fit your context window."
           }
         },
         {
           "@type": "Question",
-          "name": "Are these rules free to use?",
+          "name": "Are these assets free to use?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. Rules are original templates or properly attributed community submissions. Most rules are MIT-licensed unless noted otherwise on the rule page."
+            "text": "Yes. Assets are original templates or properly attributed community submissions. Most are MIT-licensed unless noted otherwise on the detail page."
           }
         },
         {
           "@type": "Question",
-          "name": "How do I submit my own rule?",
+          "name": "How do I submit my own asset?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Visit the Submit a Rule page for guidelines, then send your rule by email."
+            "text": "Visit the Submit an Asset page for guidelines, then send your asset by email."
           }
         }
       ]
@@ -2247,7 +2247,7 @@
     <!-- Trust / license -->
     <section class="trust-note" aria-labelledby="trust-heading">
       <h2 id="trust-heading" class="sr-only">Trust and licensing</h2>
-      <p>Rules on AI Agent Dock are original templates or properly attributed community submissions. Most rules are <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT-licensed</a> unless noted otherwise on the rule page. See <a href="about.html">About</a> for attribution details.</p>
+      <p>Assets on AI Agent Dock are original templates or properly attributed community submissions. Most assets are <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT-licensed</a> unless noted otherwise on the detail page. See <a href="about.html">About</a> for attribution details.</p>
     </section>
 
     <!-- Footer -->
@@ -2259,7 +2259,7 @@
         <a href="about.html" class="hover:text-indigo-300 transition-colors">About</a>
         <a href="index.html#faq" class="hover:text-indigo-300 transition-colors">FAQ</a>
         <a href="privacy.html" class="hover:text-indigo-300 transition-colors">Privacy</a>
-        <a href="submit.html" class="hover:text-indigo-300 transition-colors">Submit a Rule</a>
+        <a href="submit.html" class="hover:text-indigo-300 transition-colors">Submit an Asset</a>
       </nav>
       <p class="mt-2 text-gray-700">&copy; 2026 AI Agent Dock</p>
     </footer>

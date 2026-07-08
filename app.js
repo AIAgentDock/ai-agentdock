@@ -171,7 +171,7 @@
     debugging: 'debugging',
     documentation: 'documentation',
     performance: 'performance',
-    database: 'database'
+    database: 'database',
     testing: 'testing',
     'testing / qa': 'testing',
     devops: 'devops',
@@ -187,13 +187,54 @@
   };
 
   var TOOL_USAGE_HINTS = {
-    cursor: 'Paste into .cursor/rules/ (or .mdc files), use as a role/skill prompt, or add to Cursor hooks.',
-    windsurf: 'Save as Markdown under .devin/rules/ (preferred) or .windsurf/rules/, or paste via Cascade Customizations → Rules.',
-    'claude-code': 'Paste into CLAUDE.md, project instructions, or use as a slash-command prompt.',
-    'github-copilot': 'Add to .github/copilot-instructions.md or paste into Copilot Chat.',
-    codex: 'Paste into your Codex instructions or system prompt.',
-    mcp: 'Use in MCP server config or as a workflow guide for MCP integration.',
-    universal: 'Paste into your editor\'s rules, roles, skills, or instructions file.'
+    cursor: {
+      rules: 'Paste into .cursor/rules/ (or .mdc files) in your project root.',
+      roles: 'Paste into Cursor Agent or Chat as a role prompt.',
+      skills: 'Paste into Cursor Agent or Chat before starting a multi-step task.',
+      hooks: 'Add to Cursor hooks config, or paste before a task in Agent or Chat.',
+      workflows: 'Paste into Cursor Agent or Chat as a step-by-step workflow prompt.',
+      'mcp-configs': 'Add to your Cursor MCP settings or mcp.json configuration.'
+    },
+    windsurf: {
+      rules: 'Save as Markdown under .devin/rules/ (preferred) or .windsurf/rules/, or paste via Cascade Customizations → Rules.',
+      roles: 'Paste into Cascade Chat as a role prompt, or save under .devin/rules/ for auto-apply.',
+      skills: 'Paste into Cascade Chat before starting a task.',
+      hooks: 'Paste into Cascade Chat before starting a task as a short pre-task instruction.',
+      workflows: 'Paste into Cascade as a step-by-step workflow prompt.',
+      'mcp-configs': 'Add to your MCP client configuration.'
+    },
+    'claude-code': {
+      rules: 'Paste into CLAUDE.md or project instructions at your repo root.',
+      roles: 'Paste into CLAUDE.md or use as a Claude Code role prompt.',
+      skills: 'Paste into Claude Code before starting a multi-step task.',
+      hooks: 'Paste into Claude Code before starting a task.',
+      workflows: 'Paste into Claude Code as a step-by-step workflow prompt.',
+      'mcp-configs': 'Add to your MCP client configuration.'
+    },
+    'github-copilot': {
+      rules: 'Add to .github/copilot-instructions.md or paste into Copilot Chat.',
+      roles: 'Paste into Copilot Chat or add to .github/copilot-instructions.md.',
+      skills: 'Paste into Copilot Chat before starting a task.',
+      hooks: 'Paste into Copilot Chat before starting a task.',
+      workflows: 'Paste into Copilot Chat as a multi-step workflow prompt.',
+      'mcp-configs': 'Add to your MCP client configuration.'
+    },
+    codex: {
+      rules: 'Paste into your Codex instructions or system prompt.',
+      roles: 'Paste into your Codex system prompt as a role definition.',
+      skills: 'Paste into Codex before starting a multi-step task.',
+      hooks: 'Paste into Codex before starting a task.',
+      workflows: 'Paste into Codex as a step-by-step workflow prompt.',
+      'mcp-configs': 'Add to your MCP client configuration.'
+    },
+    mcp: {
+      rules: 'Use as guidance when building or configuring an MCP server.',
+      roles: 'Use as an MCP integration role prompt.',
+      skills: 'Use as a skill guide for MCP workflows.',
+      hooks: 'Use as a pre-task hook in MCP-compatible agents.',
+      workflows: 'Follow as a workflow guide for MCP integration.',
+      'mcp-configs': 'Add to your MCP server config or client settings.'
+    }
   };
 
   function escapeHtml(text) {
@@ -250,7 +291,7 @@
       skills: 'Copy Skill',
       hooks: 'Copy Hook',
       workflows: 'Copy Workflow',
-      'mcp-configs': 'Copy Config'
+      'mcp-configs': 'Copy MCP Config'
     };
     return labels[assetTypeKey] || 'Copy';
   }
@@ -271,8 +312,12 @@
     return labels[toolKey] || toolKey;
   }
 
-  function getToolUsageHint(toolKey) {
-    return TOOL_USAGE_HINTS[toolKey] || TOOL_USAGE_HINTS.cursor;
+  function getToolUsageHint(toolKey, assetTypeKey) {
+    var toolHints = TOOL_USAGE_HINTS[toolKey] || TOOL_USAGE_HINTS.cursor;
+    if (typeof toolHints === 'string') {
+      return toolHints;
+    }
+    return toolHints[assetTypeKey] || toolHints.rules || 'Paste into your AI coding agent.';
   }
 
   function normalizeCategoryKey(rule) {
@@ -715,6 +760,7 @@
     function onSuccess() {
       var rule = allRules.find(function (r) { return r.id === ruleId; });
       var toolKey = rule ? normalizeToolKey(rule) : 'cursor';
+      var assetTypeKey = rule ? normalizeAssetTypeKey(rule) : 'rules';
 
       if (triggerEl) {
         triggerEl.classList.add('copied');
@@ -727,7 +773,7 @@
         }, 2000);
       }
 
-      showToast('Copied! ' + getToolUsageHint(toolKey));
+      showToast('Copied! ' + getToolUsageHint(toolKey, assetTypeKey));
     }
 
     if (!text) {
@@ -764,9 +810,11 @@
       onSuccess();
     } catch (err) {
       if (btn) {
+        var rule = allRules.find(function (r) { return r.id === ruleId; });
+        var fallbackLabel = rule ? getCopyButtonLabel(normalizeAssetTypeKey(rule)) : 'Copy';
         btn.textContent = 'Copy failed';
         setTimeout(function () {
-          btn.textContent = 'Copy Rule';
+          btn.textContent = fallbackLabel;
         }, 2000);
       }
     }
@@ -861,7 +909,7 @@
       });
     }
 
-    ruleModal.querySelector('#ruleModalHint').textContent = getToolUsageHint(toolKey);
+    ruleModal.querySelector('#ruleModalHint').textContent = getToolUsageHint(toolKey, assetTypeKey);
     ruleModal.classList.remove('hidden');
     ruleModal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('modal-open');

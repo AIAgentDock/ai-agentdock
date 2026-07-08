@@ -104,6 +104,61 @@ function normalizeActiveToolKey(tool) {
   return value.replace(/\s+/g, '-');
 }
 
+function normalizeToolKey(rule) {
+  var tool = String(rule.tool || 'Cursor').trim().toLowerCase();
+  if (tool === 'claude code') {
+    return 'claude-code';
+  }
+  if (tool === 'github copilot') {
+    return 'github-copilot';
+  }
+  return tool.replace(/\s+/g, '-');
+}
+
+function normalizeAssetTypeKey(rule) {
+  var raw = String(rule.assetType || 'Rules').trim().toLowerCase();
+  if (raw === 'mcp configs' || raw === 'mcp-configs') {
+    return 'mcp-configs';
+  }
+  return raw.replace(/\s+/g, '-');
+}
+
+function getCopyButtonLabel(assetTypeKey) {
+  var labels = {
+    rules: 'Copy Rule',
+    roles: 'Copy Role',
+    skills: 'Copy Skill',
+    hooks: 'Copy Hook',
+    workflows: 'Copy Workflow',
+    'mcp-configs': 'Copy MCP Config'
+  };
+  return labels[assetTypeKey] || 'Copy';
+}
+
+function getCopiedToastPrefix(assetTypeKey) {
+  var labels = {
+    rules: 'Rule',
+    roles: 'Role',
+    skills: 'Skill',
+    hooks: 'Hook',
+    workflows: 'Workflow',
+    'mcp-configs': 'MCP config'
+  };
+  return (labels[assetTypeKey] || 'Asset') + ' copied!';
+}
+
+function assetTypeNoun(assetTypeKey) {
+  var labels = {
+    rules: 'rule',
+    roles: 'role',
+    skills: 'skill',
+    hooks: 'hook',
+    workflows: 'workflow',
+    'mcp-configs': 'MCP config'
+  };
+  return labels[assetTypeKey] || 'asset';
+}
+
 function directoryNavHtml(activeTool, depth) {
   var prefix = depth === 0 ? '' : '../';
   var homeHref = prefix + 'index.html';
@@ -190,31 +245,203 @@ function tailwindHead() {
 function footerHtml() {
   return (
     '    <footer class="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-gray-800/60 text-center text-gray-600 text-xs sm:text-sm">\n' +
-    '      <p>AI Agent Dock · Open-source rule directory</p>\n' +
+    '      <p>AI Agent Dock · Copy-ready AI coding assets directory</p>\n' +
     '      <nav class="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1" aria-label="Footer navigation">\n' +
     '        <a href="../about.html" class="hover:text-indigo-300 transition-colors">About</a>\n' +
     '        <a href="../privacy.html" class="hover:text-indigo-300 transition-colors">Privacy</a>\n' +
-    '        <a href="../submit.html" class="hover:text-indigo-300 transition-colors">Submit a Rule</a>\n' +
+    '        <a href="../submit.html" class="hover:text-indigo-300 transition-colors">Submit an Asset</a>\n' +
     '      </nav>\n' +
     '      <p class="mt-2 text-gray-700">&copy; 2026 AI Agent Dock</p>\n' +
     '    </footer>'
   );
 }
 
-function toolHint(tool) {
-  const t = String(tool || '').toLowerCase();
-  if (t === 'windsurf') {
-    return 'Save as Markdown under .devin/rules/*.md (preferred) or .windsurf/rules/*.md, or paste via Cascade → Customizations → Rules.';
+function assetUsageHint(rule) {
+  var tool = normalizeToolKey(rule);
+  var assetType = normalizeAssetTypeKey(rule);
+
+  if (assetType === 'rules') {
+    if (tool === 'windsurf') {
+      return 'Save as Markdown under .devin/rules/*.md (preferred) or .windsurf/rules/*.md, or paste via Cascade → Customizations → Rules.';
+    }
+    if (tool === 'cursor') {
+      return 'Paste into .cursor/rules/ (or .mdc files) in your project root.';
+    }
+    if (tool === 'claude-code') {
+      return 'Paste into CLAUDE.md, project instructions, or use as a slash-command prompt.';
+    }
+    if (tool === 'github-copilot') {
+      return 'Add to .github/copilot-instructions.md or paste into Copilot Chat.';
+    }
+    if (tool === 'codex') {
+      return 'Paste into your Codex instructions or system prompt.';
+    }
+    if (tool === 'mcp') {
+      return 'Use as guidance when building or configuring an MCP server.';
+    }
+    return 'Paste into your editor\'s rules or instructions file.';
   }
-  return 'Paste into .cursor/rules/ (or .mdc files) in your project root.';
+
+  if (assetType === 'roles') {
+    if (tool === 'cursor') {
+      return 'Paste into Cursor Agent or Chat as a role prompt to set the AI\'s persona for a session.';
+    }
+    if (tool === 'windsurf') {
+      return 'Paste into Cascade Chat as a role prompt, or save under .devin/rules/ if you want it applied automatically.';
+    }
+    if (tool === 'claude-code') {
+      return 'Paste into CLAUDE.md or use as a Claude Code role prompt.';
+    }
+    if (tool === 'github-copilot') {
+      return 'Paste into Copilot Chat or add to .github/copilot-instructions.md.';
+    }
+    if (tool === 'codex') {
+      return 'Paste into your Codex system prompt or instructions.';
+    }
+    return 'Paste into your AI coding agent as a role or persona prompt.';
+  }
+
+  if (assetType === 'skills') {
+    if (tool === 'windsurf') {
+      return 'Paste into Cascade Chat before starting a task to guide the AI through a multi-step skill.';
+    }
+    if (tool === 'github-copilot') {
+      return 'Paste into Copilot Chat before starting a task.';
+    }
+    if (tool === 'codex') {
+      return 'Paste into Codex before starting a multi-step task.';
+    }
+    if (tool === 'claude-code') {
+      return 'Paste into Claude Code before starting a multi-step task.';
+    }
+    return 'Paste into your AI coding agent before starting a task to guide a multi-step workflow.';
+  }
+
+  if (assetType === 'hooks') {
+    if (tool === 'cursor') {
+      return 'Add to Cursor hooks configuration, or paste before a task in Agent or Chat.';
+    }
+    if (tool === 'windsurf') {
+      return 'Paste into Cascade Chat before starting a task as a short pre-task instruction.';
+    }
+    if (tool === 'claude-code') {
+      return 'Paste into Claude Code before starting a task, or add as a hook-style prompt.';
+    }
+    return 'Paste before starting a coding task as a short pre-task instruction.';
+  }
+
+  if (assetType === 'workflows') {
+    if (tool === 'github-copilot') {
+      return 'Paste into Copilot Chat or add to copilot-instructions.md as a multi-step workflow prompt.';
+    }
+    if (tool === 'codex') {
+      return 'Paste into Codex as a step-by-step workflow prompt.';
+    }
+    if (tool === 'mcp') {
+      return 'Follow as a workflow guide for MCP server setup and integration.';
+    }
+    return 'Paste into your AI coding agent as a step-by-step workflow prompt.';
+  }
+
+  if (assetType === 'mcp-configs') {
+    return 'Add to your MCP client configuration (e.g. Cursor MCP settings, Claude Desktop config, or mcp.json).';
+  }
+
+  return 'Copy and paste into your AI coding agent as needed.';
+}
+
+function howToUseSteps(rule) {
+  var tool = normalizeToolKey(rule);
+  var assetType = normalizeAssetTypeKey(rule);
+  var noun = assetTypeNoun(assetType);
+  var steps = [
+    'Click <strong>Copy ' + (assetType === 'rules' ? 'Rule' : assetType === 'roles' ? 'Role' : assetType === 'skills' ? 'Skill' : assetType === 'hooks' ? 'Hook' : assetType === 'workflows' ? 'Workflow' : 'MCP Config') + '</strong> above to copy the full ' + noun + ' text.',
+    assetUsageHint(rule)
+  ];
+
+  if (assetType === 'rules' && tool === 'cursor') {
+    steps.push('Cursor applies project rules automatically in Agent and Chat once saved under <code class="path-badge">.cursor/rules/</code>.');
+  } else if (assetType === 'rules' && tool === 'windsurf') {
+    steps.push('Windsurf reads workspace rules from <code class="path-badge">.devin/rules/</code> on each Cascade session.');
+  } else if (assetType === 'hooks') {
+    steps.push('Use this hook at the start of a task — before the AI writes any code.');
+  } else if (assetType === 'workflows') {
+    steps.push('Follow the steps in order; the AI will work through each phase of the workflow.');
+  }
+
+  return steps.map(function (step, i) {
+    return '<li>' + step + '</li>';
+  }).join('\n          ');
+}
+
+function compatibleToolsForRule(rule) {
+  var primary = normalizeToolKey(rule);
+  var toolLabels = {
+    cursor: 'Cursor',
+    windsurf: 'Windsurf',
+    'claude-code': 'Claude Code',
+    'github-copilot': 'GitHub Copilot',
+    codex: 'Codex',
+    mcp: 'MCP'
+  };
+  var primaryLabel = toolLabels[primary] || rule.tool || 'Cursor';
+  var related = [primaryLabel];
+
+  if (primary === 'cursor' || primary === 'windsurf') {
+    related.push('Claude Code');
+  }
+  if (normalizeAssetTypeKey(rule) === 'mcp-configs' || primary === 'mcp') {
+    related.push('Cursor', 'Claude Desktop', 'Windsurf');
+  }
+
+  var seen = {};
+  return related.filter(function (label) {
+    var key = label.toLowerCase();
+    if (seen[key]) {
+      return false;
+    }
+    seen[key] = true;
+    return true;
+  });
 }
 
 function recommendedPathForRule(rule) {
-  const tool = String(rule.tool || 'Cursor').toLowerCase();
-  if (tool === 'windsurf') {
-    return '.devin/rules/' + rule.id + '.md';
+  var tool = normalizeToolKey(rule);
+  var assetType = normalizeAssetTypeKey(rule);
+  var id = rule.id;
+
+  if (assetType === 'rules') {
+    if (tool === 'windsurf') {
+      return '.devin/rules/' + id + '.md';
+    }
+    if (tool === 'cursor') {
+      return '.cursor/rules/' + id + '.mdc';
+    }
+    if (tool === 'claude-code') {
+      return 'CLAUDE.md';
+    }
+    if (tool === 'github-copilot') {
+      return '.github/copilot-instructions.md';
+    }
+    if (tool === 'codex') {
+      return 'Codex instructions / system prompt';
+    }
+    if (tool === 'mcp') {
+      return 'MCP server project';
+    }
   }
-  return '.cursor/rules/' + rule.id + '.mdc';
+
+  if (assetType === 'hooks' && tool === 'cursor') {
+    return '.cursor/hooks.json or paste before task';
+  }
+  if (assetType === 'mcp-configs') {
+    return 'mcp.json or MCP client settings';
+  }
+  if (assetType === 'roles' || assetType === 'skills' || assetType === 'hooks' || assetType === 'workflows') {
+    return 'Paste into ' + (rule.tool || 'your agent') + ' Chat';
+  }
+
+  return 'Paste into your agent';
 }
 
 function triggerModeForRule(rule) {
@@ -284,27 +511,107 @@ function renderRuleDetailMeta(rule) {
   );
 }
 
+function renderRuleDetailSections(rule, allRules) {
+  var useCases = rule.useCases || [];
+  var bestForHtml = '';
+  if (useCases.length) {
+    bestForHtml =
+      '      <section class="rule-detail-section">\n' +
+      '        <h2 class="rule-detail-section__title">Best for</h2>\n' +
+      '        <ul class="rule-detail-section__list">\n' +
+      useCases.map(function (item) {
+        return '          <li>' + escapeHtml(item) + '</li>';
+      }).join('\n') +
+      '\n        </ul>\n' +
+      '      </section>\n';
+  }
+
+  var howToHtml =
+    '      <section class="rule-detail-section">\n' +
+    '        <h2 class="rule-detail-section__title">How to use this asset</h2>\n' +
+    '        <ol class="rule-detail-section__list rule-detail-section__list--ordered">\n' +
+    '          ' + howToUseSteps(rule) + '\n' +
+    '        </ol>\n' +
+    '      </section>\n';
+
+  var compatible = compatibleToolsForRule(rule);
+  var otherTools = compatible.filter(function (t) {
+    return t.toLowerCase() !== String(rule.tool || 'Cursor').toLowerCase();
+  });
+  var compatibleText = otherTools.length
+    ? 'Designed for <strong class="text-gray-200 font-medium">' + escapeHtml(rule.tool || 'Cursor') + '</strong>. Also works with: ' + otherTools.map(function (t) { return escapeHtml(t); }).join(', ') + '.'
+    : 'Designed for <strong class="text-gray-200 font-medium">' + escapeHtml(rule.tool || 'Cursor') + '</strong>.';
+  var compatibleHtml =
+    '      <section class="rule-detail-section">\n' +
+    '        <h2 class="rule-detail-section__title">Compatible tools</h2>\n' +
+    '        <p class="rule-detail-section__text">' + compatibleText + '</p>\n' +
+    '      </section>\n';
+
+  var relatedHtml = '';
+  var relatedIds = rule.relatedItems || [];
+  if (relatedIds.length && Array.isArray(allRules)) {
+    var relatedLinks = relatedIds.map(function (relatedId) {
+      var related = allRules.find(function (r) { return r.id === relatedId; });
+      if (!related) {
+        return '';
+      }
+      return '          <li><a href="' + rulePagePath(related.id) + '" class="rule-detail-section__link">' + escapeHtml(related.title) + '</a></li>';
+    }).filter(Boolean).join('\n');
+
+    if (relatedLinks) {
+      relatedHtml =
+        '      <section class="rule-detail-section">\n' +
+        '        <h2 class="rule-detail-section__title">Related assets</h2>\n' +
+        '        <ul class="rule-detail-section__list rule-detail-section__list--related">\n' +
+        relatedLinks + '\n' +
+        '        </ul>\n' +
+        '      </section>\n';
+    }
+  }
+
+  return bestForHtml + howToHtml + compatibleHtml + relatedHtml;
+}
+
 function ruleDirectoryHref(rule) {
-  var tool = String(rule.tool || 'Cursor').toLowerCase();
+  var tool = normalizeToolKey(rule);
   if (tool === 'windsurf') {
     return '../windsurf.html';
   }
-  return '../cursor.html';
+  if (tool === 'cursor') {
+    return '../cursor.html';
+  }
+  return '../index.html?tool=' + tool + '#directory';
 }
 
-function generateRulePage(rule, config) {
+function ruleDirectoryBackLabel(rule) {
+  var tool = normalizeToolKey(rule);
+  if (tool === 'windsurf') {
+    return '← Back to Windsurf Assets';
+  }
+  if (tool === 'cursor') {
+    return '← Back to Cursor Assets';
+  }
+  return '← Back to directory';
+}
+
+function generateRulePage(rule, config, allRules) {
   const tool = escapeHtml(rule.tool || 'Cursor');
   const category = escapeHtml(rule.category || '');
   const framework = escapeHtml(rule.framework || '');
   const assetType = escapeHtml(assetTypeLabel(rule));
+  const assetTypeKey = normalizeAssetTypeKey(rule);
+  const copyLabel = escapeHtml(getCopyButtonLabel(assetTypeKey));
   const title = escapeHtml(rule.title);
   const description = escapeHtml(rule.description || '');
   const content = escapeHtml(rule.content || '');
-  const hint = escapeHtml(toolHint(rule.tool));
+  const hint = escapeHtml(assetUsageHint(rule));
   const canonical = rulePageUrl(rule.id);
+  const backLabel = escapeHtml(ruleDirectoryBackLabel(rule));
+  const copiedPrefix = getCopiedToastPrefix(assetTypeKey);
   const tags = (rule.tags || []).map(function (t) {
     return '<span class="tag-chip tag-chip--static">' + escapeHtml(t) + '</span>';
   }).join('\n          ');
+  const detailSections = renderRuleDetailSections(rule, allRules);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -355,12 +662,14 @@ ${navHtml('', config, normalizeActiveToolKey(rule.tool || 'Cursor'))}
     </header>
 
 ${renderRuleDetailMeta(rule)}
+${detailSections}
     <main class="rule-detail">
+      <h2 class="rule-detail-section__title mb-3">Asset content</h2>
       <pre class="rule-detail__content" id="ruleContent">${content}</pre>
       <p class="rule-detail__hint text-sm text-gray-500 mt-4">${hint}</p>
       <div class="flex flex-col sm:flex-row gap-3 mt-6">
-        <button type="button" id="copyRuleBtn" class="btn-copy py-3 px-6 min-h-[44px] rounded-lg text-white font-semibold text-sm">Copy Rule</button>
-        <a href="${ruleDirectoryHref(rule)}" class="inline-flex items-center justify-center py-3 px-6 min-h-[44px] rounded-lg border border-gray-700 text-gray-300 hover:border-indigo-500/40 hover:text-indigo-300 text-sm font-medium transition-colors">← Back to directory</a>
+        <button type="button" id="copyRuleBtn" class="btn-copy py-3 px-6 min-h-[44px] rounded-lg text-white font-semibold text-sm">${copyLabel}</button>
+        <a href="${ruleDirectoryHref(rule)}" class="inline-flex items-center justify-center py-3 px-6 min-h-[44px] rounded-lg border border-gray-700 text-gray-300 hover:border-indigo-500/40 hover:text-indigo-300 text-sm font-medium transition-colors">${backLabel}</a>
       </div>
     </main>
 
@@ -373,7 +682,9 @@ ${footerHtml()}
     (function () {
       var content = document.getElementById('ruleContent').textContent;
       var btn = document.getElementById('copyRuleBtn');
-      var hint = ${JSON.stringify(toolHint(rule.tool))};
+      var copyLabel = ${JSON.stringify(getCopyButtonLabel(assetTypeKey))};
+      var copiedPrefix = ${JSON.stringify(copiedPrefix)};
+      var hint = ${JSON.stringify(assetUsageHint(rule))};
       btn.addEventListener('click', function () {
         navigator.clipboard.writeText(content).then(function () {
           btn.classList.add('copied');
@@ -381,11 +692,11 @@ ${footerHtml()}
           var toast = document.createElement('div');
           toast.className = 'toast toast--visible';
           toast.setAttribute('role', 'status');
-          toast.textContent = 'Rule copied! ' + hint;
+          toast.textContent = copiedPrefix + ' ' + hint;
           document.getElementById('toastContainer').appendChild(toast);
           setTimeout(function () {
             btn.classList.remove('copied');
-            btn.textContent = 'Copy Rule';
+            btn.textContent = copyLabel;
             toast.remove();
           }, 3000);
         });
@@ -397,12 +708,43 @@ ${footerHtml()}
 `;
 }
 
+function generateAlsoExploreLinks(currentToolKey, depth) {
+  var prefix = depth === 0 ? '' : '../';
+  var homeHref = prefix + 'index.html';
+  var links = [
+    { key: 'all', href: homeHref + '#directory', label: 'All Assets' },
+    { key: 'cursor', href: prefix + 'cursor.html', label: 'Cursor' },
+    { key: 'windsurf', href: prefix + 'windsurf.html', label: 'Windsurf' },
+    { key: 'claude-code', href: homeHref + '?tool=claude-code#directory', label: 'Claude Code' },
+    { key: 'github-copilot', href: homeHref + '?tool=github-copilot#directory', label: 'GitHub Copilot' },
+    { key: 'codex', href: homeHref + '?tool=codex#directory', label: 'Codex' },
+    { key: 'mcp', href: homeHref + '?tool=mcp#directory', label: 'MCP' }
+  ].filter(function (link) {
+    return link.key !== currentToolKey;
+  });
+
+  var linkHtml = links.map(function (link) {
+    return '<a href="' + link.href + '" class="also-explore__link">' + escapeHtml(link.label) + '</a>';
+  }).join('\n            ');
+
+  return (
+    '        <div class="also-explore">\n' +
+    '          <p class="also-explore__label">Also explore</p>\n' +
+    '          <p class="also-explore__links">\n' +
+    '            ' + linkHtml + '\n' +
+    '          </p>\n' +
+    '        </div>'
+  );
+}
+
 function generateSeoDirectory(rules, activeTool, options) {
   options = options || {};
   const groups = { Cursor: [], Windsurf: [] };
   const pageHref = { Cursor: 'cursor.html', Windsurf: 'windsurf.html' };
   const toolOrder = options.toolOrder || ['Cursor', 'Windsurf'];
   const sectionLabels = options.sectionLabels || {};
+  const alsoExploreOnly = options.alsoExploreOnly === true;
+  const currentToolKey = options.currentToolKey || '';
 
   rules.forEach(function (rule) {
     var tool = rule.tool || 'Cursor';
@@ -412,8 +754,11 @@ function generateSeoDirectory(rules, activeTool, options) {
     groups[tool].push(rule);
   });
 
-  return toolOrder.map(function (tool) {
+  var panels = toolOrder.map(function (tool) {
     var toolRules = groups[tool] || [];
+    if (!toolRules.length && alsoExploreOnly) {
+      return '';
+    }
     var isActive = activeTool === tool;
     var linkClass = 'sidebar-panel__tool-link' + (isActive ? ' sidebar-panel__tool-link--active' : '');
     var panelClass = 'sidebar-panel' + (options.secondaryTools && options.secondaryTools.indexOf(tool) !== -1 ? ' sidebar-panel--secondary' : '');
@@ -435,7 +780,13 @@ function generateSeoDirectory(rules, activeTool, options) {
       '          </ul>\n' +
       '        </details>'
     );
-  }).join('\n');
+  }).filter(Boolean).join('\n');
+
+  if (alsoExploreOnly && currentToolKey) {
+    panels += '\n' + generateAlsoExploreLinks(currentToolKey, options.depth || 0);
+  }
+
+  return panels;
 }
 
 function updatePageSeoDirectory(htmlPath, rules, activeTool, options) {
@@ -458,19 +809,29 @@ function updateIndexSeoDirectory(rules) {
     openAll: true
   });
 
+  var cursorOnly = rules.filter(function (rule) {
+    return normalizeToolKey(rule) === 'cursor';
+  });
+
+  var windsurfOnly = rules.filter(function (rule) {
+    return normalizeToolKey(rule) === 'windsurf';
+  });
+
   if (fs.existsSync(CURSOR_HTML)) {
-    updatePageSeoDirectory(CURSOR_HTML, rules, 'Cursor', {
-      toolOrder: ['Cursor', 'Windsurf'],
-      sectionLabels: { Windsurf: 'Also available — Windsurf' },
-      secondaryTools: ['Windsurf']
+    updatePageSeoDirectory(CURSOR_HTML, cursorOnly, 'Cursor', {
+      toolOrder: ['Cursor'],
+      currentToolKey: 'cursor',
+      alsoExploreOnly: true,
+      depth: 0
     });
   }
 
   if (fs.existsSync(WINDSURF_HTML)) {
-    updatePageSeoDirectory(WINDSURF_HTML, rules, 'Windsurf', {
-      toolOrder: ['Windsurf', 'Cursor'],
-      sectionLabels: { Cursor: 'Also available — Cursor' },
-      secondaryTools: ['Cursor']
+    updatePageSeoDirectory(WINDSURF_HTML, windsurfOnly, 'Windsurf', {
+      toolOrder: ['Windsurf'],
+      currentToolKey: 'windsurf',
+      alsoExploreOnly: true,
+      depth: 0
     });
   }
 }
@@ -478,12 +839,12 @@ function updateIndexSeoDirectory(rules) {
 function filterRulesForPage(rules, pageTool) {
   if (pageTool === 'windsurf') {
     return rules.filter(function (rule) {
-      return String(rule.tool || 'Cursor').toLowerCase() === 'windsurf';
+      return normalizeToolKey(rule) === 'windsurf';
     });
   }
   if (pageTool === 'cursor') {
     return rules.filter(function (rule) {
-      return String(rule.tool || 'Cursor').toLowerCase() !== 'windsurf';
+      return normalizeToolKey(rule) === 'cursor';
     });
   }
   return rules;
@@ -579,7 +940,7 @@ function updateCursorItemListSchema(rules) {
   const endMarker = '<!-- ITEMLIST-SCHEMA:END -->';
 
   const cursorRules = rules.filter(function (rule) {
-    return String(rule.tool || 'Cursor').toLowerCase() !== 'windsurf';
+    return normalizeToolKey(rule) === 'cursor';
   });
 
   const items = cursorRules.map(function (rule, index) {
@@ -598,7 +959,7 @@ function updateCursorItemListSchema(rules) {
     '  {\n' +
     '    "@context": "https://schema.org",\n' +
     '    "@type": "ItemList",\n' +
-    '    "name": "Cursor Rules",\n' +
+    '    "name": "Cursor Assets",\n' +
     '    "numberOfItems": ' + cursorRules.length + ',\n' +
     '    "itemListElement": [\n' +
     items + '\n' +
@@ -623,10 +984,7 @@ function updateWindsurfItemListSchema(rules) {
   const endMarker = '<!-- ITEMLIST-SCHEMA:END -->';
 
   const windsurfRules = rules.filter(function (rule) {
-    return String(rule.tool || 'Cursor').toLowerCase() === 'windsurf';
-  });
-  const cursorRules = rules.filter(function (rule) {
-    return String(rule.tool || 'Cursor').toLowerCase() !== 'windsurf';
+    return normalizeToolKey(rule) === 'windsurf';
   });
   const windsurfOnly = windsurfRules;
   const orderedRules = windsurfOnly;
@@ -647,7 +1005,7 @@ function updateWindsurfItemListSchema(rules) {
     '  {\n' +
     '    "@context": "https://schema.org",\n' +
     '    "@type": "ItemList",\n' +
-    '    "name": "Windsurf / Devin Desktop Rules",\n' +
+    '    "name": "Windsurf Assets",\n' +
     '    "numberOfItems": ' + windsurfOnly.length + ',\n' +
     '    "itemListElement": [\n' +
     items + '\n' +
@@ -855,7 +1213,7 @@ function main() {
 
   rules.forEach(function (rule) {
     var outPath = path.join(RULES_DIR, rule.id + '.html');
-    fs.writeFileSync(outPath, generateRulePage(rule, config), 'utf8');
+    fs.writeFileSync(outPath, generateRulePage(rule, config, rules), 'utf8');
     console.log('  wrote rules/' + rule.id + '.html');
   });
 
@@ -880,7 +1238,7 @@ function main() {
   console.log('  updated sitemap.xml');
 
   return copySiteToDist().then(function () {
-    console.log('Built ' + rules.length + ' rule pages.');
+    console.log('Built ' + rules.length + ' asset pages.');
   });
 }
 

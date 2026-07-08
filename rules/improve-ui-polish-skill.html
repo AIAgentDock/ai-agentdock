@@ -106,7 +106,7 @@
         </div>
         <div class="rule-detail-meta__item rule-detail-meta__item--wide">
           <dt class="rule-detail-meta__label">Recommended path</dt>
-          <dd class="rule-detail-meta__value"><code class="path-badge">.cursor/rules/improve-ui-polish-skill.mdc</code></dd>
+          <dd class="rule-detail-meta__value"><code class="path-badge">Paste into Cursor Chat</code></dd>
         </div>
         <div class="rule-detail-meta__item">
           <dt class="rule-detail-meta__label">Activation / Trigger</dt>
@@ -118,25 +118,53 @@
         </div>
         <div class="rule-detail-meta__item">
           <dt class="rule-detail-meta__label">Last updated</dt>
-          <dd class="rule-detail-meta__value">2026-07-07</dd>
+          <dd class="rule-detail-meta__value">2026-07-08</dd>
         </div>
       </dl>
 
+      <section class="rule-detail-section">
+        <h2 class="rule-detail-section__title">Best for</h2>
+        <ul class="rule-detail-section__list">
+          <li>UI polish</li>
+          <li>SaaS styling</li>
+          <li>Responsive design</li>
+        </ul>
+      </section>
+      <section class="rule-detail-section">
+        <h2 class="rule-detail-section__title">How to use this asset</h2>
+        <ol class="rule-detail-section__list rule-detail-section__list--ordered">
+          <li>Click <strong>Copy Skill</strong> above to copy the full skill text.</li>
+          <li>Paste into your AI coding agent before starting a task to guide a multi-step workflow.</li>
+        </ol>
+      </section>
+      <section class="rule-detail-section">
+        <h2 class="rule-detail-section__title">Compatible tools</h2>
+        <p class="rule-detail-section__text">Designed for <strong class="text-gray-200 font-medium">Cursor</strong>. Also works with: Claude Code.</p>
+      </section>
+      <section class="rule-detail-section">
+        <h2 class="rule-detail-section__title">Related assets</h2>
+        <ul class="rule-detail-section__list rule-detail-section__list--related">
+          <li><a href="rules/tailwind-ui" class="rule-detail-section__link">Tailwind UI Design Rules</a></li>
+          <li><a href="rules/improve-ui-like-saas-hook" class="rule-detail-section__link">Improve UI Like SaaS Hook</a></li>
+        </ul>
+      </section>
+
     <main class="rule-detail">
+      <h2 class="rule-detail-section__title mb-3">Asset content</h2>
       <pre class="rule-detail__content" id="ruleContent">Polish this UI to look like a modern SaaS product. Improve spacing, hierarchy, typography, responsiveness, empty states, button states, hover states, and visual consistency. Do not change the core functionality.</pre>
-      <p class="rule-detail__hint text-sm text-gray-500 mt-4">Paste into .cursor/rules/ (or .mdc files) in your project root.</p>
+      <p class="rule-detail__hint text-sm text-gray-500 mt-4">Paste into your AI coding agent before starting a task to guide a multi-step workflow.</p>
       <div class="flex flex-col sm:flex-row gap-3 mt-6">
-        <button type="button" id="copyRuleBtn" class="btn-copy py-3 px-6 min-h-[44px] rounded-lg text-white font-semibold text-sm">Copy Rule</button>
-        <a href="../cursor.html" class="inline-flex items-center justify-center py-3 px-6 min-h-[44px] rounded-lg border border-gray-700 text-gray-300 hover:border-indigo-500/40 hover:text-indigo-300 text-sm font-medium transition-colors">← Back to directory</a>
+        <button type="button" id="copyRuleBtn" class="btn-copy py-3 px-6 min-h-[44px] rounded-lg text-white font-semibold text-sm">Copy Skill</button>
+        <a href="../cursor.html" class="inline-flex items-center justify-center py-3 px-6 min-h-[44px] rounded-lg border border-gray-700 text-gray-300 hover:border-indigo-500/40 hover:text-indigo-300 text-sm font-medium transition-colors">← Back to Cursor Assets</a>
       </div>
     </main>
 
     <footer class="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-gray-800/60 text-center text-gray-600 text-xs sm:text-sm">
-      <p>AI Agent Dock · Open-source rule directory</p>
+      <p>AI Agent Dock · Copy-ready AI coding assets directory</p>
       <nav class="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1" aria-label="Footer navigation">
         <a href="../about.html" class="hover:text-indigo-300 transition-colors">About</a>
         <a href="../privacy.html" class="hover:text-indigo-300 transition-colors">Privacy</a>
-        <a href="../submit.html" class="hover:text-indigo-300 transition-colors">Submit a Rule</a>
+        <a href="../submit.html" class="hover:text-indigo-300 transition-colors">Submit an Asset</a>
       </nav>
       <p class="mt-2 text-gray-700">&copy; 2026 AI Agent Dock</p>
     </footer>
@@ -148,7 +176,9 @@
     (function () {
       var content = document.getElementById('ruleContent').textContent;
       var btn = document.getElementById('copyRuleBtn');
-      var hint = "Paste into .cursor/rules/ (or .mdc files) in your project root.";
+      var copyLabel = "Copy Skill";
+      var copiedPrefix = "Skill copied!";
+      var hint = "Paste into your AI coding agent before starting a task to guide a multi-step workflow.";
       btn.addEventListener('click', function () {
         navigator.clipboard.writeText(content).then(function () {
           btn.classList.add('copied');
@@ -156,11 +186,11 @@
           var toast = document.createElement('div');
           toast.className = 'toast toast--visible';
           toast.setAttribute('role', 'status');
-          toast.textContent = 'Rule copied! ' + hint;
+          toast.textContent = copiedPrefix + ' ' + hint;
           document.getElementById('toastContainer').appendChild(toast);
           setTimeout(function () {
             btn.classList.remove('copied');
-            btn.textContent = 'Copy Rule';
+            btn.textContent = copyLabel;
             toast.remove();
           }, 3000);
         });
